@@ -114,7 +114,7 @@ export default function NewArrivals() {
                 }`}
               >
                 <Image
-                  src="https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=160&h=160&auto=format&fit=crop"
+                  src="/images/left_top_ribbon.png"
                   alt="Decorative ribbon"
                   fill
                   className="object-contain"
