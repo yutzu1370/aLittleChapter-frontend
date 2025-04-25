@@ -7,40 +7,40 @@ export default function Features() {
       id: 1,
       title: "線上訂購",
       description: "便捷的線上購書體驗",
-      icon: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=200&h=200&auto=format&fit=crop",
+      icon: "/images/home/feature_01.png",
       href: "/ordering",
     },
     {
       id: 2,
       title: "安全交易",
       description: "安全可靠的支付系統",
-      icon: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=200&h=200&auto=format&fit=crop",
+      icon: "/images/home/feature_02.png",
       href: "/security",
     },
     {
       id: 3,
       title: "可靠配送",
       description: "快速準時的配送服務",
-      icon: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=200&h=200&auto=format&fit=crop",
+      icon: "/images/home/feature_03.png",
       href: "/delivery",
     },
     {
       id: 4,
       title: "售後服務",
       description: "專業的客戶服務團隊",
-      icon: "https://images.unsplash.com/photo-1560438718-eb61ede255eb?q=80&w=200&h=200&auto=format&fit=crop",
+      icon: "/images/home/feature_04.png",
       href: "/support",
     },
   ]
 
   return (
-    <section className="py-16">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <div className="flex justify-center items-center mb-16">
           <div className="w-12 h-12 mr-4">
             <Image
-              src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=48&h=48&auto=format&fit=crop"
+              src="/images/home/section5-logo.png"
               alt="Icon"
               width={48}
               height={48}
@@ -61,7 +61,7 @@ export default function Features() {
                       alt={feature.title}
                       width={200}
                       height={200}
-                      className="w-[80%] h-[80%] object-cover rounded-full"
+                      className="w-[80%] h-[80%] object-cover "
                     />
                   </div>
                 </div>
