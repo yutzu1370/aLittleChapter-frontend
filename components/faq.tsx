@@ -48,13 +48,13 @@ export default function Faq() {
   }
 
   return (
-    <section className="py-16">
+    <section className="py-16 bg-white" >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <div className="flex justify-center items-center mb-16">
           <div className="w-12 h-12 mr-4">
             <Image
-              src="https://images.unsplash.com/photo-1516383607781-913a19294fd1?q=80&w=48&h=48&auto=format&fit=crop"
+              src="/images/home/title_icon_faq.png"
               alt="Icon"
               width={48}
               height={48}
