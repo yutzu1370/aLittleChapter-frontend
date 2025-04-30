@@ -48,7 +48,7 @@ export default function BookReviews() {
       author: "李小姐",
       content: "故事情節生動有趣，插圖精美，孩子非常喜歡，每晚都要求讀這本書才肯睡覺。",
       rating: 4,
-      image: "https://images.unsplash.com/photo-1596371294842-8694bcc90c3e?q=80&w=200&h=200&auto=format&fit=crop",
+      image: "/images/home/book_review_1.png",
       avatar: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=24&h=24&auto=format&fit=crop",
     },
   ]
@@ -84,7 +84,7 @@ export default function BookReviews() {
         <div className="flex justify-center items-center mb-16">
           <div className="w-12 h-12 mr-4">
             <Image
-              src="https://images.unsplash.com/photo-1501618669935-18b6ecb13d6d?q=80&w=48&h=48&auto=format&fit=crop"
+              src="/images/home/title_icon_review.png"
               alt="Icon"
               width={48}
               height={48}
