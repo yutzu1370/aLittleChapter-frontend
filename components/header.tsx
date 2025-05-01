@@ -1,8 +1,14 @@
+"use client"
+
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Search, ShoppingCart } from "lucide-react"
+import { AuthModal } from "@/components/AuthModal"
 
 export default function Header() {
+  const [showAuthModal, setShowAuthModal] = useState(false)
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,15 +63,21 @@ export default function Header() {
             </div>
 
             {/* Login Button */}
-            <Link
-              href="/login"
+            <button
+              onClick={() => setShowAuthModal(true)}
               className="bg-[#E8652B] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-orange-600 transition-colors shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] flex-shrink-0"
             >
               會員登入
-            </Link>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        open={showAuthModal} 
+        onOpenChange={setShowAuthModal} 
+      />
     </header>
   )
 }
