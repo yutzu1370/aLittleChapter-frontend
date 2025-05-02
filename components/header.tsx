@@ -11,7 +11,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 py-4">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container-wrapper">
         <div className="bg-white border-8 border-[#F8D0B0] rounded-full py-4 px-4 sm:px-6 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 sm:gap-3">
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">

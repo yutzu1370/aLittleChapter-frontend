@@ -8,8 +8,8 @@ export default function NewArrivals() {
       title: "魔法學院入學指南(共3冊)",
       description:
         "這是一本以魔法學校為背景的奇幻小說，描述了一群少年如何在學院中學習魔法，並面對各種挑戰。他們必須通過各種考驗，才能成為真正的魔法師。這本書充滿刺激的情節與創意的魔法設定，適合喜歡哈利波特風格的讀者。",
-      image: "https://images.unsplash.com/photo-1629992101753-56d196c8aabb?q=80&w=606&h=404&auto=format&fit=crop",
-      animalImage: "https://images.unsplash.com/photo-1566425590058-1bef05cacec9?q=80&w=200&h=200&auto=format&fit=crop",
+      image: "/images/home/sec03_book.png",
+      animalImage: "/images/home/sec03_Bear.png",
       animalPosition: "right",
     },
     {
@@ -17,8 +17,8 @@ export default function NewArrivals() {
       title: "追夢少年(共2冊)",
       description:
         "故事講述了一個普通的男孩如何通過不斷努力，最終實現了成為畫家的夢想。他經歷了許多挫折，但從未放棄，最終贏得了屬於自己的成功。這本書能夠激勵孩子勇敢追夢，並讓他們理解努力與堅持的重要性，是一本非常正能量的書籍。",
-      image: "https://images.unsplash.com/photo-1535905557558-afc4877a26fc?q=80&w=606&h=404&auto=format&fit=crop",
-      animalImage: "https://images.unsplash.com/photo-1581300134629-4c3a06a31948?q=80&w=200&h=200&auto=format&fit=crop",
+      image: "/images/home/sec03_book2.png",
+      animalImage: "/images/home/sec03_Rabbit.png",
       animalPosition: "left",
     },
   ]
@@ -42,7 +42,7 @@ export default function NewArrivals() {
           {collections.map((collection, index) => (
             <div
               key={collection.id}
-              className="bg-white rounded-[48px] border-[12px] border-[#F8D0B0] p-12 relative mb-6"
+              className="bg-white rounded-[48px] border-[6px] border-[#F8D0B0] p-3 relative mb-6"
             >
               <div className={`flex ${index % 2 === 0 ? "flex-row" : "flex-row-reverse"}`}>
                 {/* Book Image */}
@@ -75,7 +75,6 @@ export default function NewArrivals() {
                   </div>
                 </div>
               </div>
-
               {/* Decorative Elements */}
               {/* Animal Character */}
               <div
@@ -94,32 +93,27 @@ export default function NewArrivals() {
               </div>
 
               {/* Decorative Bow */}
-              <div
-                className={`absolute w-[400px] h-[400px] opacity-20 ${
-                  index % 2 === 0 ? "right-[400px] top-0" : "left-[400px] top-0 transform scale-x-[-1]"
-                }`}
-              >
-                <Image
-                  src="https://images.unsplash.com/photo-1607344645866-009c320b63e0?q=80&w=400&h=400&auto=format&fit=crop"
-                  alt="Decorative bow"
-                  fill
-                  className="object-contain"
-                />
-              </div>
+             
 
               {/* Decorative Ribbon */}
               <div
-                className={`absolute w-[160px] h-[160px] ${
-                  index % 2 === 0 ? "left-[-80px] top-[-80px]" : "right-[-80px] top-[-80px]"
+                className={`absolute w-[240px] h-[240px] ${
+                  index % 2 === 0 ? "left-[0px] top-[0px]" : "right-[0px] top-[0px]"
                 }`}
               >
                 <Image
-                  src="/images/left_top_ribbon.png"
+                  src= {index % 2 === 0 ? "/images/left_top_ribbon.png" : "/images/right_top_rabbit.png"}
                   alt="Decorative ribbon"
                   fill
                   className="object-contain"
                 />
               </div>
+              
+
+              
+
+          
+              
             </div>
           ))}
         </div>

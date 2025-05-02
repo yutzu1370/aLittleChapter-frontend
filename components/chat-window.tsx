@@ -96,7 +96,7 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
             {!message.isUser && (
               <div className="w-8 h-8 rounded-full border-2 border-[#F8D0B0] flex-shrink-0">
                 <Image
-                  src="/placeholder.svg?height=32&width=32"
+                  src="/images/icon/icon_chatbot.png"
                   alt="Chatbot"
                   width={32}
                   height={32}

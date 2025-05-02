@@ -13,7 +13,7 @@ export default function PopularBooks() {
       publisher: "美味出版社",
       price: 199,
       originalPrice: 300,
-      image: "https://images.unsplash.com/photo-1607103058027-4c5c6c73a424?q=80&w=354&h=354&auto=format&fit=crop",
+      image: "/images/home/book_01.png",
       category: "健康飲食",
       ageRange: "5-7歲",
       tags: [
@@ -29,7 +29,7 @@ export default function PopularBooks() {
       publisher: "星際出版社",
       price: 450,
       originalPrice: 600,
-      image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?q=80&w=354&h=354&auto=format&fit=crop",
+      image: "/images/home/book_02.png",
       category: "科學啟蒙",
       ageRange: "7-10歲",
       tags: [
@@ -44,7 +44,7 @@ export default function PopularBooks() {
       publisher: "鄉野出版社",
       price: 350,
       originalPrice: 400,
-      image: "https://images.unsplash.com/photo-1601370552761-d129028bd833?q=80&w=354&h=354&auto=format&fit=crop",
+      image: "/images/home/book_03.png",
       category: "兒童文學",
       ageRange: "6-10歲",
       tags: [
@@ -60,7 +60,7 @@ export default function PopularBooks() {
       publisher: "繽紛出版社",
       price: 250,
       originalPrice: 300,
-      image: "https://images.unsplash.com/photo-1608541737042-87a12275d313?q=80&w=354&h=354&auto=format&fit=crop",
+      image: "/images/home/book_04.png",
       category: "兒童文學",
       ageRange: "6-10歲",
       tags: [
@@ -74,6 +74,7 @@ export default function PopularBooks() {
 
   return (
     <section className="py-16 bg-white">
+      <div className="container-wrapper">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <div className="flex justify-center items-center mb-16">
@@ -230,6 +231,8 @@ export default function PopularBooks() {
           </button>
         </div>
       </div>
+      </div>
+      
     </section>
   )
 }
