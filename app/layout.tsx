@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import FloatingButtons from "@/components/floating-buttons"
+import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,6 +22,7 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         {children}
         <FloatingButtons />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   )

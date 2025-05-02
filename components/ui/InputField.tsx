@@ -15,7 +15,7 @@ interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, error, containerClassName, labelClassName, errorClassName, className, ...props }, ref) => {
     return (
-      <div className={cn("flex flex-col space-y-1.5", containerClassName)}>
+      <div className={cn("space-y-2", containerClassName)}>
         {label && (
           <label className={cn("text-sm font-medium", labelClassName)}>
             {label}

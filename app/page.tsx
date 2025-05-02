@@ -15,13 +15,14 @@ export default function Home() {
       <Header />
       <main className="min-h-screen bg-orange-50">
         <Hero />
-        <AnnouncementBanner />
-        <PopularBooks />
-        <FeaturedBook />
-        <NewArrivals />
-        <BookReviews />
-        <Features />
-        <Faq />
+      
+          <AnnouncementBanner />
+          <PopularBooks />
+          <FeaturedBook />
+          <NewArrivals />
+          <BookReviews />
+          <Features />
+          <Faq />
       </main>
       <Footer />
     </>

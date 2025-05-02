@@ -117,6 +117,10 @@ body {
 }
 
 @layer components {
+  .container-wrapper {
+    @apply w-[80%] mx-auto max-w-7xl;
+  }
+
   .section-title {
     @apply flex items-center justify-center text-xl font-bold text-amber-800 my-8 relative;
   }
