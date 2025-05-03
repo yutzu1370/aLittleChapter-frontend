@@ -31,10 +31,15 @@ export interface ApiResponse<T = any> {
 }
 
 export interface LoginResponse {
-  id: string;
-  email: string;
-  name?: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    profilePicture?: string;
+  };
   token: string;
+  expiresIn: number;
 }
 
 /**
@@ -46,10 +51,15 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
     if (credentials.email === 'admin' && credentials.password === 'password') {
       // 模擬成功的 API 回應
       return {
-        id: '1',
-        email: 'admin',
-        name: '管理者',
+        user: {
+          id: '1',
+          name: '管理者',
+          email: 'admin',
+          role: 'admin',
+          profilePicture: '/placeholder-user.jpg'
+        },
         token: `token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
+        expiresIn: 86400
       };
     }
 
