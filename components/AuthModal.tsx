@@ -16,6 +16,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface AuthModalProps {
   open: boolean
@@ -105,19 +106,33 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         body: JSON.stringify(data)
       })
 
+      const responseData = await response.json()
+      
+      // 不使用 throw Error，而是直接處理錯誤響應
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "登入失敗")
+        // 顯示錯誤訊息
+        toast.error("登入失敗", {
+          description: responseData.message || "登入失敗",
+          duration: 3000
+        })
+        return; // 提早返回，不執行後續代碼
       }
 
       // 登入成功
+      toast.success("登入成功", {
+        description: "歡迎回來！",
+        duration: 3000
+      })
+      
       onOpenChange(false)
       router.push("/")
     } catch (error) {
-      console.error("登入失敗", error)
-      if (error instanceof Error) {
-        loginForm.setError("root", { message: error.message })
-      }
+      console.error("登入請求過程發生錯誤", error)
+      // 只處理網路錯誤等非預期錯誤
+      toast.error("登入失敗", {
+        description: "網路連接問題，請稍後再試",
+        duration: 2000
+      })
     }
   }
 
@@ -137,19 +152,33 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         body: JSON.stringify(signupData)
       })
 
+      const responseData = await response.json()
+      
+      // 不使用 throw Error，而是直接處理錯誤響應
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "註冊失敗")
+        // 顯示錯誤訊息
+        toast.error("註冊失敗", {
+          description: responseData.message || "註冊失敗",
+          duration: 2000
+        })
+        return; // 提早返回，不執行後續代碼
       }
 
       // 註冊成功
+      toast.success("註冊成功", {
+        description: "已發送驗證信至您的信箱，請於 24 小時內完成驗證",
+        duration: 2000
+      })
+      
       onOpenChange(false)
       router.push("/")
     } catch (error) {
-      console.error("註冊失敗", error)
-      if (error instanceof Error) {
-        signupForm.setError("root", { message: error.message })
-      }
+      console.error("註冊請求過程發生錯誤", error)
+      // 只處理網路錯誤等非預期錯誤
+      toast.error("註冊失敗", {
+        description: "網路連接問題，請稍後再試",
+        duration: 2000
+      })
     }
   }
 
@@ -162,12 +191,21 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       
       // 重設密碼成功訊息
+      toast.success("重設密碼請求已發送", {
+        description: "請檢查您的電子信箱以完成重設密碼",
+        duration: 2000
+      })
+      
       forgotPasswordForm.reset()
       setActiveTab("login")
     } catch (error) {
       console.error("重設密碼請求失敗", error)
       if (error instanceof Error) {
-        forgotPasswordForm.setError("root", { message: error.message })
+        // 只使用 toast 顯示錯誤訊息
+        toast.error("重設密碼請求失敗", {
+          description: error.message,
+          duration: 2000
+        })
       }
     }
   }
@@ -240,17 +278,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           {activeTab === "login" && (
             <Form {...loginForm}>
               <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-2">
-                {loginForm.formState.errors.root?.message && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-red-500 text-xs text-center bg-red-50 p-1.5 rounded-lg border border-red-200"
-                  >
-                    {loginForm.formState.errors.root.message}
-                  </motion.div>
-                )}
-
                 <div className="space-y-1">
                   <label className="block text-sm font-medium">帳號</label>
                   <div className="relative">
@@ -384,17 +411,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           {activeTab === "signup" && (
             <Form {...signupForm}>
               <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-2">
-                {signupForm.formState.errors.root?.message && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-red-500 text-xs text-center bg-red-50 p-1.5 rounded-lg border border-red-200"
-                  >
-                    {signupForm.formState.errors.root.message}
-                  </motion.div>
-                )}
-
                 <div className="space-y-1">
                   <label className="block text-sm font-medium">帳號</label>
                   <div className="relative">
@@ -541,17 +557,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 <p className="text-sm text-gray-600 mb-2">
                   請輸入您註冊時使用的電子信箱，我們將寄送重設密碼的連結給您。
                 </p>
-
-                {forgotPasswordForm.formState.errors.root?.message && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-red-500 text-xs text-center bg-red-50 p-1.5 rounded-lg border border-red-200"
-                  >
-                    {forgotPasswordForm.formState.errors.root.message}
-                  </motion.div>
-                )}
 
                 <FormField
                   control={forgotPasswordForm.control}

@@ -17,7 +17,7 @@ export default function Header() {
           <Link href="/" className="flex-shrink-0">
             <div className="relative w-28 sm:w-36 h-10 sm:h-12">
               <Image
-                src="/images/logo.png"
+                src="/images/home/footer_logo.png"
                 alt="Little Chapter Logo"
                 fill
                 sizes="(max-width: 640px) 7rem, 9rem"
@@ -27,18 +27,15 @@ export default function Header() {
           </Link>
 
           {/* Main Menu */}
-          <div className="hidden md:flex space-x-3 lg:space-x-6 flex-1 justify-center">
-            <Link href="/categories" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
-              圖書分類
+          <div className="hidden md:flex space-x-3 lg:space-x-6 flex-1 justify-start">
+            <Link href="/hot" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
+              熱銷排行
             </Link>
-            <Link href="/new-arrivals" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
-              新書上架
+            <Link href="/products" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
+              探索商品
             </Link>
-            <Link href="/bestsellers" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
-              暢銷排行
-            </Link>
-            <Link href="/activities" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
-              活動專區
+            <Link href="/about" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
+              關於我們
             </Link>
           </div>
 
@@ -67,7 +64,7 @@ export default function Header() {
               onClick={() => setShowAuthModal(true)}
               className="bg-[#E8652B] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-orange-600 transition-colors shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] flex-shrink-0"
             >
-              會員登入
+              登入/註冊
             </button>
           </div>
         </div>
