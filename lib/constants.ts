@@ -1,0 +1,1 @@
+export const API_BASE_URL = "https://little-chapter-backend.onrender.com"; 
