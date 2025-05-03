@@ -12,8 +12,8 @@ export default function BookReviews() {
       author: "吳小姐",
       content: "EduPlay 的產品選擇令人印象深刻。每一款玩具都經過嚴謹的教育理念檢視，能夠真正做到寓教於樂。",
       rating: 5,
-      image: "https://images.unsplash.com/photo-1633477189729-9290b3261d0a?q=80&w=200&h=200&auto=format&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=24&h=24&auto=format&fit=crop",
+      image: "/images/home/sec04_book1.png",
+      avatar: "",
     },
     {
       id: 2,
@@ -21,8 +21,8 @@ export default function BookReviews() {
       author: "林先生",
       content: "孩子非常喜歡這本書，插圖精美，內容淺顯易懂，很適合培養孩子對海洋生物的興趣。",
       rating: 4,
-      image: "https://images.unsplash.com/photo-1682686581580-d99b0230064e?q=80&w=200&h=200&auto=format&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=24&h=24&auto=format&fit=crop",
+      image: "/images/home/sec04_book2.png",
+      avatar: "",
     },
     {
       id: 3,
@@ -30,8 +30,8 @@ export default function BookReviews() {
       author: "張小姐",
       content: "這本書讓孩子對宇宙產生了濃厚的興趣，內容深入淺出，很適合啟發孩子的科學思維。",
       rating: 5,
-      image: "https://images.unsplash.com/photo-1636955816868-fcb881e57954?q=80&w=200&h=200&auto=format&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=24&h=24&auto=format&fit=crop",
+      image: "/images/home/sec04_book3.png",
+      avatar: "",
     },
     {
       id: 4,
@@ -39,8 +39,8 @@ export default function BookReviews() {
       author: "王先生",
       content: "書中的恐龍知識非常豐富，孩子每天都要我讀給他聽，是我們家的最愛！",
       rating: 5,
-      image: "https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=200&h=200&auto=format&fit=crop",
-      avatar: "https://images.unsplash.com/photo-1568572933382-74d440642117?q=80&w=24&h=24&auto=format&fit=crop",
+      image: "/images/home/sec04_book1.png",
+      avatar: "",
     },
     {
       id: 5,
@@ -48,8 +48,8 @@ export default function BookReviews() {
       author: "李小姐",
       content: "故事情節生動有趣，插圖精美，孩子非常喜歡，每晚都要求讀這本書才肯睡覺。",
       rating: 4,
-      image: "/images/home/book_review_1.png",
-      avatar: "https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?q=80&w=24&h=24&auto=format&fit=crop",
+      image: "/images/home/sec04_book2.png",
+      avatar: "",
     },
   ]
 
@@ -109,7 +109,7 @@ export default function BookReviews() {
               <div className="w-[136px] h-[136px] bg-white border-2 border-[#EC824B] rounded-lg p-2">
                 <div className="relative w-full h-full">
                   <Image
-                    src={reviews[getPrevIndex(currentIndex)].image || "/placeholder.svg"}
+                    src={reviews[getPrevIndex(currentIndex)].image || "/images/navbar/user_home_icon.png"}
                     alt={reviews[getPrevIndex(currentIndex)].title}
                     fill
                     className="object-cover"
@@ -123,7 +123,7 @@ export default function BookReviews() {
                 <div className="flex items-center justify-center mt-2 gap-1.5">
                   <div className="w-6 h-6 rounded-full overflow-hidden">
                     <Image
-                      src={reviews[getPrevIndex(currentIndex)].avatar || "/placeholder.svg"}
+                      src={reviews[getPrevIndex(currentIndex)].avatar || "/images/navbar/user_home_icon.png"}
                       alt="User"
                       width={24}
                       height={24}
@@ -151,7 +151,7 @@ export default function BookReviews() {
               <div className="w-[176px] h-[176px] bg-white border-4 border-[#EC824B] rounded-xl p-2">
                 <div className="relative w-full h-full">
                   <Image
-                    src={reviews[currentIndex].image || "/placeholder.svg"}
+                    src={reviews[currentIndex].image || "/images/navbar/user_home_icon.png"}
                     alt={reviews[currentIndex].title}
                     fill
                     className="object-cover"
@@ -165,7 +165,7 @@ export default function BookReviews() {
                 <div className="flex items-center justify-center mt-2 gap-2">
                   <div className="w-8 h-8 rounded-full overflow-hidden">
                     <Image
-                      src={reviews[currentIndex].avatar || "/placeholder.svg"}
+                      src={reviews[currentIndex].avatar || "/images/navbar/user_home_icon.png"}
                       alt="User"
                       width={32}
                       height={32}
@@ -191,7 +191,7 @@ export default function BookReviews() {
               <div className="w-[136px] h-[136px] bg-white border-2 border-[#EC824B] rounded-lg p-2">
                 <div className="relative w-full h-full">
                   <Image
-                    src={reviews[getNextIndex(currentIndex)].image || "/placeholder.svg"}
+                    src={reviews[getNextIndex(currentIndex)].image || "/images/navbar/user_home_icon.png"}
                     alt={reviews[getNextIndex(currentIndex)].title}
                     fill
                     className="object-cover"
@@ -205,7 +205,7 @@ export default function BookReviews() {
                 <div className="flex items-center justify-center mt-2 gap-1.5">
                   <div className="w-6 h-6 rounded-full overflow-hidden">
                     <Image
-                      src={reviews[getNextIndex(currentIndex)].avatar || "/placeholder.svg"}
+                      src={reviews[getNextIndex(currentIndex)].avatar || "/images/navbar/user_home_icon.png"}
                       alt="User"
                       width={24}
                       height={24}

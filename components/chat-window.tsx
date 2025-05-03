@@ -80,9 +80,9 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
   }
 
   return (
-    <div className="absolute bottom-24 right-0 w-[400px] h-[680px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col">
+    <div className="absolute bottom-24 right-0 w-[320px] h-[470px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col">
       {/* 聊天室標題 */}
-      <div className="w-full h-20 bg-[#2F726D] rounded-t-xl px-6 py-4 flex items-center justify-between">
+      <div className="w-full h-10 bg-[#2F726D] rounded-t-xl px-6 py-4 flex items-center justify-between">
         <h3 className="text-white font-semibold text-lg">小小篇章客服中心</h3>
         <button onClick={onClose} className="text-white hover:bg-[#1d5854] p-2 rounded-full transition-colors">
           <X className="w-5 h-5" />
@@ -134,11 +134,11 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="請輸入您的問題..."
-            className="flex-1 h-14 px-4 py-3 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B]"
+            className="flex-1 h-10 px-4 py-3 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B]"
           />
           <button
             onClick={handleSendMessage}
-            className="w-10 h-10 bg-[#E8652B] rounded-full flex items-center justify-center"
+            className="w-8 h-8 bg-[#E8652B] rounded-full flex items-center justify-center"
           >
             <Send className="w-5 h-5 text-white" />
           </button>
