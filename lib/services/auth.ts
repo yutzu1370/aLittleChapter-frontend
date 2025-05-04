@@ -42,23 +42,12 @@ export interface LoginResponse {
  */
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
   try {
-    // 由於我們是模擬登入，如果是 admin/password 直接返回成功
-    if (credentials.email === 'admin' && credentials.password === 'password') {
-      // 模擬成功的 API 回應
-      return {
-        id: '1',
-        email: 'admin',
-        name: '管理者',
-        token: `token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`,
-      };
-    }
-
     // 檢查 API URL 是否有效
     if (!API_BASE_URL) {
       throw new Error('API 基礎 URL 未設定，請檢查環境變數設定');
     }
 
-    // 真實環境中使用 API
+    // 使用 API
     const response = await axios.post<ApiResponse<LoginResponse>>(API_ROUTES.LOGIN, credentials);
     
     if (response.status === 200 && response.data.status) {

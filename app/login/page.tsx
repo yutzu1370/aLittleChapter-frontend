@@ -44,7 +44,6 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      // 提示：可以使用 admin/password 測試登入
       // 呼叫登入 API
       const user = await login({
         email: data.email.trim(),
@@ -90,9 +89,6 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold">會員登入</h1>
           <p className="mt-2 text-sm text-gray-600">
             登入您的帳號以開始使用服務
-          </p>
-          <p className="mt-1 text-xs text-gray-500">
-            測試帳號：admin / 密碼：password
           </p>
         </div>
 
