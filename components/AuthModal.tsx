@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
+import { API_BASE_URL } from "@/lib/constants"
 
 interface AuthModalProps {
   open: boolean
@@ -97,8 +98,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const onLoginSubmit = async (data: LoginFormValues) => {
     try {
       loginForm.setValue("email", data.email.trim())
-      
-      const response = await fetch("/api/users/log-in", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/users/log-in`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -144,7 +145,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       // 移除確認密碼欄位，只發送必要數據
       const { confirmPassword, ...signupData } = data
       
-      const response = await fetch("/api/users/sign-up", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/users/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
