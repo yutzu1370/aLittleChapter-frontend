@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Dialog, DialogContent, DialogOverlay, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { InputField } from "@/components/ui/InputField"
 import { PrimaryButton } from "@/components/ui/PrimaryButton"
@@ -16,6 +16,9 @@ import { Eye, EyeOff } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
+import { API_BASE_URL } from "@/lib/constants"
+import { useAuthStore } from "@/lib/store/useAuthStore"
 
 interface AuthModalProps {
   open: boolean
@@ -63,6 +66,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
+  const { login: storeLogin } = useAuthStore()
+
+  // 當彈窗打開時，重置狀態
+  useEffect(() => {
+    if (open) {
+      console.log("Auth modal is open:", open)
+      setActiveTab("login")
+    }
+  }, [open])
 
   // 登入表單
   const loginForm = useForm<LoginFormValues>({
@@ -96,8 +108,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const onLoginSubmit = async (data: LoginFormValues) => {
     try {
       loginForm.setValue("email", data.email.trim())
-      
-      const response = await fetch("/api/users/log-in", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/users/log-in`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -105,19 +117,33 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         body: JSON.stringify(data)
       })
 
+      const responseData = await response.json()
+      
+      // 不使用 throw Error，而是直接處理錯誤響應
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "登入失敗")
+        // 顯示錯誤訊息
+        toast.error("登入失敗", {
+          description: responseData.message || "登入失敗",
+          duration: 3000
+        })
+        return; // 提早返回，不執行後續代碼
       }
 
       // 登入成功
+      toast.success("登入成功", {
+        description: "歡迎回來！",
+        duration: 3000
+      })
+      
       onOpenChange(false)
       router.push("/")
     } catch (error) {
-      console.error("登入失敗", error)
-      if (error instanceof Error) {
-        loginForm.setError("root", { message: error.message })
-      }
+      console.error("登入請求過程發生錯誤", error)
+      // 只處理網路錯誤等非預期錯誤
+      toast.error("登入失敗", {
+        description: "網路連接問題，請稍後再試",
+        duration: 2000
+      })
     }
   }
 
@@ -129,7 +155,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       // 移除確認密碼欄位，只發送必要數據
       const { confirmPassword, ...signupData } = data
       
-      const response = await fetch("/api/users/sign-up", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/users/sign-up`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -137,39 +164,40 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         body: JSON.stringify(signupData)
       })
 
+      const responseData = await response.json()
+      
+      // 不使用 throw Error，而是直接處理錯誤響應
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "註冊失敗")
+        // 顯示錯誤訊息
+        toast.error("註冊失敗", {
+          description: responseData.message || "註冊失敗",
+          duration: 2000
+        })
+        return; // 提早返回，不執行後續代碼
       }
 
       // 註冊成功
+      toast.success("註冊成功", {
+        description: "已發送驗證信至您的信箱，請於 24 小時內完成驗證",
+        duration: 2000
+      })
+      
       onOpenChange(false)
       router.push("/")
     } catch (error) {
-      console.error("註冊失敗", error)
-      if (error instanceof Error) {
-        signupForm.setError("root", { message: error.message })
-      }
+      console.error("註冊請求過程發生錯誤", error)
+      // 只處理網路錯誤等非預期錯誤
+      toast.error("註冊失敗", {
+        description: "網路連接問題，請稍後再試",
+        duration: 2000
+      })
     }
   }
 
   // 忘記密碼提交處理
   const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {
-    try {
-      forgotPasswordForm.setValue("email", data.email.trim())
-      
-      // 模擬 API 請求
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      
-      // 重設密碼成功訊息
-      forgotPasswordForm.reset()
-      setActiveTab("login")
-    } catch (error) {
-      console.error("重設密碼請求失敗", error)
-      if (error instanceof Error) {
-        forgotPasswordForm.setError("root", { message: error.message })
-      }
-    }
+    console.log("Forgot password submit", data)
+    toast.success("重設密碼功能開發中")
   }
 
   // 切換密碼顯示狀態
@@ -200,17 +228,8 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
   }
 
-  // 添加一些淡入淡出的轉場效果和滑動效果
-  useEffect(() => {
-    // 當 Modal 打開時，重置為登入頁面
-    if (open) {
-      setActiveTab("login");
-    }
-  }, [open]);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogOverlay className="bg-gray-200/80" />
       <DialogContent className="max-w-[520px] max-h-[90vh] w-[85vw] p-3 pb-4 gap-2 bg-white shadow-lg border-[1px] border-[#F8D0B0] rounded-[22px] overflow-y-auto flex flex-col">
         <DialogTitle className="sr-only">{getModalTitle()}</DialogTitle>
         
@@ -222,6 +241,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               width={90} 
               height={38} 
               className="object-contain" 
+              priority
             />
           </div>
           <h2 className="text-lg font-bold text-center">
@@ -240,17 +260,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           {activeTab === "login" && (
             <Form {...loginForm}>
               <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-2">
-                {loginForm.formState.errors.root?.message && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-red-500 text-xs text-center bg-red-50 p-1.5 rounded-lg border border-red-200"
-                  >
-                    {loginForm.formState.errors.root.message}
-                  </motion.div>
-                )}
-
                 <div className="space-y-1">
                   <label className="block text-sm font-medium">帳號</label>
                   <div className="relative">
@@ -384,17 +393,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           {activeTab === "signup" && (
             <Form {...signupForm}>
               <form onSubmit={signupForm.handleSubmit(onSignupSubmit)} className="space-y-2">
-                {signupForm.formState.errors.root?.message && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-red-500 text-xs text-center bg-red-50 p-1.5 rounded-lg border border-red-200"
-                  >
-                    {signupForm.formState.errors.root.message}
-                  </motion.div>
-                )}
-
                 <div className="space-y-1">
                   <label className="block text-sm font-medium">帳號</label>
                   <div className="relative">
@@ -541,17 +539,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                 <p className="text-sm text-gray-600 mb-2">
                   請輸入您註冊時使用的電子信箱，我們將寄送重設密碼的連結給您。
                 </p>
-
-                {forgotPasswordForm.formState.errors.root?.message && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-red-500 text-xs text-center bg-red-50 p-1.5 rounded-lg border border-red-200"
-                  >
-                    {forgotPasswordForm.formState.errors.root.message}
-                  </motion.div>
-                )}
 
                 <FormField
                   control={forgotPasswordForm.control}
