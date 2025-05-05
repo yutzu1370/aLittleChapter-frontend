@@ -142,7 +142,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           console.log('儲存到 useAuthStore 完成');
 
           // 直接確認 localStorage 是否有對應資料
-          console.log('localStorage 中的 auth-storage:', localStorage.getItem('auth-storage'));
+          if (typeof window !== 'undefined') {
+            console.log('localStorage 中的 auth-storage:', localStorage.getItem('auth-storage'));
+          }
         } else {
           console.error('後端回傳的資料格式不符合預期:', responseData);
         }

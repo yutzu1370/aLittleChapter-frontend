@@ -1,3 +1,5 @@
+"use client"
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
@@ -17,12 +19,17 @@ interface AuthState {
   updateUser: (user: Partial<User>) => void;
 }
 
-// 檢查 localStorage 是否可用的函數
+// 檢查是否在客戶端以及 localStorage 是否可用的函數
 const isLocalStorageAvailable = () => {
+  // 檢查是否在瀏覽器環境中
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  
   try {
     const testKey = '__storage_test__';
-    localStorage.setItem(testKey, testKey);
-    localStorage.removeItem(testKey);
+    window.localStorage.setItem(testKey, testKey);
+    window.localStorage.removeItem(testKey);
     return true;
   } catch (e) {
     console.error('localStorage 不可用:', e);
@@ -30,8 +37,11 @@ const isLocalStorageAvailable = () => {
   }
 };
 
-// 初始化時輸出偵錯信息
-console.log('localStorage 可用:', isLocalStorageAvailable());
+// 客戶端 hydration 時才執行
+const isBrowser = typeof window !== 'undefined';
+if (isBrowser) {
+  console.log('localStorage 可用:', isLocalStorageAvailable());
+}
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -63,7 +73,12 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage', // localStorage 的金鑰名稱
       storage: createJSONStorage(() => {
-        return isLocalStorageAvailable() ? localStorage : {
+        // 使用安全的存儲方式，檢查是否在客戶端環境
+        if (isBrowser && isLocalStorageAvailable()) {
+          return localStorage;
+        }
+        // 服務端渲染時提供空的存儲實現
+        return {
           getItem: () => null,
           setItem: () => null,
           removeItem: () => null,
