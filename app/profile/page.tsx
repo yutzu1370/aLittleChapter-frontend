@@ -32,15 +32,12 @@ export default function ProfilePage() {
     
     // 驗證使用者是否已登入
     if (!isAuthenticated) {
-      toast.error("請登入", {
-        description: "您需要登入才能訪問個人資料頁面",
-        duration: 3000
-      })
       
-      // 延遲 3 秒後跳轉到首頁
-      setTimeout(() => {
+      
+    
+      
         router.push("/")
-      }, 3000)
+     
     }
   }, [isAuthenticated, isClient, isHydrated, router])
 
