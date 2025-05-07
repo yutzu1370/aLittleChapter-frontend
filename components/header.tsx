@@ -55,16 +55,16 @@ export default function Header() {
               <>
                 {/* My Favorites */}
                 <div className="relative flex-shrink-0">
-                  <button className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/favorites" className="p-2 hover:bg-gray-100 rounded-full inline-block">
                     <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Cart */}
                 <div className="relative flex-shrink-0">
-                  <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full inline-block relative">
+                  <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full inline-block">
                     <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
-                    <span className="absolute top-0.5 right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
                       2
                     </span>
                   </Link>
@@ -72,25 +72,25 @@ export default function Header() {
 
                 {/* Notifications */}
                 <div className="relative flex-shrink-0">
-                  <button className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/notifications" className="p-2 hover:bg-gray-100 rounded-full inline-block">
                     <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
-                    <span className="absolute top-0.5 right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
                       8
                     </span>
-                  </button>
+                  </Link>
                 </div>
 
                 {/* User Icon */}
                 <div className="relative flex-shrink-0">
-                  <button className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/profile" className="hover:bg-gray-100 rounded-full inline-block">
                     <Image
-                      src="/images/user-icon.png"
+                      src="/images/user_icon/user_icon_3.png"
                       alt="User Icon"
-                      width={24}
-                      height={24}
+                      width={48}
+                      height={48}
                       className="rounded-full"
                     />
-                  </button>
+                  </Link>
                 </div>
               </>
             ) : (
