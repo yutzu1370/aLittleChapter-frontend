@@ -164,7 +164,6 @@ export default function ProfileClient() {
   const [cities, setCities] = useState<{ value: string; label: string }[]>([])
   const [districts, setDistricts] = useState<Record<string, { value: string; label: string }[]>>({})
   const [cityData, setCityData] = useState<CityData | null>(null)
-  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string>("")
 
@@ -416,16 +415,20 @@ export default function ProfileClient() {
       // 建立預覽 URL
       const fileUrl = URL.createObjectURL(file)
       setPreviewUrl(fileUrl)
+      
+      // 直接設定頭像預覽並準備上傳
+      setValue("avatar", fileUrl)
+      
+      // 自動處理上傳
+      handleAvatarUpload(file, fileUrl)
     }
   }
 
-  const handleAvatarUpload = async () => {
-    if (!selectedFile) return
-
+  const handleAvatarUpload = async (file: File, fileUrl: string) => {
     try {
       // 建立表單資料
       const formData = new FormData()
-      formData.append("avatar", selectedFile)
+      formData.append("avatar", file)
 
       // 模擬上傳處理 (實際應用中應該有後端 API)
       // const response = await fetch("/api/upload-avatar", {
@@ -434,12 +437,12 @@ export default function ProfileClient() {
       // })
       
       // 測試用，直接使用預覽URL
-      setValue("avatar", previewUrl)
-      setIsAvatarDialogOpen(false)
       toast.success("頭像已更新")
       
-      // 清理預覽 URL 物件
-      URL.revokeObjectURL(previewUrl)
+      // 清理舊的預覽 URL 物件（如果有的話）
+      if (avatar && avatar !== fileUrl && avatar.startsWith("blob:")) {
+        URL.revokeObjectURL(avatar)
+      }
     } catch (error) {
       console.error("上傳頭像失敗:", error)
       toast.error("上傳頭像失敗，請稍後再試")
@@ -582,80 +585,18 @@ export default function ProfileClient() {
               </Avatar>
               
               {isEditing && (
-                <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
-                  <DialogTrigger asChild>
-                    <button 
-                      type="button"
-                      className="absolute bottom-0 right-0 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-md"
-                      aria-label="上傳頭像"
-                    >
-                      <Upload className="w-4 h-4" />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>重新上傳頭貼</DialogTitle>
-                      <DialogDescription>
-                        選擇一張新的頭像照片
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="flex flex-col items-center justify-center gap-4">
-                        {previewUrl ? (
-                          <div className="relative w-40 h-40 rounded-full overflow-hidden border-2 border-amber-200">
-                            <img 
-                              src={previewUrl} 
-                              alt="頭像預覽" 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <Avatar className="w-40 h-40 border-2 border-amber-200">
-                            <AvatarImage src={avatar || ""} />
-                            <AvatarFallback className="bg-amber-100 text-amber-800 text-4xl">
-                              {name ? name.charAt(0).toUpperCase() : "U"}
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
-                        
-                        <label className="cursor-pointer">
-                          <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-md hover:bg-amber-200 transition-colors">
-                            <Upload className="w-4 h-4" />
-                            <span>{previewUrl ? "重新選擇" : "選擇照片"}</span>
-                          </div>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            className="hidden" 
-                            onChange={handleFileChange}
-                          />
-                        </label>
-                      </div>
-                      
-                      <div className="flex justify-end gap-2 mt-6">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          onClick={() => {
-                            setIsAvatarDialogOpen(false);
-                            setPreviewUrl("");
-                            setSelectedFile(null);
-                          }}
-                        >
-                          取消
-                        </Button>
-                        <Button 
-                          type="button" 
-                          onClick={handleAvatarUpload}
-                          disabled={!selectedFile}
-                          className="bg-amber-600 hover:bg-amber-700"
-                        >
-                          確認上傳
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <label
+                  className="absolute bottom-0 right-0 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-md cursor-pointer"
+                  aria-label="上傳頭像"
+                >
+                  <Upload className="w-4 h-4" />
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleFileChange}
+                  />
+                </label>
               )}
             </div>
             {isEditing && (
