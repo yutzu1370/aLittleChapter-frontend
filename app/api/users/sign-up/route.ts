@@ -20,32 +20,10 @@ export async function POST(req: NextRequest) {
     // 獲取回應內容
     const data = await response.json();
 
-    // 處理特定錯誤狀態碼，提供更具體的錯誤訊息
+    // 處理錯誤回應
     if (!response.ok) {
-      // 如果後端返回了具體的錯誤訊息，就使用它
+      // 直接使用後端返回的錯誤訊息
       const errorMessage = data.message || "註冊請求失敗";
-      
-      // 特別處理"電子信箱已被註冊"的情況
-      if (response.status === 409 || 
-          errorMessage.includes("email") || 
-          errorMessage.includes("郵箱") || 
-          errorMessage.includes("信箱") || 
-          errorMessage.includes("已註冊") || 
-          errorMessage.includes("already exists") || 
-          errorMessage.includes("already registered")) {
-        return NextResponse.json(
-          { status: false, message: "此電子信箱已被註冊" },
-          { status: 409 }
-        );
-      }
-      
-      // 根據狀態碼返回特定的錯誤訊息
-      if (response.status === 400) {
-        return NextResponse.json(
-          { status: false, message: "無效的註冊資料，請檢查您的輸入" },
-          { status: 400 }
-        );
-      }
       
       // 返回後端原始錯誤訊息
       return NextResponse.json(

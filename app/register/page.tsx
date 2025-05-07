@@ -12,7 +12,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { register } from "@/lib/services/auth";
+
 
 // 註冊表單驗證模式
 const registerSchema = z.object({
