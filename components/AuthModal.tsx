@@ -3,10 +3,6 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { InputField } from "@/components/ui/InputField"
-import { PrimaryButton } from "@/components/ui/PrimaryButton"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -14,7 +10,6 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { useRouter } from "next/navigation"
 import { Eye, EyeOff } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
-import Link from "next/link"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { API_BASE_URL } from "@/lib/constants"
@@ -129,6 +124,34 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         return; // 提早返回，不執行後續代碼
       }
 
+      console.log('登入成功，後端返回數據:', responseData);
+
+      // 確保格式化並保存登入資訊到 store
+      try {
+        // 根據後端實際回傳的資料格式提取資訊
+        if (responseData.status && responseData.data) {
+          const userData = {
+            id: responseData.data.user.id,
+            email: responseData.data.user.email,
+            name: responseData.data.user.name || '',
+            token: responseData.data.token
+          };
+
+          console.log('準備儲存到 store 的資料:', userData);
+          storeLogin(userData);
+          console.log('儲存到 useAuthStore 完成');
+
+          // 直接確認 localStorage 是否有對應資料
+          if (typeof window !== 'undefined') {
+            console.log('localStorage 中的 auth-storage:', localStorage.getItem('auth-storage'));
+          }
+        } else {
+          console.error('後端回傳的資料格式不符合預期:', responseData);
+        }
+      } catch (storeError) {
+        console.error('儲存使用者資訊到 store 時發生錯誤:', storeError);
+      }
+
       // 登入成功
       toast.success("登入成功", {
         description: "歡迎回來！",
@@ -176,12 +199,19 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         return; // 提早返回，不執行後續代碼
       }
 
+      console.log('註冊成功，後端返回數據:', responseData);
+
+      // 註冊成功後，不自動登入使用者，而是要求他們登入
+      // 移除原本的 store 儲存邏輯
+      console.log('註冊成功，引導使用者返回首頁進行登入');
+
       // 註冊成功
       toast.success("註冊成功", {
-        description: "已發送驗證信至您的信箱，請於 24 小時內完成驗證",
-        duration: 2000
+        description: "已發送驗證信至您的信箱，請於 24 小時內完成驗證後登入",
+        duration: 3000
       })
       
+      // 關閉對話框並導向首頁
       onOpenChange(false)
       router.push("/")
     } catch (error) {
@@ -223,6 +253,33 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       // 模擬 Google 登入/註冊流程
       // 實際實現需要整合 Google OAuth
       console.log("Google 第三方登入/註冊流程")
+      
+      // 當 Google OAuth 流程成功後，需要保存使用者資訊到 store
+      // 假設後端回傳類似格式：
+      // {
+      //   status: true,
+      //   message: "Google 登入成功",
+      //   data: {
+      //     user: {
+      //       id: "google_user_id",
+      //       name: "Google 使用者",
+      //       email: "google_user@gmail.com",
+      //       role: "customer"
+      //     },
+      //     token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXV...",
+      //     expiresIn: 86400
+      //   }
+      // }
+      // 
+      // 處理範例：
+      // if (response.status && response.data) {
+      //   storeLogin({
+      //     id: response.data.user.id,
+      //     email: response.data.user.email,
+      //     name: response.data.user.name || '',
+      //     token: response.data.token
+      //   });
+      // }
     } catch (error) {
       console.error("Google 登入/註冊失敗", error)
     }
