@@ -4,19 +4,21 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { InputField } from "@/components/ui/InputField"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { CalendarIcon, PencilIcon, SaveIcon, XIcon, Upload } from "lucide-react"
+import { CalendarIcon, PencilIcon, SaveIcon, XIcon, Upload, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { zhTW } from "date-fns/locale"
 import { toast } from "sonner"
+import { useAuthStore } from "@/lib/store/useAuthStore"
 import {
   Dialog,
   DialogContent,
@@ -145,6 +147,8 @@ interface DisplayProfile {
 }
 
 export default function ProfileClient() {
+  const router = useRouter()
+  const { logout } = useAuthStore()
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -500,6 +504,22 @@ export default function ProfileClient() {
     setIsEditing(false)
   }
 
+  // 處理登出
+  const handleLogout = () => {
+    // 清除 localStorage 與 Zustand 狀態
+    logout();
+    
+    // 顯示成功訊息
+    toast.success("已成功登出", {
+      description: "期待您的再次訪問"
+    });
+    
+    // 重定向到首頁
+    setTimeout(() => {
+      router.push("/");
+    }, 1000);
+  };
+
   if (isInitialLoading) {
     return (
       <div className="flex justify-center items-center h-60">
@@ -523,7 +543,7 @@ export default function ProfileClient() {
           </Avatar>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-4 flex-grow">
           <div className="border-b pb-6">
             <span className="text-sm text-gray-500">姓名：</span>
             <span className="font-medium">{userProfile.name}</span>
@@ -555,6 +575,18 @@ export default function ProfileClient() {
               {userProfile.address.city} {userProfile.address.district} {userProfile.address.detail}
             </span>
           </div>
+        </div>
+        
+        {/* 登出按鈕 */}
+        <div className="mt-8 pt-4 border-t">
+          <Button 
+            variant="outline" 
+            className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+            onClick={handleLogout}
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            登出
+          </Button>
         </div>
       </Card>
 
