@@ -32,22 +32,12 @@ export default function BookReviews() {
     },
   ]
 
-  // 為每個評論隨機分配用戶頭像
-  const userIcons = useMemo(() => {
-    // 可用的用戶頭像
-    const iconPaths = [
-      "/images/user_icon/user_icon_1.png",
-      "/images/user_icon/user_icon_2.png",
-      "/images/user_icon/user_icon_3.png",
-      "/images/user_icon/user_icon_4.png"
-    ];
-    
-    // 為每個評論隨機分配頭像
-    return reviews.map(() => {
-      const randomIndex = Math.floor(Math.random() * iconPaths.length);
-      return iconPaths[randomIndex];
-    });
-  }, []);
+  // 為每個評論固定分配用戶頭像，避免水合錯誤
+  const userIcons = [
+    "/images/user_icon/user_icon_1.png",
+    "/images/user_icon/user_icon_3.png",
+    "/images/user_icon/user_icon_4.png",
+  ];
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const totalReviews = reviews.length
@@ -101,19 +91,19 @@ export default function BookReviews() {
       sm: "w-10 h-10",
       md: "w-12 h-12"
     };
-    const author = reviews[authorIndex].author;
     
     return (
       <div className="flex items-center gap-2">
         <div className={`${iconSizes[size]} rounded-full overflow-hidden relative`}>
           <Image 
             src={userIcons[authorIndex]} 
-            alt={author} 
-            fill 
+            alt={reviews[authorIndex].author} 
+            width={48}
+            height={48}
             className="object-cover"
           />
         </div>
-        <span className={size === "sm" ? "text-xs" : "text-sm"}>{author}</span>
+        <span className={size === "sm" ? "text-xs" : "text-sm"}>{reviews[authorIndex].author}</span>
       </div>
     );
   };
@@ -159,7 +149,8 @@ export default function BookReviews() {
                 <Image
                   src={reviews[getPrevIndex(currentIndex)].image}
                   alt={reviews[getPrevIndex(currentIndex)].title}
-                  fill
+                  width={110}
+                  height={110}
                   className="object-cover"
                 />
               </div>
@@ -202,7 +193,8 @@ export default function BookReviews() {
                 <Image
                   src={reviews[currentIndex].image}
                   alt={reviews[currentIndex].title}
-                  fill
+                  width={150}
+                  height={150}
                   className="object-cover"
                 />
               </div>
@@ -245,7 +237,8 @@ export default function BookReviews() {
                 <Image
                   src={reviews[getNextIndex(currentIndex)].image}
                   alt={reviews[getNextIndex(currentIndex)].title}
-                  fill
+                  width={110}
+                  height={110}
                   className="object-cover"
                 />
               </div>

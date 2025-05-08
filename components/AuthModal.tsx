@@ -49,17 +49,45 @@ const signupSchema = z.object({
 
 type SignupFormValues = z.infer<typeof signupSchema>
 
-// 忘記密碼表單驗證
+// 忘記密碼表單驗證   
 const forgotPasswordSchema = z.object({
   email: z.string().email("請輸入有效的電子信箱")
 })
 
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
 
+// 驗證碼驗證
+const verificationCodeSchema = z.object({
+  code: z.string().length(6, "驗證碼必須為6位數字")
+})
+
+type VerificationCodeFormValues = z.infer<typeof verificationCodeSchema>
+
+// 重設密碼表單驗證
+const resetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(8, "密碼至少需要8個字元")
+    .max(16, "密碼不能超過16個字元")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+      "密碼需包含英文大小寫及數字"
+    ),
+  confirmPassword: z.string()
+})
+.refine((data) => data.password === data.confirmPassword, {
+  message: "確認密碼與密碼不符",
+  path: ["confirmPassword"],
+})
+
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>
+
 export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<string>("login")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [resetPasswordStep, setResetPasswordStep] = useState<number>(1)
+  const [verificationEmail, setVerificationEmail] = useState<string>("")
   const router = useRouter()
   const { login: storeLogin } = useAuthStore()
 
@@ -96,6 +124,23 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: ""
+    }
+  })
+
+  // 驗證碼表單
+  const verificationCodeForm = useForm<VerificationCodeFormValues>({
+    resolver: zodResolver(verificationCodeSchema),
+    defaultValues: {
+      code: ""
+    }
+  })
+
+  // 重設密碼表單
+  const resetPasswordForm = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: ""
     }
   })
 
@@ -226,8 +271,107 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   // 忘記密碼提交處理
   const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {
-    console.log("Forgot password submit", data)
-    toast.success("重設密碼功能開發中")
+    try {
+      setVerificationEmail(data.email)
+      // 假設向後端發送請求
+      // const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      // const response = await fetch(`${apiUrl}/api/users/forgot-password`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify(data)
+      // })
+      
+      // 模擬請求成功
+      toast.success("驗證碼已發送", {
+        description: "請查看您的信箱並輸入驗證碼",
+        duration: 3000
+      })
+      
+      // 進入第二步：輸入驗證碼
+      setResetPasswordStep(2)
+    } catch (error) {
+      console.error("忘記密碼請求失敗", error)
+      toast.error("請求失敗", {
+        description: "網路連接問題，請稍後再試",
+        duration: 2000
+      })
+    }
+  }
+
+  // 驗證碼提交處理
+  const onVerificationCodeSubmit = async (data: VerificationCodeFormValues) => {
+    try {
+      // 假設向後端發送請求驗證碼
+      // const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      // const response = await fetch(`${apiUrl}/api/users/verify-code`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify({
+      //     email: verificationEmail,
+      //     code: data.code
+      //   })
+      // })
+      
+      // 模擬驗證成功
+      toast.success("驗證成功", {
+        description: "請設定新密碼",
+        duration: 2000
+      })
+      
+      // 進入第三步：設定新密碼
+      setResetPasswordStep(3)
+    } catch (error) {
+      console.error("驗證碼驗證失敗", error)
+      toast.error("驗證失敗", {
+        description: "驗證碼不正確或已過期",
+        duration: 2000
+      })
+    }
+  }
+
+  // 重設密碼提交處理
+  const onResetPasswordSubmit = async (data: ResetPasswordFormValues) => {
+    try {
+      const { confirmPassword, ...resetData } = data
+      
+      // 假設向後端發送請求重設密碼
+      // const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      // const response = await fetch(`${apiUrl}/api/users/reset-password`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify({
+      //     email: verificationEmail,
+      //     password: resetData.password
+      //   })
+      // })
+      
+      // 模擬重設成功
+      toast.success("密碼重設成功", {
+        description: "請使用新密碼登入",
+        duration: 3000
+      })
+      
+      // 密碼重設成功後，返回登入頁面
+      setResetPasswordStep(4)
+    } catch (error) {
+      console.error("密碼重設失敗", error)
+      toast.error("密碼重設失敗", {
+        description: "請稍後再試",
+        duration: 2000
+      })
+    }
+  }
+  
+  // 重設流程完成後返回登入頁
+  const handleBackToLogin = () => {
+    setActiveTab("login")
+    setResetPasswordStep(1)
   }
 
   // 切換密碼顯示狀態
@@ -244,6 +388,12 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const getModalTitle = () => {
     if (activeTab === "login") return "會員登入"
     if (activeTab === "signup") return "Email註冊"
+    if (activeTab === "forgotPassword") {
+      if (resetPasswordStep === 1) return "忘記密碼"
+      if (resetPasswordStep === 2) return "信箱驗證"
+      if (resetPasswordStep === 3) return "設定新密碼"
+      return "更改成功"
+    }
     return "忘記密碼"
   }
 
@@ -591,59 +741,280 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           )}
 
           {activeTab === "forgotPassword" && (
-            <Form {...forgotPasswordForm}>
-              <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} className="space-y-2">
-                <p className="text-sm text-gray-600 mb-2">
-                  請輸入您註冊時使用的電子信箱，我們將寄送重設密碼的連結給您。
-                </p>
+            <div className="space-y-4">
+              {resetPasswordStep === 1 && (
+                <Form {...forgotPasswordForm}>
+                  <form onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} className="space-y-2">
+                    <p className="text-sm text-gray-600 mb-2">
+                      請輸入您註冊時使用的電子信箱，我們將寄送驗證碼給您。
+                    </p>
 
-                <FormField
-                  control={forgotPasswordForm.control}
-                  name="email"
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormControl>
-                        <div className="space-y-1">
-                          <label className="block text-sm font-medium">電子信箱</label>
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium">Email</label>
+                      <FormField
+                        control={forgotPasswordForm.control}
+                        name="email"
+                        render={({ field }) => (
                           <input 
                             {...field}
                             type="email" 
-                            placeholder="請輸入您註冊的Email" 
+                            placeholder="請輸入已註冊Email" 
                             className="w-full px-3 py-2 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B]"
                           />
-                          {fieldState.error?.message && (
-                            <p className="text-red-500 text-xs mt-1">
-                              {fieldState.error.message}
-                            </p>
-                          )}
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                        )}
+                      />
+                      {forgotPasswordForm.formState.errors.email && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {forgotPasswordForm.formState.errors.email.message}
+                        </p>
+                      )}
+                    </div>
 
-                <div className="flex gap-3 mt-2 p-2">
+                    <div className="flex items-center justify-center mt-4 mb-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 1 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                          1
+                        </div>
+                        <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                          2
+                        </div>
+                        <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                          3
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 mt-2 p-2">
+                      <motion.button
+                        type="button"
+                        className="flex-1 py-2 border-2 border-[#F8D0B0] rounded-full text-gray-700 hover:bg-orange-50 transition-colors shadow-[2px_4px_0px_#74281A]"
+                        onClick={() => setActiveTab("login")}
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.01 }}
+                      >
+                        返回登入
+                      </motion.button>
+                      <motion.button
+                        type="submit"
+                        className="flex-1 bg-[#E8652B] text-white py-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
+                        disabled={forgotPasswordForm.formState.isSubmitting}
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.01 }}
+                      >
+                        {forgotPasswordForm.formState.isSubmitting ? "處理中..." : "送出"}
+                      </motion.button>
+                    </div>
+                  </form>
+                </Form>
+              )}
+
+              {resetPasswordStep === 2 && (
+                <Form {...verificationCodeForm}>
+                  <form onSubmit={verificationCodeForm.handleSubmit(onVerificationCodeSubmit)} className="space-y-2">
+                    <div className="space-y-1">
+                      <div className="text-center mb-4">
+                        <p className="text-green-600 font-medium text-lg">信箱驗證碼通過驗證</p>
+                      </div>
+                      
+                      <div className="text-center mb-4">
+                        <h3 className="text-lg font-medium">設定新密碼</h3>
+                      </div>
+                      
+                      <label className="block text-sm font-medium">信箱驗證碼</label>
+                      <FormField
+                        control={verificationCodeForm.control}
+                        name="code"
+                        render={({ field }) => (
+                          <input 
+                            {...field}
+                            type="text" 
+                            placeholder="共6位數字" 
+                            className="w-full px-3 py-2 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B]"
+                            maxLength={6}
+                          />
+                        )}
+                      />
+                      {verificationCodeForm.formState.errors.code && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {verificationCodeForm.formState.errors.code.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-center mt-4 mb-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                          1
+                        </div>
+                        <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 2 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                          2
+                        </div>
+                        <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                          3
+                        </div>
+                      </div>
+                    </div>
+
+                    <motion.button
+                      type="submit"
+                      className="w-full bg-[#E8652B] text-white py-2 mt-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
+                      disabled={verificationCodeForm.formState.isSubmitting}
+                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.01 }}
+                    >
+                      {verificationCodeForm.formState.isSubmitting ? "驗證中..." : "送出"}
+                    </motion.button>
+                  </form>
+                </Form>
+              )}
+
+              {resetPasswordStep === 3 && (
+                <Form {...resetPasswordForm}>
+                  <form onSubmit={resetPasswordForm.handleSubmit(onResetPasswordSubmit)} className="space-y-2">
+                    <div className="text-center mb-2">
+                      <p className="text-green-600 font-medium">信箱驗證碼通過驗證</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium">設定新密碼</label>
+                      <div className="relative">
+                        <FormField
+                          control={resetPasswordForm.control}
+                          name="password"
+                          render={({ field }) => (
+                            <>
+                              <input 
+                                {...field}
+                                type={showPassword ? "text" : "password"} 
+                                placeholder="請輸入新密碼" 
+                                className="w-full px-3 py-2 border-2 border-[#F8D0B0] rounded-full pr-10 focus:outline-none focus:border-[#E8652B]"
+                              />
+                              <button 
+                                type="button" 
+                                onClick={togglePasswordVisibility} 
+                                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-5 w-5 text-gray-400" />
+                                ) : (
+                                  <Eye className="h-5 w-5 text-gray-400" />
+                                )}
+                              </button>
+                            </>
+                          )}
+                        />
+                      </div>
+                      {resetPasswordForm.formState.errors.password && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {resetPasswordForm.formState.errors.password.message}
+                        </p>
+                      )}
+                      <p className="text-2xs text-gray-500">※8至16碼英數混和，英文需區分大小寫</p>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="block text-sm font-medium">再次輸入新密碼</label>
+                      <div className="relative">
+                        <FormField
+                          control={resetPasswordForm.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <>
+                              <input 
+                                {...field}
+                                type={showConfirmPassword ? "text" : "password"} 
+                                placeholder="請輸入新密碼" 
+                                className="w-full px-3 py-2 border-2 border-[#F8D0B0] rounded-full pr-10 focus:outline-none focus:border-[#E8652B]"
+                              />
+                              <button 
+                                type="button" 
+                                onClick={toggleConfirmPasswordVisibility} 
+                                className="absolute inset-y-0 right-0 flex items-center pr-3"
+                              >
+                                {showConfirmPassword ? (
+                                  <EyeOff className="h-5 w-5 text-gray-400" />
+                                ) : (
+                                  <Eye className="h-5 w-5 text-gray-400" />
+                                )}
+                              </button>
+                            </>
+                          )}
+                        />
+                      </div>
+                      {resetPasswordForm.formState.errors.confirmPassword && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {resetPasswordForm.formState.errors.confirmPassword.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-center mt-4 mb-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                          1
+                        </div>
+                        <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                          2
+                        </div>
+                        <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 3 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                          3
+                        </div>
+                      </div>
+                    </div>
+
+                    <motion.button
+                      type="submit"
+                      className="w-full bg-[#E8652B] text-white py-2 mt-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
+                      disabled={resetPasswordForm.formState.isSubmitting}
+                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ scale: 1.01 }}
+                    >
+                      {resetPasswordForm.formState.isSubmitting ? "處理中..." : "送出"}
+                    </motion.button>
+                  </form>
+                </Form>
+              )}
+
+              {resetPasswordStep === 4 && (
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="text-center mb-2">
+                    <h2 className="text-green-600 text-2xl font-bold">設定新密碼成功！</h2>
+                  </div>
+                  
+                  <div className="flex items-center justify-center mt-4 mb-2">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                        1
+                      </div>
+                      <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                        2
+                      </div>
+                      <div className="w-6 h-1 bg-[#F8D0B0]"></div>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                        3
+                      </div>
+                    </div>
+                  </div>
+
                   <motion.button
                     type="button"
-                    className="flex-1 py-2 border-2 border-[#F8D0B0] rounded-full text-gray-700 hover:bg-orange-50 transition-colors shadow-[2px_4px_0px_#74281A]"
-                    onClick={() => setActiveTab("login")}
+                    className="w-full bg-[#E8652B] text-white py-2 mt-4 rounded-full font-bold shadow-[4px_6px_0px_#74281A]"
+                    onClick={handleBackToLogin}
                     whileTap={{ scale: 0.98 }}
-                    whileHover={{ scale: 1.01 }}
+                    whileHover={{ scale: 1.02 }}
                   >
-                    返回登入
-                  </motion.button>
-                  <motion.button
-                    type="submit"
-                    className="flex-1 bg-[#E8652B] text-white py-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
-                    disabled={forgotPasswordForm.formState.isSubmitting}
-                    whileTap={{ scale: 0.98 }}
-                    whileHover={{ scale: 1.01 }}
-                  >
-                    {forgotPasswordForm.formState.isSubmitting ? "處理中..." : "送出"}
+                    立即登入
                   </motion.button>
                 </div>
-              </form>
-            </Form>
+              )}
+            </div>
           )}
         </motion.div>
       </DialogContent>
