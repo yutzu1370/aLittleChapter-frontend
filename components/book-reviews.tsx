@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"
 
@@ -8,45 +8,36 @@ export default function BookReviews() {
   const reviews = [
     {
       id: 1,
-      title: "我的動物朋友",
+      title: "My Animal Friends",
       author: "吳小姐",
-      content: "EduPlay 的產品選擇令人印象深刻。每一款玩具都經過嚴謹的教育理念檢視，能夠真正做到寓教於樂。",
-      rating: 5,
-      image: "images/home/sec04_book1.png"
+      content: "色彩鮮明、節奏輕快的互動繪本，動物角色親切可愛，適合親子共讀，引導幼兒認識自然與基本情緒。",
+      rating: 4,
+      image: "/images/home/sec04_book1.png"
     },
     {
       id: 2,
-      title: "海底探險",
-      author: "林先生",
-      content: "孩子非常喜歡這本書，插圖精美，內容淺顯易懂，很適合培養孩子對海洋生物的興趣。",
+      title: "失落神殿的冒險",
+      author: "陳先生",
+      content: "奇幻冒險故事，帶領孩子探索神秘遺跡，激發想像力與勇氣，情節緊湊刺激，是小小冒險家的最佳選擇。",
       rating: 4,
-      image: "images/home/sec04_book2.png"
+      image: "/images/home/sec04_book2.png"
     },
     {
       id: 3,
-      title: "太空旅行",
-      author: "張小姐",
-      content: "這本書讓孩子對宇宙產生了濃厚的興趣，內容深入淺出，很適合啟發孩子的科學思維。",
+      title: "貓公主",
+      author: "林小姐",
+      content: "一場關於成長與友誼的童話旅程，貓公主勇敢又可愛，讓孩子學會同理心與分享，故事溫馨有趣，令人喜愛。",
       rating: 5,
-      image: "images/home/sec04_book3.png"
-    },
-    {
-      id: 4,
-      title: "恐龍世界",
-      author: "王先生",
-      content: "書中的恐龍知識非常豐富，孩子每天都要我讀給他聽，是我們家的最愛！",
-      rating: 5,
-      image: "images/home/sec04_book3.png"
-    },
-    {
-      id: 5,
-      title: "森林冒險",
-      author: "李小姐",
-      content: "故事情節生動有趣，插圖精美，孩子非常喜歡，每晚都要求讀這本書才肯睡覺。",
-      rating: 4,
-      image: "images/home/sec04_book2.png"
+      image: "/images/home/sec04_book3.png"
     },
   ]
+
+  // 為每個評論固定分配用戶頭像，避免水合錯誤
+  const userIcons = [
+    "/images/user_icon/user_icon_1.png",
+    "/images/user_icon/user_icon_3.png",
+    "/images/user_icon/user_icon_4.png",
+  ];
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const totalReviews = reviews.length
@@ -72,6 +63,51 @@ export default function BookReviews() {
   const getPrevIndex = (index: number) => (index - 1 + totalReviews) % totalReviews
   const getNextIndex = (index: number) => (index + 1) % totalReviews
 
+  // 評分星星渲染函數
+  const renderStars = (rating: number, size: "sm" | "md" | "lg") => {
+    const starSizes = {
+      sm: "w-5 h-5",
+      md: "w-6 h-6",
+      lg: "w-7 h-7"
+    };
+    
+    return (
+      <div className="flex">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`${starSizes[size]} ${
+              i < rating ? "fill-[#FBE84A] text-[#FBE84A]" : "text-[#FBE84A] opacity-50"
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // 用戶頭像渲染函數
+  const renderUserIcon = (authorIndex: number, size: "sm" | "md") => {
+    const iconSizes = {
+      sm: "w-10 h-10",
+      md: "w-12 h-12"
+    };
+    
+    return (
+      <div className="flex items-center gap-2">
+        <div className={`${iconSizes[size]} rounded-full overflow-hidden relative`}>
+          <Image 
+            src={userIcons[authorIndex]} 
+            alt={reviews[authorIndex].author} 
+            width={48}
+            height={48}
+            className="object-cover"
+          />
+        </div>
+        <span className={size === "sm" ? "text-xs" : "text-sm"}>{reviews[authorIndex].author}</span>
+      </div>
+    );
+  };
+
   return (
     <section className="py-16 bg-[#F3FAF8] rounded-[64px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -80,7 +116,7 @@ export default function BookReviews() {
           <div className="w-12 h-12 mr-4">
             <Image
               src="/images/home/title_icon_review.png"
-              alt="Icon"
+              alt="書籍好評"
               width={48}
               height={48}
             />
@@ -90,119 +126,167 @@ export default function BookReviews() {
 
         {/* Reviews Carousel */}
         <div className="relative" ref={carouselRef}>
-          {/* Left Arrow */}
-          <button
-            onClick={prevSlide}
-            className="absolute -left-10 top-1/2 transform -translate-y-1/2 w-20 h-20 bg-[#E8652B] rounded-full shadow-[4px_8px_0px_rgba(0,0,0,0.25)] flex items-center justify-center z-10"
-          >
-            <ChevronLeft className="w-10 h-10 text-white" />
-          </button>
-
           <div className="flex justify-center items-center gap-6 h-[480px]">
-            {/* Previous Review (Smaller) */}
-            <div className="w-[356px] h-[356px] bg-[#FFF9E5] opacity-60 shadow-[4px_8px_0px_rgba(0,0,0,0.25)] rounded-lg pt-16 flex flex-col items-center">
-              <div className="w-[136px] h-[136px] bg-white border-2 border-[#EC824B] rounded-lg p-2">
-                <div className="relative w-full h-full">
-                  <Image
-                    src={reviews[getPrevIndex(currentIndex)].image || "/placeholder.svg"}
-                    alt={reviews[getPrevIndex(currentIndex)].title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+            {/* Previous Review (Left) */}
+            <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/home/reviews_card.png"
+                  alt="卡片背景"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
-
-              <div className="px-4 mt-3 text-center">
-                <h3 className="text-xl font-['jf-openhuninn-2.0']">{reviews[getPrevIndex(currentIndex)].title}</h3>
-                <p className="text-xs mt-2">{reviews[getPrevIndex(currentIndex)].content}</p>
-                <div className="flex items-center justify-center mt-2 gap-1.5">
-                  <span className="text-xs">{reviews[getPrevIndex(currentIndex)].author}</span>
-                </div>
+              
+              {/* 評分星星 - 頂部 */}
+              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
+                {renderStars(reviews[getPrevIndex(currentIndex)].rating, "sm")}
               </div>
-
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-7 h-7 ${
-                      i < reviews[getPrevIndex(currentIndex)].rating ? "fill-[#FBE84A]" : "text-gray-300"
-                    }`}
-                  />
-                ))}
+              
+              {/* 書籍圖片 */}
+              <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+                <Image
+                  src={reviews[getPrevIndex(currentIndex)].image}
+                  alt={reviews[getPrevIndex(currentIndex)].title}
+                  width={110}
+                  height={110}
+                  className="object-cover"
+                />
               </div>
-            </div>
-
-            {/* Current Review (Larger) */}
-            <div className="w-[480px] h-[480px] bg-[#FFF9E5] shadow-[8px_12px_0px_rgba(0,0,0,0.25)] rounded-lg pt-24 flex flex-col items-center z-10">
-              <div className="w-[176px] h-[176px] bg-white border-4 border-[#EC824B] rounded-xl p-2">
-                <div className="relative w-full h-full">
-                  <Image
-                    src={reviews[currentIndex].image || "/placeholder.svg"}
-                    alt={reviews[currentIndex].title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-
-              <div className="px-6 mt-4 text-center">
-                <h3 className="text-2xl font-['jf-openhuninn-2.0']">{reviews[currentIndex].title}</h3>
-                <p className="text-lg mt-2">{reviews[currentIndex].content}</p>
-                <div className="flex items-center justify-center mt-2 gap-2">
-                  <span className="text-base">{reviews[currentIndex].author}</span>
-                </div>
-              </div>
-
-              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-10 h-10 ${i < reviews[currentIndex].rating ? "fill-[#FBE84A]" : "text-gray-300"}`}
-                  />
-                ))}
+              
+              {/* 標題 */}
+              <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
+                {reviews[getPrevIndex(currentIndex)].title}
+              </h3>
+              
+              {/* 內容 */}
+              <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
+                {reviews[getPrevIndex(currentIndex)].content}
+              </p>
+              
+              {/* 用戶信息 */}
+              <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+                {renderUserIcon(getPrevIndex(currentIndex), "sm")}
               </div>
             </div>
 
-            {/* Next Review (Smaller) */}
-            <div className="w-[356px] h-[356px] bg-[#FFF9E5] opacity-60 shadow-[4px_8px_0px_rgba(0,0,0,0.25)] rounded-lg pt-16 flex flex-col items-center">
-              <div className="w-[136px] h-[136px] bg-white border-2 border-[#EC824B] rounded-lg p-2">
-                <div className="relative w-full h-full">
-                  <Image
-                    src={reviews[getNextIndex(currentIndex)].image || "/placeholder.svg"}
-                    alt={reviews[getNextIndex(currentIndex)].title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+            {/* Current Review (Center) */}
+            <div className="w-[480px] h-[480px] relative flex flex-col items-center z-20">
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/home/reviews_card.png"
+                  alt="卡片背景"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
-
-              <div className="px-4 mt-3 text-center">
-                <h3 className="text-xl font-['jf-openhuninn-2.0']">{reviews[getNextIndex(currentIndex)].title}</h3>
-                <p className="text-xs mt-2">{reviews[getNextIndex(currentIndex)].content}</p>
-                <div className="flex items-center justify-center mt-2 gap-1.5">
-                  <span className="text-xs">{reviews[getNextIndex(currentIndex)].author}</span>
-                </div>
+              
+              {/* 評分星星 - 頂部 */}
+              <div className="absolute top-7 left-1/2 transform -translate-x-1/2 z-10">
+                {renderStars(reviews[currentIndex].rating, "lg")}
               </div>
+              
+              {/* 書籍圖片 */}
+              <div className="mt-24 relative w-[150px] h-[150px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+                <Image
+                  src={reviews[currentIndex].image}
+                  alt={reviews[currentIndex].title}
+                  width={150}
+                  height={150}
+                  className="object-cover"
+                />
+              </div>
+              
+              {/* 標題 */}
+              <h3 className="mt-4 text-2xl font-['jf-openhuninn-2.0'] z-10">
+                {reviews[currentIndex].title}
+              </h3>
+              
+              {/* 內容 */}
+              <p className="px-12 mt-3 text-sm tracking-wide leading-relaxed text-center z-10 min-h-[90px]">
+                {reviews[currentIndex].content}
+              </p>
+              
+              {/* 用戶信息 */}
+              <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
+                {renderUserIcon(currentIndex, "md")}
+              </div>
+            </div>
 
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-7 h-7 ${
-                      i < reviews[getNextIndex(currentIndex)].rating ? "fill-[#FBE84A]" : "text-gray-300"
-                    }`}
-                  />
-                ))}
+            {/* Next Review (Right) */}
+            <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
+              <div className="absolute inset-0">
+                <Image
+                  src="/images/home/reviews_card.png"
+                  alt="卡片背景"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              
+              {/* 評分星星 - 頂部 */}
+              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
+                {renderStars(reviews[getNextIndex(currentIndex)].rating, "sm")}
+              </div>
+              
+              {/* 書籍圖片 */}
+              <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+                <Image
+                  src={reviews[getNextIndex(currentIndex)].image}
+                  alt={reviews[getNextIndex(currentIndex)].title}
+                  width={110}
+                  height={110}
+                  className="object-cover"
+                />
+              </div>
+              
+              {/* 標題 */}
+              <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
+                {reviews[getNextIndex(currentIndex)].title}
+              </h3>
+              
+              {/* 內容 */}
+              <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
+                {reviews[getNextIndex(currentIndex)].content}
+              </p>
+              
+              {/* 用戶信息 */}
+              <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+                {renderUserIcon(getNextIndex(currentIndex), "sm")}
               </div>
             </div>
           </div>
 
-          {/* Right Arrow */}
+          {/* 裝飾性動物圖片 - 老鼠 */}
+          <div className="absolute left-[320px] bottom-0 z-30">
+            <Image
+              src="/images/home/reviews_Mouse.png"
+              alt="裝飾性老鼠圖片"
+              width={150}
+              height={150}
+              className="object-contain"
+            />
+          </div>
+
+          {/* Left Arrow Button */}
+          <button
+            onClick={prevSlide}
+            className="absolute -left-10 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-[#E8652B] rounded-full shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10"
+            aria-label="前一個評論"
+          >
+            <ChevronLeft className="w-8 h-8 text-white" />
+          </button>
+
+          {/* Right Arrow Button */}
           <button
             onClick={nextSlide}
-            className="absolute -right-10 top-1/2 transform -translate-y-1/2 w-20 h-20 bg-[#E8652B] rounded-full shadow-[4px_8px_0px_rgba(0,0,0,0.25)] flex items-center justify-center z-10"
+            className="absolute -right-10 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-[#E8652B] rounded-full shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10"
+            aria-label="下一個評論"
           >
-            <ChevronRight className="w-10 h-10 text-white" />
+            <ChevronRight className="w-8 h-8 text-white" />
           </button>
 
           {/* Dots indicator */}
@@ -212,6 +296,7 @@ export default function BookReviews() {
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`w-3 h-3 mx-1 rounded-full ${currentIndex === index ? "bg-[#E8652B]" : "bg-gray-300"}`}
+                aria-label={`跳至第 ${index + 1} 個評論`}
               />
             ))}
           </div>
