@@ -273,19 +273,33 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const onForgotPasswordSubmit = async (data: ForgotPasswordFormValues) => {
     try {
       setVerificationEmail(data.email)
-      // 假設向後端發送請求
-      // const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
-      // const response = await fetch(`${apiUrl}/api/users/forgot-password`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify(data)
-      // })
+      // 向後端發送請求
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/users/forgot-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: data.email
+        })
+      })
       
-      // 模擬請求成功
+      const responseData = await response.json()
+      
+      // 檢查回應狀態
+      if (responseData.status === false) {
+        // 顯示後端回傳的錯誤訊息
+        toast.error("請求失敗", {
+          description: responseData.message || "發送驗證碼失敗，請稍後再試",
+          duration: 3000
+        })
+        return
+      }
+      
+      // 請求成功
       toast.success("驗證碼已發送", {
-        description: "請查看您的信箱並輸入驗證碼",
+        description: responseData.message || "請查看您的信箱並輸入驗證碼",
         duration: 3000
       })
       
@@ -303,22 +317,34 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   // 驗證碼提交處理
   const onVerificationCodeSubmit = async (data: VerificationCodeFormValues) => {
     try {
-      // 假設向後端發送請求驗證碼
-      // const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
-      // const response = await fetch(`${apiUrl}/api/users/verify-code`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify({
-      //     email: verificationEmail,
-      //     code: data.code
-      //   })
-      // })
+      // 向後端發送請求驗證碼
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/users/verify-code`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: verificationEmail,
+          code: data.code
+        })
+      })
       
-      // 模擬驗證成功
+      const responseData = await response.json()
+      
+      // 檢查回應狀態
+      if (responseData.status === false) {
+        // 顯示後端回傳的錯誤訊息
+        toast.error("驗證失敗", {
+          description: responseData.message || "驗證碼不正確或已過期",
+          duration: 3000
+        })
+        return
+      }
+      
+      // 驗證成功
       toast.success("驗證成功", {
-        description: "請設定新密碼",
+        description: responseData.message || "請設定新密碼",
         duration: 2000
       })
       
@@ -327,7 +353,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     } catch (error) {
       console.error("驗證碼驗證失敗", error)
       toast.error("驗證失敗", {
-        description: "驗證碼不正確或已過期",
+        description: "網路連接問題，請稍後再試",
         duration: 2000
       })
     }
@@ -338,31 +364,44 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     try {
       const { confirmPassword, ...resetData } = data
       
-      // 假設向後端發送請求重設密碼
-      // const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
-      // const response = await fetch(`${apiUrl}/api/users/reset-password`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify({
-      //     email: verificationEmail,
-      //     password: resetData.password
-      //   })
-      // })
-      
-      // 模擬重設成功
-      toast.success("密碼重設成功", {
-        description: "請使用新密碼登入",
-        duration: 3000
+      // 向後端發送請求重設密碼
+      const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
+      const response = await fetch(`${apiUrl}/api/users/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: verificationEmail,
+          code: verificationCodeForm.getValues().code,
+          newPassword: resetData.password
+        })
       })
       
+      const responseData = await response.json()
+      
+      // 檢查回應狀態
+      if (responseData.status === false) {
+        // 顯示後端回傳的錯誤訊息
+        toast.error("密碼重設失敗", {
+          description: responseData.message || "密碼重設失敗，請稍後再試",
+          duration: 3000
+        })
+        return
+      }
+      
+      // 密碼重設成功
+      toast.success(responseData.message, {
+        duration: 3000
+      });
+      
       // 密碼重設成功後，返回登入頁面
-      setResetPasswordStep(4)
+      setActiveTab("login")
+      setResetPasswordStep(1)
     } catch (error) {
       console.error("密碼重設失敗", error)
       toast.error("密碼重設失敗", {
-        description: "請稍後再試",
+        description: "網路連接問題，請稍後再試",
         duration: 2000
       })
     }
@@ -435,6 +474,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     }
   }
 
+  // 新增處理返回上一步的函數
+  const handlePreviousStep = () => {
+    setResetPasswordStep(prev => Math.max(1, prev - 1))
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[520px] max-h-[90vh] w-[85vw] p-3 pb-4 gap-2 bg-white shadow-lg border-[1px] border-[#F8D0B0] rounded-[22px] overflow-y-auto flex flex-col">
@@ -462,7 +506,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="overflow-y-auto pr-3 pl-3 flex-1"
+          className="overflow-y-auto pr-3 pl-3 flex-1 min-h-[230px]"
         >
           {activeTab === "login" && (
             <Form {...loginForm}>
@@ -569,7 +613,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                 <motion.button
                   type="submit"
-                  className="w-[98%] mx-auto h-12 text-base font-bold rounded-full bg-[#E8652B] text-white shadow-[4px_6px_0px_#74281A] flex items-center justify-center"
+                  className="w-[98%] mx-auto h-11 text-base font-bold rounded-full bg-[#E8652B] text-white shadow-[4px_6px_0px_#74281A] flex items-center justify-center"
                   disabled={loginForm.formState.isSubmitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -585,7 +629,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                 <motion.button
                   type="button"
-                  className="w-[98%] mx-auto h-12 text-base font-bold rounded-full border-2 border-[#F8D0B0] bg-white text-gray-700 flex items-center justify-center gap-3"
+                  className="w-[98%] mx-auto h-11 text-base font-bold rounded-full border-2 border-[#F8D0B0] bg-white text-gray-700 flex items-center justify-center gap-3"
                   onClick={handleGoogleAuth}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -712,7 +756,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                 <motion.button
                   type="submit"
-                  className="w-[98%] mx-auto h-12 text-base font-bold rounded-full bg-[#E8652B] text-white shadow-[4px_6px_0px_#74281A] flex items-center justify-center"
+                  className="w-[98%] mx-auto h-10 text-base font-bold rounded-full bg-[#E8652B] text-white shadow-[4px_6px_0px_#74281A] flex items-center justify-center"
                   disabled={signupForm.formState.isSubmitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -728,7 +772,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                 <motion.button
                   type="button"
-                  className="w-[98%] mx-auto h-12 text-base font-bold rounded-full border-2 border-[#F8D0B0] bg-white text-gray-700 flex items-center justify-center gap-3"
+                  className="w-[98%] mx-auto h-10 text-base font-bold rounded-full border-2 border-[#F8D0B0] bg-white text-gray-700 flex items-center justify-center gap-3"
                   onClick={handleGoogleAuth}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -776,11 +820,11 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                           1
                         </div>
                         <div className="w-6 h-1 bg-[#F8D0B0]"></div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 2 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
                           2
                         </div>
                         <div className="w-6 h-1 bg-[#F8D0B0]"></div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center bg-white border-2 border-[#F8D0B0] text-gray-400`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 3 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
                           3
                         </div>
                       </div>
@@ -859,15 +903,27 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                       </div>
                     </div>
 
-                    <motion.button
-                      type="submit"
-                      className="w-full bg-[#E8652B] text-white py-2 mt-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
-                      disabled={verificationCodeForm.formState.isSubmitting}
-                      whileTap={{ scale: 0.98 }}
-                      whileHover={{ scale: 1.01 }}
-                    >
-                      {verificationCodeForm.formState.isSubmitting ? "驗證中..." : "送出"}
-                    </motion.button>
+                    <div className="flex gap-3 mt-2 p-2">
+                      <motion.button
+                        type="button"
+                        className="flex-1 py-2 border-2 border-[#F8D0B0] rounded-full text-gray-700 hover:bg-orange-50 transition-colors shadow-[2px_4px_0px_#74281A]"
+                        onClick={handlePreviousStep}
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.01 }}
+                      >
+                        返回上一步
+                      </motion.button>
+                      <motion.button
+                        type="submit"
+                        className="flex-1 bg-[#E8652B] text-white py-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
+                        disabled={verificationCodeForm.formState.isSubmitting}
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.01 }}
+                      >
+                        {verificationCodeForm.formState.isSubmitting ? "驗證中..." : "送出"}
+                      </motion.button>
+                    </div>
+                    <div className="h-10"></div>
                   </form>
                 </Form>
               )}
@@ -875,7 +931,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
               {resetPasswordStep === 3 && (
                 <Form {...resetPasswordForm}>
                   <form onSubmit={resetPasswordForm.handleSubmit(onResetPasswordSubmit)} className="space-y-2">
-                    <div className="text-center mb-2">
+                    <div className="text-center mb-1">
                       <p className="text-green-600 font-medium">信箱驗證碼通過驗證</p>
                     </div>
 
@@ -968,15 +1024,26 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                       </div>
                     </div>
 
-                    <motion.button
-                      type="submit"
-                      className="w-full bg-[#E8652B] text-white py-2 mt-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
-                      disabled={resetPasswordForm.formState.isSubmitting}
-                      whileTap={{ scale: 0.98 }}
-                      whileHover={{ scale: 1.01 }}
-                    >
-                      {resetPasswordForm.formState.isSubmitting ? "處理中..." : "送出"}
-                    </motion.button>
+                    <div className="flex gap-3 mt-2 p-2">
+                      <motion.button
+                        type="button"
+                        className="flex-1 py-2 border-2 border-[#F8D0B0] rounded-full text-gray-700 hover:bg-orange-50 transition-colors shadow-[2px_4px_0px_#74281A]"
+                        onClick={handlePreviousStep}
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.01 }}
+                      >
+                        返回上一步
+                      </motion.button>
+                      <motion.button
+                        type="submit"
+                        className="flex-1 bg-[#E8652B] text-white py-2 rounded-full font-medium shadow-[2px_4px_0px_#74281A]"
+                        disabled={resetPasswordForm.formState.isSubmitting}
+                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.01 }}
+                      >
+                        {resetPasswordForm.formState.isSubmitting ? "處理中..." : "送出"}
+                      </motion.button>
+                    </div>
                   </form>
                 </Form>
               )}
