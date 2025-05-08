@@ -816,15 +816,15 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
                     <div className="flex items-center justify-center mt-4 mb-2">
                       <div className="flex items-center justify-center gap-2">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 1 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${Number(resetPasswordStep) === 1 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
                           1
                         </div>
                         <div className="w-6 h-1 bg-[#F8D0B0]"></div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 2 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${Number(resetPasswordStep) === 2 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
                           2
                         </div>
                         <div className="w-6 h-1 bg-[#F8D0B0]"></div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 3 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${Number(resetPasswordStep) === 3 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
                           3
                         </div>
                       </div>
@@ -893,7 +893,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                           1
                         </div>
                         <div className="w-6 h-1 bg-[#F8D0B0]"></div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 2 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${Number(resetPasswordStep) === 2 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
                           2
                         </div>
                         <div className="w-6 h-1 bg-[#F8D0B0]"></div>
@@ -1018,7 +1018,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
                           2
                         </div>
                         <div className="w-6 h-1 bg-[#F8D0B0]"></div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${resetPasswordStep === 3 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${Number(resetPasswordStep) === 3 ? "bg-gray-400 text-white" : "bg-white border-2 border-[#F8D0B0] text-gray-400"}`}>
                           3
                         </div>
                       </div>
