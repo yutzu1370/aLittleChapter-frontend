@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import ProfileClient from "./profile-client"
+import ProfileClient from "./ProfileClient"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 
 export default function ProfilePage() {
@@ -32,12 +32,7 @@ export default function ProfilePage() {
     
     // 驗證使用者是否已登入
     if (!isAuthenticated) {
-      
-      
-    
-      
-        router.push("/")
-     
+      router.push("/")
     }
   }, [isAuthenticated, isClient, isHydrated, router])
 

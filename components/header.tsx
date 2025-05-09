@@ -82,7 +82,7 @@ export default function Header() {
 
                 {/* User Icon */}
                 <div className="relative flex-shrink-0">
-                  <Link href="/profile" className="hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/account/profile" className="hover:bg-gray-100 rounded-full inline-block">
                     <Image
                       src="/images/user_icon/user_icon_3.png"
                       alt="User Icon"
