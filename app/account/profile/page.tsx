@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
-import ProfileClient from "./ProfileClient"
+import ProfileClient from "@/components/account/ProfileClient"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 
 export default function ProfilePage() {
@@ -44,7 +42,7 @@ export default function ProfilePage() {
   // 未完成客戶端渲染或水合時顯示載入中
   if (!isClient || !isHydrated) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
@@ -53,22 +51,16 @@ export default function ProfilePage() {
   // 檢查登入狀態，未登入則顯示載入中(避免閃爍)
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-orange-50">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-        <h1 className="text-3xl font-bold text-amber-800 mb-6 text-center">個人資料</h1>
-        <ProfileClient />
-      </div>
-      <div className="mt-36">
-        <Footer />
-      </div>
-    </main>
+    <div>
+      <h2 className="text-2xl font-bold text-amber-800 mb-6">個人資料</h2>
+      <ProfileClient />
+    </div>
   )
 } 

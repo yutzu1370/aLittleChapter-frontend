@@ -6,7 +6,7 @@ import NewArrivals from "@/components/home/NewArrivals"
 import RecommendedSets from "@/components/home/RecommendedSets"
 import BookReviews from "@/components/home/BookReviews"
 import WebsiteFeatures from "@/components/home/WebsiteFeatures"
-import FAQ from "@/components/home/faq"
+import FAQ from "@/components/home/FAQ"
 import Footer from "@/components/layout/Footer"
 
 export default function Home() {

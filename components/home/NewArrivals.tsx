@@ -67,7 +67,7 @@ const featuredBooks: FeaturedBookItem[] = [
   },
 ]
 
-export default function FeaturedBook() {
+export default function NewArrivals() {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   const nextSlide = () => {

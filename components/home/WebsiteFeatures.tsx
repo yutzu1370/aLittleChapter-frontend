@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-export default function Features() {
+export default function WebsiteFeatures() {
   const features = [
     {
       id: 1,

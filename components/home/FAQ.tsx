@@ -4,7 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { Plus, Minus } from "lucide-react"
 
-export default function Faq() {
+export default function FAQ() {
   const faqs = [
     {
       id: 1,
