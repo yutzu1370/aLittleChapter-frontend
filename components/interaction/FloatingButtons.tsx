@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { ArrowUp } from "lucide-react"
-import ChatWindow from "./chat-window"
+import ChatWindow from "./ChatWindow"
 
 export default function FloatingButtons() {
   const [isChatOpen, setIsChatOpen] = useState(false)
