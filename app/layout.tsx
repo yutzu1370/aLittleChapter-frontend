@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import FloatingButtons from "@/components/interaction/FloatingButtons"
+import ClientChat from "@/components/interaction/chat/ClientChat"
 import { Toaster } from "sonner"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         {children}
         <FloatingButtons />
+        <ClientChat />
         <Toaster position="top-center" richColors />
       </body>
     </html>
