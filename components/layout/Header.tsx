@@ -4,7 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Search, ShoppingCart, Heart, Bell } from "lucide-react"
-import { AuthModal } from "@/components/AuthModal"
+import { AuthModal } from "@/components/auth/AuthModal"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 
 export default function Header() {
