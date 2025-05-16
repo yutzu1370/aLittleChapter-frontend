@@ -261,7 +261,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     setActiveTab("login")
     setResetPasswordStep(1)
   }
-  
+
   // 新增處理返回上一步的函數
   const handlePreviousStep = () => {
     setResetPasswordStep(prev => Math.max(1, prev - 1))
