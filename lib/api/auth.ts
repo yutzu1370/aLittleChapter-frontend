@@ -1,15 +1,11 @@
 import { LoginFormData, SignupFormData, ForgotPasswordFormData, VerificationCodeFormData, ResetPasswordFormData } from "@/components/auth/types";
 import { API_BASE_URL } from "@/lib/constants";
+import apiClient from "@/lib/apiClient";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
 
 export async function loginApi(data: LoginFormData) {
-  const response = await fetch(`${apiUrl}/api/users/log-in`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-  return response.json();
+  return apiClient.post('/api/users/log-in', data);
 }
 
 export async function signupApi(data: SignupFormData) {
