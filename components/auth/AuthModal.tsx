@@ -85,7 +85,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       loginForm.setValue("email", data.email.trim())
       const responseData = await loginApi(data)
       
-      if (!responseData || !responseData.status) {
+      if (!responseData || responseData.status === false) {
         toast.error("登入失敗", {
           description: responseData?.message || "登入失敗",
           duration: 3000
@@ -140,7 +140,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       signupForm.setValue("email", data.email.trim())
       const responseData = await signupApi(data)
       
-      if (!responseData || !responseData.status) {
+      if (!responseData || responseData.status === false) {
         toast.error("註冊失敗", {
           description: responseData?.message || "註冊失敗",
           duration: 2000

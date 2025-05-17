@@ -1,47 +1,27 @@
 import { LoginFormData, SignupFormData, ForgotPasswordFormData, VerificationCodeFormData, ResetPasswordFormData } from "@/components/auth/types";
 import { API_BASE_URL } from "@/lib/constants";
-import apiClient from "@/lib/apiClient";
+import apiClient, { ApiResponse } from "@/lib/apiClient";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
 
-export async function loginApi(data: LoginFormData) {
+export async function loginApi(data: LoginFormData): Promise<ApiResponse> {
   return apiClient.post('/api/users/log-in', data);
 }
 
-export async function signupApi(data: SignupFormData) {
+export async function signupApi(data: SignupFormData): Promise<ApiResponse> {
   const { confirmPassword, ...signupData } = data;
-  const response = await fetch(`${apiUrl}/api/users/sign-up`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(signupData)
-  });
-  return response.json();
+  return apiClient.post('/api/users/sign-up', signupData);
 }
 
-export async function forgotPasswordApi(data: ForgotPasswordFormData) {
-  const response = await fetch(`${apiUrl}/api/users/forgot-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: data.email })
-  });
-  return response.json();
+export async function forgotPasswordApi(data: ForgotPasswordFormData): Promise<ApiResponse> {
+  return apiClient.post('/api/users/forgot-password', { email: data.email });
 }
 
-export async function verifyCodeApi(email: string, data: VerificationCodeFormData) {
-  const response = await fetch(`${apiUrl}/api/users/verify-code`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, code: data.code })
-  });
-  return response.json();
+export async function verifyCodeApi(email: string, data: VerificationCodeFormData): Promise<ApiResponse> {
+  return apiClient.post('/api/users/verify-code', { email, code: data.code });
 }
 
-export async function resetPasswordApi(email: string, code: string, data: ResetPasswordFormData) {
+export async function resetPasswordApi(email: string, code: string, data: ResetPasswordFormData): Promise<ApiResponse> {
   const { confirmPassword, ...resetData } = data;
-  const response = await fetch(`${apiUrl}/api/users/reset-password`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, code, newPassword: resetData.password })
-  });
-  return response.json();
+  return apiClient.post('/api/users/reset-password', { email, code, newPassword: resetData.password });
 } 
