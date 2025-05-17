@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
+import axios from "axios"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -42,7 +43,7 @@ const getTokenFromLocalStorage = (): string | null => {
   }
 }
 
-// 發送 API 請求的通用函數
+// 使用 axios 發送 API 請求的通用函數
 const callApi = async <T,>(path: string, method: string = 'GET', data?: any): Promise<T> => {
   // 從 localStorage 獲取 token
   const token = getTokenFromLocalStorage()
@@ -50,36 +51,33 @@ const callApi = async <T,>(path: string, method: string = 'GET', data?: any): Pr
   // 獲取 API 基礎 URL
   const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://little-chapter-backend.onrender.com"
   
-  // 組建請求選項
-  const options: RequestInit = {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": token ? `Bearer ${token}` : "",
-    },
-  }
-  
-  // 如果有資料，加入請求主體
-  if (data) {
-    options.body = JSON.stringify(data)
-  }
-  
   // 構建完整的 API 路徑
   const apiPath = `${apiUrl}/api/users/${path.replace(/^\//, '')}`
   
   console.log(`[Profile Client] 發送請求到: ${apiPath}`)
   
   try {
+    // 設定 axios 請求配置
+    const config = {
+      method,
+      url: apiPath,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token ? `Bearer ${token}` : "",
+      },
+      data: data ? data : undefined
+    }
+    
     // 發送請求
-    const response = await fetch(apiPath, options)
+    const response = await axios(config)
     
     // 獲取回應內容
-    const responseData = await response.json()
+    const responseData = response.data
     
     // 檢查回應狀態
-    if (!response.ok || responseData.status === false) {
+    if (responseData.status === false) {
       // 直接使用後端返回的錯誤訊息
-      const errorMessage = responseData.message || `API 請求失敗: ${response.status}`
+      const errorMessage = responseData.message || `API 請求失敗`
       console.error(`[Profile Client] API 錯誤: ${errorMessage}`)
       throw new Error(errorMessage)
     }
@@ -89,8 +87,15 @@ const callApi = async <T,>(path: string, method: string = 'GET', data?: any): Pr
     // 假設 API 回應格式為 { status: boolean, data: T, message?: string }
     return responseData.data || responseData
   } catch (error) {
-    console.error(`[Profile Client] API 調用錯誤:`, error)
-    throw error
+    // 處理 axios 錯誤
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || error.message || "API 請求失敗"
+      console.error(`[Profile Client] API 調用錯誤:`, errorMessage)
+      throw new Error(errorMessage)
+    } else {
+      console.error(`[Profile Client] API 調用錯誤:`, error)
+      throw error
+    }
   }
 }
 
@@ -227,11 +232,9 @@ export default function ProfileClient() {
   useEffect(() => {
     const fetchCityData = async () => {
       try {
-        const response = await fetch('/data/city.json')
-        if (!response.ok) {
-          throw new Error('無法獲取城市資料')
-        }
-        const data: CityData = await response.json()
+        // 使用 axios 獲取城市資料
+        const response = await axios.get('/data/city.json')
+        const data: CityData = response.data
         setCityData(data)
         console.log("[城市資料] 載入完成", data.children.length, "個城市")
         
@@ -434,10 +437,11 @@ export default function ProfileClient() {
       const formData = new FormData()
       formData.append("avatar", file)
 
-      // 模擬上傳處理 (實際應用中應該有後端 API)
-      // const response = await fetch("/api/upload-avatar", {
-      //   method: "POST",
-      //   body: formData,
+      // 使用 axios 上傳頭像 (實際應用中應該有後端 API)
+      // const response = await axios.post("/api/upload-avatar", formData, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data'
+      //   }
       // })
       
       // 測試用，直接使用預覽URL
@@ -529,173 +533,132 @@ export default function ProfileClient() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+    <div className="flex flex-col md:flex-row gap-12">
       {/* 左側：使用者資訊卡 */}
-      <Card className="p-6 bg-white rounded-xl shadow-md md:col-span-1 h-full flex flex-col">
-        <h2 className="text-lg font-semibold text-amber-800 mb-4 border-b pb-2">使用者資訊</h2>
-        
-        <div className="flex flex-col items-center mb-6">
-          <Avatar className="w-32 h-32 border-2 border-amber-200 mb-4">
+      <div className="w-full md:w-64">
+        <div className="flex flex-col items-center">
+          <Avatar className="w-32 h-32 mb-3">
             <AvatarImage src={userProfile.avatar || ""} />
-            <AvatarFallback className="bg-amber-100 text-amber-800 text-xl">
+            <AvatarFallback className="bg-blue-500">
               {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}
             </AvatarFallback>
           </Avatar>
-        </div>
-        
-        <div className="space-y-4 flex-grow">
-          <div className="border-b pb-6">
-            <span className="text-sm text-gray-500">姓名：</span>
-            <span className="font-medium">{userProfile.name}</span>
-          </div>
+          <h3 className="text-lg font-medium">{userProfile.name}</h3>
+          <p className="text-sm text-gray-500 mb-5">{userProfile.email}</p>
           
-          <div className="border-b pb-6">
-            <span className="text-sm text-gray-500">性別：</span>
-            <span className="font-medium">{userProfile.gender}</span>
-          </div>
-          
-          <div className="border-b pb-6">
-            <span className="text-sm text-gray-500">生日：</span>
-            <span className="font-medium">{userProfile.birthdate}</span>
-          </div>
-          
-          <div className="border-b pb-6">
-            <span className="text-sm text-gray-500">電話：</span>
-            <span className="font-medium">{userProfile.phone}</span>
-          </div>
-          
-          <div className="border-b pb-6">
-            <span className="text-sm text-gray-500">信箱：</span>
-            <span className="font-medium">{userProfile.email}</span>
-          </div>
-          
-          <div>
-            <span className="text-sm text-gray-500">地址：</span>
-            <span className="font-medium block mt-1">
-              {userProfile.address.city} {userProfile.address.district} {userProfile.address.detail}
-            </span>
-          </div>
-        </div>
-        
-        {/* 登出按鈕 */}
-        <div className="mt-8 pt-4 border-t">
-          <Button 
-            variant="outline" 
-            className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
-            onClick={handleLogout}
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            登出
-          </Button>
-        </div>
-      </Card>
-
-      {/* 右側：編輯表單 */}
-      <Card className="p-6 bg-white rounded-xl shadow-md md:col-span-2 h-full">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-amber-800">個人資料</h2>
-          {!isEditing && (
+          {/* 按鈕群組 */}
+          <div className="space-y-3 w-full">
             <Button 
-              variant="outline" 
-              className="border-gray-300 text-gray-700 bg-gray-200 hover:bg-gray-300"
+              variant="outline"
+              className="w-full bg-white border-[#E8652B] text-[#E8652B] hover:bg-[#FCE9D8] rounded-full font-medium shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all"
+              onClick={() => document.getElementById('avatar-upload')?.click()}
+            >
+              更換大頭貼
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="w-full bg-white border-[#E8652B] text-[#E8652B] hover:bg-[#FCE9D8] rounded-full font-medium shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all"
+              onClick={() => router.push("/account/change-password")}
+            >
+              修改密碼
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="w-full bg-white border-[#E8652B] text-[#E8652B] hover:bg-[#FCE9D8] rounded-full font-medium shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all flex items-center"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              登出
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* 右側：表單區域 */}
+      <div className="flex-1">
+        <div className="flex justify-end mb-4">
+          {!isEditing && (
+            <Button
+              type="button"
+              className="px-6 py-3 bg-[#E8652B] hover:bg-[#D94A1D] text-white rounded-full flex items-center gap-2"
               onClick={() => setIsEditing(true)}
             >
-              編輯
+              <PencilIcon className="w-4 h-4" />
+              編輯資料
             </Button>
           )}
         </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* 頭像部分 */}
-          <div className="flex flex-col items-center mb-6">
-            <div className="relative">
-              <Avatar className="w-24 h-24 border-2 border-amber-200">
-                <AvatarImage src={avatar || ""} />
-                <AvatarFallback className="bg-amber-100 text-amber-800 text-lg">
-                  {name ? name.charAt(0).toUpperCase() : "U"}
-                </AvatarFallback>
-              </Avatar>
-              
-              {isEditing && (
-                <label
-                  className="absolute bottom-0 right-0 w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 shadow-md cursor-pointer"
-                  aria-label="上傳頭像"
-                >
-                  <Upload className="w-4 h-4" />
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    onChange={handleFileChange}
-                  />
-                </label>
-              )}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* 姓名欄位 */}
+          <div className="grid grid-cols-12 items-center gap-4">
+            <Label htmlFor="name" className="col-span-2">姓名</Label>
+            <div className="col-span-10">
+              <input
+                {...register("name")}
+                id="name"
+                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
+                disabled={!isEditing}
+              />
             </div>
-            {isEditing && (
-              <span className="text-xs text-gray-500 mt-2">點擊頭像右下角按鈕可更新頭貼</span>
-            )}
           </div>
-
-          <div className="grid md:grid-cols-2 gap-6 items-baseline">
-            {/* 姓名 */}
-            <InputField
-              label="姓名"
-              {...register("name")}
-              error={errors.name?.message}
-              disabled={!isEditing}
-              className={cn(
-                isEditing ? "!border-gray-200" : "!border-gray-200 bg-gray-50"
-              )}
-            />
-
-            {/* 性別 */}
-            <div className="space-y-2">
-              <Label>性別</Label>
+          
+          {/* 性別欄位 */}
+          <div className="grid grid-cols-12 items-center gap-4">
+            <Label className="col-span-2">性別</Label>
+            <div className="col-span-10">
               <RadioGroup 
                 value={gender} 
-                onValueChange={(value) => setValue("gender", value as "男" | "女")}
+                onValueChange={(value) => isEditing && setValue("gender", value as "男" | "女")}
+                className="flex space-x-12"
                 disabled={!isEditing}
-                className="flex space-x-4"
               >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="男" id="male" className="focus:outline-none focus:ring-2 focus:ring-amber-500 text-amber-500" />
-                  <Label htmlFor="male" className="cursor-pointer">男</Label>
+                  <RadioGroupItem 
+                    value="男" 
+                    id="male" 
+                    className={gender === "男" ? "border-[#D94A1D] text-[#D94A1D]" : ""} 
+                    disabled={!isEditing}
+                  />
+                  <Label htmlFor="male" className={!isEditing ? "opacity-70" : ""}>男</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="女" id="female" className="focus:outline-none focus:ring-2 focus:ring-amber-500 text-amber-500" />
-                  <Label htmlFor="female" className="cursor-pointer">女</Label>
+                  <RadioGroupItem 
+                    value="女" 
+                    id="female" 
+                    className={gender === "女" ? "border-[#D94A1D] text-[#D94A1D]" : ""}
+                    disabled={!isEditing}
+                  />
+                  <Label htmlFor="female" className={!isEditing ? "opacity-70" : ""}>女</Label>
                 </div>
               </RadioGroup>
-              {errors.gender && (
-                <p className="text-xs text-red-500">{errors.gender.message}</p>
-              )}
             </div>
-
-            {/* 生日 */}
-            <div className="space-y-2">
-              <Label>生日</Label>
+          </div>
+          
+          {/* 生日欄位 */}
+          <div className="grid grid-cols-12 items-center gap-4">
+            <Label className="col-span-2">生日</Label>
+            <div className="col-span-10">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !birthdate && "text-muted-foreground",
-                      "!border-gray-200",
-                      !isEditing && "bg-gray-50",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
-                    )}
+                    className={`w-full justify-between rounded-full border-[#E5E5E5] px-4 py-3 h-auto text-left font-normal ${!isEditing ? 'opacity-70 pointer-events-none' : ''}`}
                     disabled={!isEditing}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {birthdate ? (
-                      format(birthdate, "yyyy-MM-dd")
-                    ) : (
-                      <span>選擇生日</span>
-                    )}
+                    {birthdate ? format(birthdate, "yyyy/MM/dd") : "選擇生日"}
+                    <CalendarIcon className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-gray-100" align="start">
+                <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={birthdate}
@@ -703,133 +666,119 @@ export default function ProfileClient() {
                     disabled={(date) => date > new Date()}
                     initialFocus
                     locale={zhTW}
-                    className="bg-gray-100"
                   />
                 </PopoverContent>
               </Popover>
-              {errors.birthdate && (
-                <p className="text-xs text-red-500">{errors.birthdate.message}</p>
-              )}
             </div>
-
-            {/* 電話 */}
-            <InputField
-              label="電話"
-              {...register("phone")}
-              error={errors.phone?.message}
-              disabled={!isEditing}
-              className={cn(
-                isEditing ? "!border-gray-200" : "!border-gray-200 bg-gray-50"
-              )}
-            />
-
-            {/* 信箱 */}
-            <InputField
-              label="信箱"
-              {...register("email")}
-              error={errors.email?.message}
-              disabled={true}
-              className={cn(
-                "!border-gray-200 bg-gray-50"
-              )}
-            />
-
-            {/* 地址 - 城市 */}
-            <div className="space-y-2">
-              <Label>城市</Label>
-              <select
-                {...register("address.city")}
+          </div>
+          
+          {/* 電話欄位 */}
+          <div className="grid grid-cols-12 items-center gap-4">
+            <Label htmlFor="phone" className="col-span-2">電話</Label>
+            <div className="col-span-10">
+              <input
+                {...register("phone")}
+                id="phone"
+                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
                 disabled={!isEditing}
-                className={cn(
-                  "w-full px-3 py-2 border rounded-md focus:outline-none",
-                  "border-gray-200",
-                  !isEditing && "bg-gray-50"
-                )}
-              >
-                <option value="">請選擇城市</option>
-                {cities.map((city) => (
-                  <option key={city.value} value={city.value}>
-                    {city.label}
-                  </option>
-                ))}
-              </select>
-              {errors.address?.city && (
-                <p className="text-xs text-red-500">{errors.address.city.message}</p>
-              )}
-            </div>
-
-            {/* 地址 - 區域 */}
-            <div className="space-y-2">
-              <Label>區域</Label>
-              <select
-                {...register("address.district")}
-                disabled={!isEditing || !selectedCity}
-                className={cn(
-                  "w-full px-3 py-2 border rounded-md focus:outline-none",
-                  "border-gray-200",
-                  (!isEditing || !selectedCity) && "bg-gray-50"
-                )}
-              >
-                <option value="">請選擇區域</option>
-                {selectedCity && districts[selectedCity] && 
-                  districts[selectedCity].map((district) => (
-                    <option key={district.value} value={district.value}>
-                      {district.label}
-                    </option>
-                  ))
-                }
-              </select>
-              {errors.address?.district && (
-                <p className="text-xs text-red-500">{errors.address.district.message}</p>
-              )}
-            </div>
-
-            {/* 地址 - 詳細地址 */}
-            <div className="md:col-span-2">
-              <InputField
-                label="詳細地址"
-                {...register("address.detail")}
-                error={errors.address?.detail?.message}
-                disabled={!isEditing}
-                className={cn(
-                  isEditing ? "!border-gray-200" : "!border-gray-200 bg-gray-50"
-                )}
               />
             </div>
           </div>
-
-          {/* 編輯模式下的按鈕 */}
-          {isEditing && (
-            <div className="flex justify-end gap-4 sticky bottom-0 pt-4 pb-2 bg-white">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleCancel}
-                disabled={isLoading}
-                className="border-gray-300 text-gray-700 bg-gray-200 hover:bg-gray-300"
-              >
-                取消
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isLoading}
-                className="bg-amber-600 hover:bg-amber-700"
-              >
-                {isLoading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    儲存中...
-                  </>
-                ) : (
-                  <>
-                    儲存
-                  </>
-                )}
-              </Button>
+          
+          {/* 地址欄位 */}
+          <div className="grid grid-cols-12 items-center gap-4">
+            <Label className="col-span-2">地址</Label>
+            <div className="col-span-10 grid grid-cols-12 gap-3">
+              {/* 城市選擇 */}
+              <div className="col-span-4">
+                <select
+                  {...register("address.city")}
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8"
+                  disabled={!isEditing}
+                >
+                  <option value="">請選擇城市</option>
+                  {cities.map((city) => (
+                    <option key={city.value} value={city.value}>
+                      {city.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* 區域選擇 */}
+              <div className="col-span-4">
+                <select
+                  {...register("address.district")}
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8"
+                  disabled={!isEditing || !selectedCity}
+                >
+                  <option value="">請選擇區域</option>
+                  {selectedCity && districts[selectedCity] && 
+                    districts[selectedCity].map((district) => (
+                      <option key={district.value} value={district.value}>
+                        {district.label}
+                      </option>
+                    ))
+                  }
+                </select>
+              </div>
+              
+              {/* 詳細地址 */}
+              <div className="col-span-12">
+                <input
+                  {...register("address.detail")}
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
+                  placeholder="詳細地址"
+                  disabled={!isEditing}
+                />
+              </div>
             </div>
-          )}
+          </div>
+          
+          {/* Email欄位 */}
+          <div className="grid grid-cols-12 items-center gap-4">
+            <Label htmlFor="email" className="col-span-2">E-mail</Label>
+            <div className="col-span-10">
+              <input
+                {...register("email")}
+                id="email"
+                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-gray-50"
+                disabled
+              />
+            </div>
+          </div>
+          
+          {/* 按鈕區域 */}
+          <div className="flex justify-end mt-8 space-x-4">
+            {isEditing ? (
+              <>
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="px-6 py-3 border-[#E8652B] text-[#E8652B] rounded-full flex items-center gap-2"
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                >
+                  <XIcon className="w-4 h-4" />
+                  取消
+                </Button>
+                <Button 
+                  type="submit" 
+                  className="px-6 py-3 bg-[#E8652B] hover:bg-[#D94A1D] text-white rounded-full flex items-center gap-2"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <SaveIcon className="w-4 h-4" />
+                  )}
+                  儲存變更
+                </Button>
+              </>
+            ) : null}
+          </div>
         </form>
-      </Card>
+      </div>
     </div>
   )
 } 

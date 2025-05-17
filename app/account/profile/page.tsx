@@ -59,7 +59,6 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-amber-800 mb-6">個人資料</h2>
       <ProfileClient />
     </div>
   )
