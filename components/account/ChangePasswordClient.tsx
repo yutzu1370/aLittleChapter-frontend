@@ -91,9 +91,9 @@ export default function ChangePasswordClient() {
 
   return (
     <div className="max-w-md mx-auto">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl">修改您的密碼</CardTitle>
+      <Card className="animate-spring-up rounded-2xl border-[#E8652B]">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl text-[#E8652B]">修改您的密碼</CardTitle>
           <CardDescription>請輸入您的當前密碼及新密碼</CardDescription>
         </CardHeader>
         
@@ -109,6 +109,7 @@ export default function ChangePasswordClient() {
                   id="currentPassword"
                   type={showCurrentPassword ? "text" : "password"}
                   className={cn(
+                    "w-full px-4 py-3 rounded-full border border-[#E5E5E5] focus:border-[#E8652B] focus:ring-2 focus:ring-[#FCE9D8] focus:outline-none transition-colors",
                     errors.currentPassword && "border-red-500"
                   )}
                   {...register("currentPassword")}
@@ -126,7 +127,7 @@ export default function ChangePasswordClient() {
                 </button>
               </div>
               {errors.currentPassword && (
-                <div className="text-red-500 text-xs flex items-center mt-1">
+                <div className="text-red-500 text-xs flex items-center mt-1 ml-2">
                   <AlertCircle className="h-3 w-3 mr-1" />
                   {errors.currentPassword.message}
                 </div>
@@ -143,6 +144,7 @@ export default function ChangePasswordClient() {
                   id="newPassword"
                   type={showNewPassword ? "text" : "password"}
                   className={cn(
+                    "w-full px-4 py-3 rounded-full border border-[#E5E5E5] focus:border-[#E8652B] focus:ring-2 focus:ring-[#FCE9D8] focus:outline-none transition-colors",
                     errors.newPassword && "border-red-500"
                   )}
                   {...register("newPassword")}
@@ -160,7 +162,7 @@ export default function ChangePasswordClient() {
                 </button>
               </div>
               {errors.newPassword && (
-                <div className="text-red-500 text-xs flex items-center mt-1">
+                <div className="text-red-500 text-xs flex items-center mt-1 ml-2">
                   <AlertCircle className="h-3 w-3 mr-1" />
                   {errors.newPassword.message}
                 </div>
@@ -177,6 +179,7 @@ export default function ChangePasswordClient() {
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   className={cn(
+                    "w-full px-4 py-3 rounded-full border border-[#E5E5E5] focus:border-[#E8652B] focus:ring-2 focus:ring-[#FCE9D8] focus:outline-none transition-colors",
                     errors.confirmPassword && "border-red-500"
                   )}
                   {...register("confirmPassword")}
@@ -194,14 +197,14 @@ export default function ChangePasswordClient() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <div className="text-red-500 text-xs flex items-center mt-1">
+                <div className="text-red-500 text-xs flex items-center mt-1 ml-2">
                   <AlertCircle className="h-3 w-3 mr-1" />
                   {errors.confirmPassword.message}
                 </div>
               )}
             </div>
             
-            <div className="bg-amber-50 p-3 rounded-md text-xs text-amber-800 space-y-1 mt-2">
+            <div className="bg-[#fef5ee] p-3 rounded-md text-xs text-amber-800 space-y-1 mt-2">
               <p className="font-medium">密碼要求：</p>
               <ul className="list-disc list-inside space-y-0.5">
                 <li>長度為 8-16 個字元</li>
@@ -211,19 +214,20 @@ export default function ChangePasswordClient() {
             </div>
           </CardContent>
           
-          <CardFooter className="flex justify-end gap-2 border-t p-4">
+          <CardFooter className="flex justify-end gap-3 pt-4 pb-4">
             <Button 
               variant="outline"
               type="button"
               disabled={isSubmitting}
               onClick={() => reset()}
+              className="px-6 py-3 border-[#E8652B] text-[#E8652B] rounded-full hover:bg-[#FCE9D8] shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all"
             >
               取消
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="gap-2"
+              className="px-6 py-3 bg-[#E8652B] hover:bg-[#D94A1D] text-white rounded-full gap-2 shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all"
             >
               {isSubmitting ? (
                 <>
