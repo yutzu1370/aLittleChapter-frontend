@@ -24,4 +24,13 @@ export async function verifyCodeApi(email: string, data: VerificationCodeFormDat
 export async function resetPasswordApi(email: string, code: string, data: ResetPasswordFormData): Promise<ApiResponse> {
   const { confirmPassword, ...resetData } = data;
   return apiClient.post('/api/users/reset-password', { email, code, newPassword: resetData.password });
+}
+
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export async function changePasswordApi(data: ChangePasswordData): Promise<ApiResponse> {
+  return apiClient.put('/api/users/password', data);
 } 

@@ -18,10 +18,28 @@ const apiClient = axios.create({
   },
 });
 
+// 從 localStorage 獲取 token 的通用函數
+const getTokenFromLocalStorage = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const authStorage = localStorage.getItem('auth-storage');
+    if (!authStorage) return null;
+    const authData = JSON.parse(authStorage);
+    return authData.state?.token || null;
+  } catch (error) {
+    console.error('從 localStorage 獲取 token 失敗:', error);
+    return null;
+  }
+};
+
 // 請求攔截器
 apiClient.interceptors.request.use(
   (config) => {
-    // 在這裡可以添加通用請求配置，例如認證 token
+    // 添加 token 到授權標頭
+    const token = getTokenFromLocalStorage();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {

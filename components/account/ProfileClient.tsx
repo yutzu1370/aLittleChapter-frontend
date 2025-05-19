@@ -5,99 +5,19 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
-import axios from "axios"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { InputField } from "@/components/ui/InputField"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { CalendarIcon, PencilIcon, SaveIcon, XIcon, Upload, LogOut } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { CalendarIcon, PencilIcon, SaveIcon, XIcon, LogOut } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { zhTW } from "date-fns/locale"
 import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-
-// 從 localStorage 獲取 token 的通用函數
-const getTokenFromLocalStorage = (): string | null => {
-  if (typeof window === 'undefined') return null
-  try {
-    const authStorage = localStorage.getItem('auth-storage')
-    if (!authStorage) return null
-    const authData = JSON.parse(authStorage)
-    return authData.state?.token || null
-  } catch (error) {
-    console.error('從 localStorage 獲取 token 失敗:', error)
-    return null
-  }
-}
-
-// 使用 axios 發送 API 請求的通用函數
-const callApi = async <T,>(path: string, method: string = 'GET', data?: any): Promise<T> => {
-  // 從 localStorage 獲取 token
-  const token = getTokenFromLocalStorage()
-  
-  // 獲取 API 基礎 URL
-  const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "https://little-chapter-backend.onrender.com"
-  
-  // 構建完整的 API 路徑
-  const apiPath = `${apiUrl}/api/users/${path.replace(/^\//, '')}`
-  
-  console.log(`[Profile Client] 發送請求到: ${apiPath}`)
-  
-  try {
-    // 設定 axios 請求配置
-    const config = {
-      method,
-      url: apiPath,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token ? `Bearer ${token}` : "",
-      },
-      data: data ? data : undefined
-    }
-    
-    // 發送請求
-    const response = await axios(config)
-    
-    // 獲取回應內容
-    const responseData = response.data
-    
-    // 檢查回應狀態
-    if (responseData.status === false) {
-      // 直接使用後端返回的錯誤訊息
-      const errorMessage = responseData.message || `API 請求失敗`
-      console.error(`[Profile Client] API 錯誤: ${errorMessage}`)
-      throw new Error(errorMessage)
-    }
-    
-    console.log(`[Profile Client] API 回應成功:`, responseData)
-    
-    // 假設 API 回應格式為 { status: boolean, data: T, message?: string }
-    return responseData.data || responseData
-  } catch (error) {
-    // 處理 axios 錯誤
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || error.message || "API 請求失敗"
-      console.error(`[Profile Client] API 調用錯誤:`, errorMessage)
-      throw new Error(errorMessage)
-    } else {
-      console.error(`[Profile Client] API 調用錯誤:`, error)
-      throw error
-    }
-  }
-}
+import axios from "axios"
+import { getUserProfile, updateUserProfile, uploadAvatar, UpdateProfileData } from "@/lib/api/profile"
 
 // 城市資料結構
 interface CityData {
@@ -120,7 +40,7 @@ const profileSchema = z.object({
     required_error: "請選擇生日",
   }),
   phone: z.string()
-    .min(8, { message: "電話號碼至少需要8位數" })
+    .length(10, { message: "電話號碼必須為10位數字" })
     .regex(/^\d+$/, { message: "電話號碼必須為數字" }),
   email: z
     .string()
@@ -174,7 +94,6 @@ export default function ProfileClient() {
   const [districts, setDistricts] = useState<Record<string, { value: string; label: string }[]>>({})
   const [cityData, setCityData] = useState<CityData | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string>("")
 
   // 初始化表單
   const {
@@ -200,7 +119,6 @@ export default function ProfileClient() {
   })
 
   // 即時監聽表單值的變化，更新左側顯示
-  // 使用 watch 的特定欄位而不是整個表單
   const name = watch("name")
   const gender = watch("gender")
   const birthdate = watch("birthdate")
@@ -232,11 +150,9 @@ export default function ProfileClient() {
   useEffect(() => {
     const fetchCityData = async () => {
       try {
-        // 使用 axios 獲取城市資料
         const response = await axios.get('/data/city.json')
         const data: CityData = response.data
         setCityData(data)
-        console.log("[城市資料] 載入完成", data.children.length, "個城市")
         
         // 構建城市選項
         const cityOptions = data.children.map(city => ({
@@ -275,23 +191,23 @@ export default function ProfileClient() {
 
   // 獲取用戶資料，但要等cityData載入後才執行
   useEffect(() => {
-    // 如果cityData尚未載入，不執行
-    if (!cityData) {
-      console.log("[使用者資料] 等待城市資料載入完成...")
-      return
-    }
+    if (!cityData) return
 
-    console.log("[使用者資料] 城市資料已載入，開始獲取使用者資料")
-    
     const fetchUserProfile = async () => {
       try {
         setIsInitialLoading(true)
         
-        // API 請求獲取用戶資料
-        const data = await callApi<any>("profile", "GET")
-        console.log("[使用者資料] API回應:", data)
+        const response = await getUserProfile();
         
-        // 設置表單值，根據新的API回應結構調整
+        if (!response || !response.status) {
+          toast.error("獲取資料失敗", {
+            description: response?.message || "無法獲取用戶資料",
+          });
+          return;
+        }
+        
+        const data = response.data;
+        
         if (data && data.user) {
           const userData = data.user;
           
@@ -302,11 +218,7 @@ export default function ProfileClient() {
           
           // 創建一個函數來解析地址
           const parseAddress = (address: string) => {
-            console.log("[地址解析] 開始解析地址:", address);
-            console.log("[地址解析] cityData 是否存在:", !!cityData);
-            
             if (!address || !cityData || !cityData.children) {
-              console.log("[地址解析] 資料不完整，返回空結果");
               return { city: "", district: "", detail: address };
             }
             
@@ -316,7 +228,6 @@ export default function ProfileClient() {
               const cityName = cityObj.name;
               
               if (address.indexOf(cityName) === 0) {
-                console.log("[地址解析] 找到城市:", cityName);
                 // 找到城市，繼續檢查區域
                 const addressWithoutCity = address.substring(cityName.length);
                 
@@ -328,7 +239,6 @@ export default function ProfileClient() {
                     
                     // 檢查剩餘地址是否以該區域開頭
                     if (addressWithoutCity.indexOf(districtName) === 0) {
-                      console.log("[地址解析] 找到區域:", districtName);
                       // 找到區域，剩餘部分為詳細地址
                       const detailAddress = addressWithoutCity.substring(districtName.length);
                       
@@ -351,20 +261,15 @@ export default function ProfileClient() {
             }
             
             // 如果沒找到任何匹配，返回原始地址作為詳細地址
-            console.log("[地址解析] 沒有找到任何匹配的城市");
             return { city: "", district: "", detail: address };
           };
           
           // 執行解析
           if (detail) {
-            console.log("[地址解析] 解析前的地址:", detail);
-            
             const parsedAddress = parseAddress(detail);
             city = parsedAddress.city;
             district = parsedAddress.district;
             detail = parsedAddress.detail;
-            
-            console.log("[地址解析] 解析後結果:", { city, district, detail });
           }
           
           // 更新表單
@@ -411,7 +316,7 @@ export default function ProfileClient() {
     }
 
     fetchUserProfile()
-  }, [cityData, reset]) // 當cityData變更時重新執行
+  }, [cityData, reset])
 
   // 處理頭像上傳
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -421,7 +326,6 @@ export default function ProfileClient() {
       
       // 建立預覽 URL
       const fileUrl = URL.createObjectURL(file)
-      setPreviewUrl(fileUrl)
       
       // 直接設定頭像預覽並準備上傳
       setValue("avatar", fileUrl)
@@ -433,23 +337,20 @@ export default function ProfileClient() {
 
   const handleAvatarUpload = async (file: File, fileUrl: string) => {
     try {
-      // 建立表單資料
-      const formData = new FormData()
-      formData.append("avatar", file)
-
-      // 使用 axios 上傳頭像 (實際應用中應該有後端 API)
-      // const response = await axios.post("/api/upload-avatar", formData, {
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data'
-      //   }
-      // })
+      const response = await uploadAvatar(file);
       
-      // 測試用，直接使用預覽URL
-      toast.success("頭像已更新")
+      if (!response || !response.status) {
+        toast.error("上傳頭像失敗", {
+          description: response?.message || "上傳頭像失敗，請稍後再試",
+        });
+        return;
+      }
+      
+      toast.success("頭像已更新");
       
       // 清理舊的預覽 URL 物件（如果有的話）
       if (avatar && avatar !== fileUrl && avatar.startsWith("blob:")) {
-        URL.revokeObjectURL(avatar)
+        URL.revokeObjectURL(avatar);
       }
     } catch (error) {
       console.error("上傳頭像失敗:", error)
@@ -463,7 +364,7 @@ export default function ProfileClient() {
       setIsLoading(true)
       
       // 轉換資料格式以符合後端 API 需求
-      const formattedData = {
+      const formattedData: UpdateProfileData = {
         name: values.name,
         gender: values.gender === "女" ? "female" : "male",
         phone: values.phone,
@@ -471,10 +372,17 @@ export default function ProfileClient() {
         address: `${values.address.city}${values.address.district}${values.address.detail}`
       };
       
-      console.log("[提交資料] 轉換後的資料:", formattedData);
+      // 使用新的 API 模組更新用戶資料
+      const response = await updateUserProfile(formattedData);
       
-      // API 請求更新用戶資料
-      const data = await callApi<any>("profile", "PUT", formattedData);
+      if (!response || !response.status) {
+        toast.error("更新資料失敗", {
+          description: response?.message || "無法更新用戶資料",
+        });
+        return;
+      }
+      
+      const data = response.data;
       
       // 更新左側顯示資料
       setUserProfile({
@@ -510,15 +418,12 @@ export default function ProfileClient() {
 
   // 處理登出
   const handleLogout = () => {
-    // 清除 localStorage 與 Zustand 狀態
     logout();
     
-    // 顯示成功訊息
     toast.success("已成功登出", {
       description: "期待您的再次訪問"
     });
     
-    // 重定向到首頁
     setTimeout(() => {
       router.push("/");
     }, 1000);
@@ -608,6 +513,9 @@ export default function ProfileClient() {
                 className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
                 disabled={!isEditing}
               />
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1 ml-2">{errors.name.message}</p>
+              )}
             </div>
           </div>
           
@@ -640,6 +548,9 @@ export default function ProfileClient() {
                   <Label htmlFor="female" className={!isEditing ? "opacity-70" : ""}>女</Label>
                 </div>
               </RadioGroup>
+              {errors.gender && (
+                <p className="text-red-500 text-sm mt-1 ml-2">{errors.gender.message}</p>
+              )}
             </div>
           </div>
           
@@ -669,6 +580,9 @@ export default function ProfileClient() {
                   />
                 </PopoverContent>
               </Popover>
+              {errors.birthdate && (
+                <p className="text-red-500 text-sm mt-1 ml-2">{errors.birthdate.message}</p>
+              )}
             </div>
           </div>
           
@@ -681,16 +595,22 @@ export default function ProfileClient() {
                 id="phone"
                 className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
                 disabled={!isEditing}
+                maxLength={10}
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
+              {errors.phone && (
+                <p className="text-red-500 text-sm mt-1 ml-2">{errors.phone.message}</p>
+              )}
             </div>
           </div>
           
           {/* 地址欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
             <Label className="col-span-2">地址</Label>
-            <div className="col-span-10 grid grid-cols-12 gap-3">
+            <div className="col-span-10 flex flex-row gap-3 items-start">
               {/* 城市選擇 */}
-              <div className="col-span-4">
+              <div className="w-[22%]">
                 <select
                   {...register("address.city")}
                   className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8"
@@ -703,10 +623,13 @@ export default function ProfileClient() {
                     </option>
                   ))}
                 </select>
+                {errors.address?.city && (
+                  <p className="text-red-500 text-sm mt-1 ml-2">{errors.address.city.message}</p>
+                )}
               </div>
               
               {/* 區域選擇 */}
-              <div className="col-span-4">
+              <div className="w-[22%]">
                 <select
                   {...register("address.district")}
                   className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8"
@@ -721,16 +644,22 @@ export default function ProfileClient() {
                     ))
                   }
                 </select>
+                {errors.address?.district && (
+                  <p className="text-red-500 text-sm mt-1 ml-2">{errors.address.district.message}</p>
+                )}
               </div>
               
               {/* 詳細地址 */}
-              <div className="col-span-12">
+              <div className="flex-1">
                 <input
                   {...register("address.detail")}
                   className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
                   placeholder="詳細地址"
                   disabled={!isEditing}
                 />
+                {errors.address?.detail && (
+                  <p className="text-red-500 text-sm mt-1 ml-2">{errors.address.detail.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -745,6 +674,9 @@ export default function ProfileClient() {
                 className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-gray-50"
                 disabled
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1 ml-2">{errors.email.message}</p>
+              )}
             </div>
           </div>
           
