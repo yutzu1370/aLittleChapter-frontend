@@ -124,15 +124,3 @@
 - 優先使用 RSC/SSR，減少 useEffect 與 client state。
 - UI 風格與元件請統一使用 Tailwind、Shadcn、Radix。
 
-## Vercel 部署說明
-
-當部署到 Vercel 時，如果遇到 `Module not found: Can't resolve 'zod'` 的錯誤，請按照以下步驟操作：
-
-1. 在 Vercel 專案設定中，前往 "Build & Development Settings"
-2. 將安裝命令設定為 `npm install --legacy-peer-deps`
-3. 將構建命令設定為 `npm run build`
-4. 在 "Environment Variables" 部分，確保所有必要的環境變數都已設定
-5. 重新部署專案
-
-此專案已包含 `vercel.json` 配置檔案，應該會自動應用這些設定。
-
