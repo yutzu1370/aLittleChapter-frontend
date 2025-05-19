@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertTriangle } from "lucide-react"
@@ -22,7 +22,8 @@ interface PaymentResponse {
   redirectUrl: string
 }
 
-export default function PaymentRedirectPage() {
+// 提取客戶端搜索參數邏輯到獨立組件
+function PaymentProcessor() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null)
@@ -198,5 +199,24 @@ export default function PaymentRedirectPage() {
         </div>
       )}
     </div>
+  )
+}
+
+// 載入中的 fallback 組件
+function PaymentFallback() {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="text-center">
+        <p className="text-gray-500">載入中...</p>
+      </div>
+    </div>
+  )
+}
+
+export default function PaymentRedirectPage() {
+  return (
+    <Suspense fallback={<PaymentFallback />}>
+      <PaymentProcessor />
+    </Suspense>
   )
 }
