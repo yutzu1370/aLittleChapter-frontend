@@ -8,7 +8,10 @@ export const products: Product[] = [
     price: 350,
     originalPrice: 480,
     image: "/images/books/book1-main.jpg",
-    description: "小狐狸露比的冒險旅程，探索勇氣與成長的意義，適合親子共讀。"
+    description: "小狐狸露比的冒險旅程，探索勇氣與成長的意義，適合親子共讀。",
+    isNew: true,
+    authorName: "林小花",
+    publisherName: "綠野出版社"
   },
   {
     id: "2",
@@ -16,7 +19,9 @@ export const products: Product[] = [
     price: 240,
     originalPrice: 300,
     image: "/images/other/book_10-1.png",
-    description: "跟著小河貍莫莫一起守護彩虹河，學習環保與大自然共存的重要課題。"
+    description: "跟著小河貍莫莫一起守護彩虹河，學習環保與大自然共存的重要課題。",
+    authorName: "張大勇",
+    publisherName: "綠野出版社"
   },
   {
     id: "3",
@@ -24,7 +29,9 @@ export const products: Product[] = [
     price: 180,
     originalPrice: 280,
     image: "/images/other/book_10-2.png",
-    description: "一個關於夢想與希望的溫馨故事，每個願望都能成真的奇幻世界。"
+    description: "一個關於夢想與希望的溫馨故事，每個願望都能成真的奇幻世界。",
+    authorName: "陳宇航",
+    publisherName: "星際出版社"
   },
   {
     id: "4",
@@ -32,7 +39,9 @@ export const products: Product[] = [
     price: 190,
     originalPrice: 280,
     image: "/images/other/book_10-3.png",
-    description: "跟著胖胖豬一起進入色彩繽紛的藝術世界，發掘創意無限可能。"
+    description: "跟著胖胖豬一起進入色彩繽紛的藝術世界，發掘創意無限可能。",
+    authorName: "張大勇",
+    publisherName: "綠野出版社"
   },
   {
     id: "5",
@@ -40,7 +49,9 @@ export const products: Product[] = [
     price: 220,
     originalPrice: 300,
     image: "/images/other/book_10-4.png",
-    description: "智慧的貓頭鷹帶你發現森林裡的奧秘，學習自然界的生態平衡。"
+    description: "智慧的貓頭鷹帶你發現森林裡的奧秘，學習自然界的生態平衡。",
+    authorName: "張大勇",
+    publisherName: "綠野出版社"
   },
   {
     id: "6",
@@ -48,7 +59,10 @@ export const products: Product[] = [
     price: 260,
     originalPrice: 320,
     image: "/images/other/book_10-1.png",
-    description: "一個漂浮在空中的甜點王國，充滿驚奇與冒險的故事。"
+    description: "一個漂浮在空中的甜點王國，充滿驚奇與冒險的故事。",
+    isHot: true,
+    authorName: "劉巧兒",
+    publisherName: "美味出版社"
   },
   {
     id: "7",
@@ -56,7 +70,9 @@ export const products: Product[] = [
     price: 280,
     originalPrice: 340,
     image: "/images/other/book_10-2.png",
-    description: "跟著小海龜探索神秘的海底世界，認識海洋生物與環境保護。"
+    description: "跟著小海龜探索神秘的海底世界，認識海洋生物與環境保護。",
+    authorName: "陳宇航",
+    publisherName: "星際出版社"
   },
   {
     id: "8",

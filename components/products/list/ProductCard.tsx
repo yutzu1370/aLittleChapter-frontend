@@ -10,46 +10,53 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 group">
-      <Link href={`/products/${product.id}`} className="block">
-        <div className="relative w-full h-80">
-          <Image
-            src={product.image || "/images/books/placeholder.jpg"}
-            alt={product.name}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+    <div className="flex flex-col">
+      {/* 商品圖片 */}
+      <div className="relative mb-4 group">
+        <div className="relative aspect-[3/4] rounded-xl overflow-hidden border-2 border-gray-200">
+          <Image 
+            src={product.image} 
+            alt={product.name} 
+            fill 
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          {product.originalPrice > product.price && (
-            <div className="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-              {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
-            </div>
-          )}
         </div>
-      </Link>
-
-      <div className="p-6">
-        <Link href={`/products/${product.id}`} className="block">
-          <h3 className="text-xl font-bold text-emerald-800 font-jf-openhuninn mb-2 group-hover:text-orange-500 transition-colors duration-200">
-            {product.name}
-          </h3>
-        </Link>
-        <p className="text-gray-600 mb-4 line-clamp-2">
-          {product.description}
-        </p>
         
-        <div className="flex justify-between items-end">
-          <div>
-            <p className="text-xl font-bold text-orange-500">NT$ {product.price}</p>
-            {product.originalPrice > product.price && (
-              <p className="text-sm text-gray-500 line-through">原價 NT$ {product.originalPrice}</p>
-            )}
+        {/* 標籤 */}
+        {product.isNew && (
+          <div className="absolute top-2 right-2 bg-teal-600 text-white px-4 py-1 rounded-full text-sm font-bold">
+            NEW
           </div>
-          
-          <button className="bg-orange-500 text-white rounded-full p-3 hover:bg-orange-600 transition-colors duration-200 shadow-md">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+        )}
+        {product.isHot && (
+          <div className="absolute top-2 right-2 bg-orange-600 text-white px-4 py-1 rounded-full text-sm font-bold">
+            HOT
+          </div>
+        )}
+        
+        {/* 購買/收藏按鈕 */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white/90 py-4 px-4 rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+          <button className="flex-1 bg-white border-2 border-orange-600 text-orange-600 rounded-full py-2 px-4 font-semibold shadow-[3px_4px_0px_0px_rgba(116,40,26,0.8)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(116,40,26,0.8)] transition-all text-sm">
+            加入購物車
           </button>
+          <button className="w-10 h-10 rounded-full border-2 border-orange-600 flex items-center justify-center shadow-[3px_4px_0px_0px_rgba(116,40,26,0.8)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(116,40,26,0.8)] transition-all">
+            <Image src="/images/icon/favorite-border.svg" alt="收藏" width={20} height={20} />
+          </button>
+        </div>
+      </div>
+      
+      {/* 商品資訊 */}
+      <div className="flex flex-col gap-1">
+        <h3 className="text-xl font-jf-openhuninn text-emerald-800">{product.name}</h3>
+        <div className="flex gap-2 text-sm text-gray-500">
+          <span>{product.authorName}</span>
+          <span>·</span>
+          <span>{product.publisherName}</span>
+        </div>
+        <div className="flex gap-2 items-end">
+          <span className="text-xl font-jf-openhuninn text-orange-600">${product.price}</span>
+          <span className="text-sm text-gray-500">原價 NT${product.originalPrice}</span>
         </div>
       </div>
     </div>

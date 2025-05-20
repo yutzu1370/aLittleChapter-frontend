@@ -6,6 +6,10 @@ export interface Product {
   price: number;
   originalPrice: number;
   image: string;
+  isNew?: boolean;
+  isHot?: boolean;
+  authorName?: string;
+  publisherName?: string;
 }
 
 // 商品詳細資料型別

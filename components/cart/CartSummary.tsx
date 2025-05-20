@@ -4,10 +4,16 @@ import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/store/useCartStore";
 import { formatPrice } from "@/lib/utils";
 import FancyButton from "@/components/ui/FancyButton";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowRightCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const CartSummary = () => {
+  const router = useRouter();
   const { getSubtotal, getTotal, shippingFee, discount } = useCartStore();
+  
+  const handleCheckout = () => {
+    router.push("/cart/checkout");
+  };
   
   return (
     <div className="border border-gray-200 rounded-3xl p-6 bg-white shadow-sm">
@@ -38,7 +44,8 @@ const CartSummary = () => {
       <FancyButton 
         className="w-full text-lg" 
         hideIcons
-        rightIcon={<ArrowRight className="w-6 h-6" />}
+        rightIcon={<ArrowRightCircle className="w-8 h-8" strokeWidth={2.5} />}
+        onClick={handleCheckout}
       >
         前往結帳
       </FancyButton>
