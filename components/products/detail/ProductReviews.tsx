@@ -24,7 +24,7 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
           <h2 className="text-3xl md:text-4xl font-bold text-emerald-800 font-jf-openhuninn tracking-wider">會員評價</h2>
         </div>
 
-        <div className="bg-amber-50 rounded-[48px] p-8 md:p-16">
+        <div className="bg-[#FEF5EE] rounded-[48px] p-8 md:p-16">
           {/* 評分統計 */}
           <div className="mb-8">
             <div className="flex items-center mb-1">
@@ -45,12 +45,12 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
           </div>
 
           {/* 評論列表 */}
-          <div className="space-y-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {reviews.map((review) => (
-              <div key={review.id} className="bg-white rounded-2xl p-6 border-4 border-amber-200">
+              <div key={review.id} className="bg-white rounded-2xl p-6 border-4 border-[#F8D0B0] h-full flex flex-col">
                 {/* 用戶資訊 */}
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden bg-orange-200 mr-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden mr-3">
                     <Image 
                       src={review.profilePic} 
                       alt={review.username} 
@@ -77,7 +77,7 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
                 </div>
 
                 {/* 評論內容 */}
-                <p className="text-gray-800 whitespace-pre-line mb-4">
+                <p className="text-gray-800 whitespace-pre-line mb-4 flex-grow">
                   {review.content}
                 </p>
 

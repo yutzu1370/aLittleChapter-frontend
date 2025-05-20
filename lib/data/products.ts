@@ -15,7 +15,7 @@ export const products: Product[] = [
     name: "彩虹河的守護者",
     price: 240,
     originalPrice: 300,
-    image: "/images/books/book2.jpg",
+    image: "/images/other/book_10-1.png",
     description: "跟著小河貍莫莫一起守護彩虹河，學習環保與大自然共存的重要課題。"
   },
   {
@@ -23,7 +23,7 @@ export const products: Product[] = [
     name: "星星和小小孩的願望",
     price: 180,
     originalPrice: 280,
-    image: "/images/books/book3.jpg",
+    image: "/images/other/book_10-2.png",
     description: "一個關於夢想與希望的溫馨故事，每個願望都能成真的奇幻世界。"
   },
   {
@@ -31,7 +31,7 @@ export const products: Product[] = [
     name: "小豬的藝術工坊",
     price: 190,
     originalPrice: 280,
-    image: "/images/books/book4.jpg",
+    image: "/images/other/book_10-3.png",
     description: "跟著胖胖豬一起進入色彩繽紛的藝術世界，發掘創意無限可能。"
   },
   {
@@ -39,7 +39,7 @@ export const products: Product[] = [
     name: "貓頭鷹的秘密森林",
     price: 220,
     originalPrice: 300,
-    image: "/images/books/book5.jpg",
+    image: "/images/other/book_10-4.png",
     description: "智慧的貓頭鷹帶你發現森林裡的奧秘，學習自然界的生態平衡。"
   },
   {
@@ -47,7 +47,7 @@ export const products: Product[] = [
     name: "雲朵糖果屋",
     price: 260,
     originalPrice: 320,
-    image: "/images/books/book6.jpg",
+    image: "/images/other/book_10-1.png",
     description: "一個漂浮在空中的甜點王國，充滿驚奇與冒險的故事。"
   },
   {
@@ -55,7 +55,7 @@ export const products: Product[] = [
     name: "海底城堡歷險記",
     price: 280,
     originalPrice: 340,
-    image: "/images/books/book7.jpg",
+    image: "/images/other/book_10-2.png",
     description: "跟著小海龜探索神秘的海底世界，認識海洋生物與環境保護。"
   },
   {
@@ -63,7 +63,7 @@ export const products: Product[] = [
     name: "恐龍樂園大冒險",
     price: 310,
     originalPrice: 380,
-    image: "/images/books/book8.jpg",
+    image: "/images/other/book_10-3.png",
     description: "穿越時空回到恐龍時代，學習史前動物知識與科學常識。"
   }
 ];
@@ -122,7 +122,7 @@ export const reviews: Review[] = [
     id: 1,
     username: "貓頭鷹",
     level: 1,
-    profilePic: "/images/user_icon/user1.jpg",
+    profilePic: "/images/user_icon/user_icon_1.png",
     rating: 5,
     date: "5 天前",
     content: "故事充滿奇幻與冒險，小狐狸露比的旅程讓孩子學習勇氣與探索的樂趣！🌲🦊\n插圖細膩，森林裡藏滿驚喜，讓親子共讀變得更加有趣。每晚睡前都指定要聽這個故事，真的太喜歡了！📖✨",
@@ -132,7 +132,7 @@ export const reviews: Review[] = [
     id: 2,
     username: "虎王",
     level: 2,
-    profilePic: "/images/user_icon/user2.jpg",
+    profilePic: "/images/user_icon/user_icon_2.png",
     rating: 5,
     date: "2 週前",
     content: "畫風溫暖可愛，故事情節引人入勝！💛\n露比在森林中的冒險充滿勇氣與成長的意義，適合啟發孩子的想像力。\n讀完後，小朋友一直問：「還有其他故事嗎？」希望能看到更多系列作品！📚",
@@ -143,7 +143,7 @@ export const reviews: Review[] = [
     id: 3,
     username: "羊咩咩",
     level: 1,
-    profilePic: "/images/user_icon/user3.jpg",
+    profilePic: "/images/user_icon/user_icon_3.png",
     rating: 5,
     date: "1 個月前",
     content: "故事充滿奇幻與冒險，小狐狸露比的旅程讓孩子學習勇氣與探索的樂趣！🌲🦊\n插圖細膩，森林裡藏滿驚喜，讓親子共讀變得更加有趣。每晚睡前都指定要聽這個故事，真的太喜歡了！📖✨",

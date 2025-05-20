@@ -76,8 +76,8 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        "jf-openhuninn": ['"jf-openhuninn-2.0"', "sans-serif"],
-        coiny: ['"Coiny"', "cursive"],
+        "jf-openhuninn": ["var(--font-jf-openhuninn)", "sans-serif"],
+        "coiny": ["var(--font-coiny)", "cursive"],
       },
     },
   },

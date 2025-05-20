@@ -8,15 +8,78 @@
   --background-end-rgb: 255, 251, 235;
 }
 
+/* 自動將所有數字設為 Coiny 字體 */
+@font-face {
+  font-family: 'NumberFont';
+  src: local('Arial');
+  unicode-range: U+0030-0039, U+0024, U+002E, U+002C, U+0025; /* 0-9, $, ., ,, % */
+}
+
 html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  font-family: var(--font-jf-openhuninn), NumberFont, sans-serif;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+  font-variant-numeric: tabular-nums;
+}
+
+/* 確保所有文字元素使用同一字體 */
+h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select, a {
+  font-family: var(--font-jf-openhuninn), sans-serif;
+}
+
+/* 確保數字使用 Coiny 字體 */
+.digit, .number, .price, .count, .quantity, .amount, .numeric {
+  font-family: var(--font-coiny), cursive !important;
+}
+
+/* 自動檢測並處理數字 */
+[data-numeric], [class*="price"], [class*="count"], [class*="number"], [class*="amount"], [class*="qty"] {
+  font-family: var(--font-coiny), cursive;
+}
+
+/* 數字使用 Coiny 字體 */
+.font-numeric {
+  font-family: var(--font-coiny), cursive;
+}
+
+/* 為所有數字應用 Coiny 字體 */
+@layer base {
+  :where(.has-numbers), 
+  :where([class*="price"]), 
+  :where([class*="count"]), 
+  :where([class*="quantity"]), 
+  :where([class*="amount"]),
+  :where([class*="total"]),
+  :where([class*="number"]),
+  :where([class*="rating"]),
+  time, 
+  .price,
+  .count,
+  .quantity,
+  .amount,
+  .total,
+  .number,
+  .rating {
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .price, .count, .quantity, .amount, .total, .number, .rating {
+    font-family: var(--font-coiny), cursive;
+  }
+}
+
+/* 數字自動使用 Coiny 字體，但不影響周圍的文字 */
+@layer utilities {
+  .auto-numeric {
+    unicode-range: U+0030-0039;
+    font-family: var(--font-coiny), cursive;
+  }
 }
 
 /* 備用動畫效果 */
