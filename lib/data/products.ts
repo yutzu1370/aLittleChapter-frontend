@@ -7,7 +7,7 @@ export const products: Product[] = [
     name: "奇幻森林探險記",
     price: 350,
     originalPrice: 480,
-    image: "/images/books/book1-main.jpg",
+    image: "/images/other/book_10-1.png",
     description: "小狐狸露比的冒險旅程，探索勇氣與成長的意義，適合親子共讀。",
     isNew: true,
     authorName: "林小花",

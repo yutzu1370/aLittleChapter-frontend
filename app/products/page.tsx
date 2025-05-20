@@ -58,7 +58,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-orange-50">
+    <main className="min-h-screen bg-white">
       <Header />
       
       {/* 輪播橫幅區域 */}
