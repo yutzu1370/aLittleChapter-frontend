@@ -16,9 +16,6 @@ export default function ProductList({ products, searchKeyword = "親子共讀", 
   
   return (
     <div className="flex-1">
-      <h2 className="text-lg text-gray-500 mb-6">
-        {searchKeyword && `搜尋「${searchKeyword}」的結果，共 ${totalCount} 項商品`}
-      </h2>
       
       {/* 商品網格 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

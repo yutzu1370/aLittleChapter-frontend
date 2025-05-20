@@ -37,14 +37,6 @@ export default function CategoryFilter({
           </button>
         ))}
         
-        {categories.length > 5 && (
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-          >
-            {showAll ? "收起" : "更多..."}
-          </button>
-        )}
       </div>
     </div>
   );

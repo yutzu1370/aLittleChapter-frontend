@@ -85,7 +85,7 @@ export const products: Product[] = [
 ];
 
 // 分類選項
-export const categories = ["全部作品", "熱門推薦", "新品上市", "特價優惠", "適合3-5歲", "適合6-8歲", "適合9歲以上"];
+export const categories = ["全部書籍", "熱銷排行", "亮點新書", "套裝推薦","特價優惠"];
 
 // 商品詳細頁假資料
 export const productDetail: ProductDetail = {

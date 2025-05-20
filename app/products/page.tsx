@@ -70,7 +70,7 @@ export default function ProductsPage() {
       />
       
       {/* 商品區塊 */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <section className="max-w-7xl mx-auto mb-40  px-4 sm:px-6 lg:px-8 py-30">
         {/* 分類過濾 */}
         <CategoryFilter 
           categories={categories}
