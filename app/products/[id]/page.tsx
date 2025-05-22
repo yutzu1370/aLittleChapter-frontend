@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProductById, getRelatedProducts, reviews } from "@/lib/data/products";
+import { fetchProductById, fetchRelatedProducts, fetchProductReviews } from "@/lib/api/products";
 import ProductImages from "@/components/products/detail/ProductImages";
 import ProductInfo from "@/components/products/detail/ProductInfo";
 import ProductAbout from "@/components/products/detail/ProductAbout";
@@ -12,7 +12,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ClientChat from "@/components/interaction/chat/ClientChat";
 import { useParams } from "next/navigation";
-import { ProductDetail, Product } from "@/lib/types/product";
+import { ProductDetail, Product, Review, ProductResponse } from "@/lib/types/product";
 
 export default function ProductDetailPage() {
   // 使用 useParams 鉤子獲取路由參數
@@ -20,33 +20,63 @@ export default function ProductDetailPage() {
   const id = params.id as string;
   
   // 使用狀態管理商品資料
-  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [productResponse, setProductResponse] = useState<ProductResponse | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // 當 ID 變化時獲取數據
   useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // 使用Mock API獲取商品詳情
+        const response = await fetchProductById(id);
+        setProductResponse(response);
+        
+        // 獲取相關商品
+        const relatedData = await fetchRelatedProducts(id);
+        setRelatedProducts(relatedData);
+        
+        // 獲取評論
+        const reviewsData = await fetchProductReviews(id);
+        setReviews(reviewsData);
+      } catch (err) {
+        console.error("獲取商品資料失敗:", err);
+        setError("無法載入商品資料，請稍後再試。");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
     if (id) {
-      // 獲取商品詳情
-      const productData = getProductById(id);
-      setProduct(productData);
-      
-      // 獲取相關商品
-      const relatedData = getRelatedProducts(id);
-      setRelatedProducts(relatedData);
-      
-      setIsLoading(false);
+      fetchData();
     }
   }, [id]);
   
   // 載入中狀態
-  if (isLoading || !product) {
+  if (isLoading) {
     return (
       <main className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-2xl text-gray-600">載入中...</div>
       </main>
     );
   }
+  
+  // 錯誤處理
+  if (error || !productResponse || !productResponse.status) {
+    return (
+      <main className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-2xl text-gray-600">{error || "找不到商品資料"}</div>
+      </main>
+    );
+  }
+
+  // 提取商品數據
+  const product = productResponse.data;
 
   return (
     <main className="min-h-screen bg-white">
@@ -56,15 +86,38 @@ export default function ProductDetailPage() {
       <section className="w-full py-12 pt-56 md:pt-40 px-4 sm:px-6 lg:px-8 xl:px-0 max-w-7xl mx-auto bg-white">
         <div className="flex flex-col md:flex-row gap-8">
           {/* 商品圖片區 - 使用組件 */}
-          <ProductImages images={product.images} productName={product.name} />
+          <ProductImages 
+            images={product.imageUrls} 
+            productName={product.title} 
+          />
 
-          {/* 商品資訊區 - 使用組件 */}
-          <ProductInfo product={product} />
+          {/* 商品資訊區 - 使用組件，需要調整組件接口以匹配新格式 */}
+          <ProductInfo 
+            product={{
+              id: product.productId.toString(),
+              name: product.title,
+              description: product.description,
+              price: product.price,
+              originalPrice: product.discountPrice || product.price,
+              author: { 
+                name: product.author,
+                description: ''
+              },
+              images: product.imageUrls,
+              image: product.imageUrls[0],
+              promotionEnd: '',
+              translator: { name: '', description: '' },
+              illustrator: { name: product.illustrator, description: '' },
+              aboutContent: product.introductionHtml,
+              authorName: product.author,
+              publisherName: product.publisher
+            }} 
+          />
         </div>
       </section>
 
       {/* 內容簡介區塊 */}
-      <ProductAbout aboutContent={product.aboutContent} />
+      <ProductAbout aboutContent={product.introductionHtml} />
 
       {/* 探索更多故事區塊 */}
       <RelatedProducts products={relatedProducts} />

@@ -42,4 +42,33 @@ export interface Review {
   content: string;
   likes: number;
   isLiked?: boolean;
+}
+
+// API回應格式 - 商品詳情
+export interface ProductResponse {
+  status: boolean;
+  data: {
+    productId: number;
+    title: string;
+    description: string;
+    price: number;
+    discountPrice: number | null;
+    stockQuantity: number;
+    categoryInfo: {
+      id: number;
+      name: string;
+    };
+    ageRange: {
+      id: number;
+      name: string;
+    };
+    imageUrls: string[];
+    author: string;
+    illustrator: string;
+    publisher: string;
+    publishDate: string;
+    isbn: string;
+    pageCount: number;
+    introductionHtml: string;
+  }
 } 
