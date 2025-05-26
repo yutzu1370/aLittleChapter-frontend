@@ -114,39 +114,27 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
       {/* 標籤選項 */}
       <div className="mt-8">
-        <div className="flex gap-1 relative z-10">
+        <div className="flex gap-2">
           <button 
-            className={`relative px-8 py-2 rounded-t-3xl text-lg font-medium ${
-              activeTab === 'author' 
-                ? 'bg-white text-gray-800 border-4 border-b-0 border-[#F8D0B0] after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-white after:z-10' 
-                : 'bg-[#FCE9D8] text-gray-600 border-4 border-b-4 border-[#F8D0B0]'
-            }`}
+            className={`px-8 py-3 rounded-t-2xl text-lg font-medium ${activeTab === 'author' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900' : 'bg-[#FCE9D8] text-gray-600'}`}
             onClick={() => setActiveTab('author')}
           >
             作者
           </button>
           <button 
-            className={`relative px-8 py-2 rounded-t-3xl text-lg font-medium ${
-              activeTab === 'publisher' 
-                ? 'bg-white text-gray-800 border-4 border-b-0 border-[#F8D0B0] after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-white after:z-10' 
-                : 'bg-[#FCE9D8] text-gray-600 border-4 border-b-4 border-[#F8D0B0]'
-            }`}
+            className={`px-8 py-3 rounded-t-2xl text-lg font-medium ${activeTab === 'publisher' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900' : 'bg-[#FCE9D8] text-gray-600'}`}
             onClick={() => setActiveTab('publisher')}
           >
             出版
           </button>
           <button 
-            className={`relative px-8 py-2 rounded-t-3xl text-lg font-medium ${
-              activeTab === 'specs' 
-                ? 'bg-white text-gray-800 border-4 border-b-0 border-[#F8D0B0] after:content-[""] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-white after:z-10' 
-                : 'bg-[#FCE9D8] text-gray-600 border-4 border-b-4 border-[#F8D0B0]'
-            }`}
+            className={`px-8 py-3 rounded-t-2xl text-lg font-medium ${activeTab === 'specs' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900' : 'bg-[#FCE9D8] text-gray-600'}`}
             onClick={() => setActiveTab('specs')}
           >
             規格
           </button>
         </div>
-        <div className="bg-white p-8 rounded-b-3xl rounded-tr-3xl border-4 border-[#F8D0B0] -mt-1">
+        <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0]">
           {activeTab === 'author' && (
             <div className="space-y-4">
               <p className="text-gray-800">
