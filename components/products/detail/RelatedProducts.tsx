@@ -94,7 +94,7 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
               className="w-full h-full object-cover"
             />
           </div>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-emerald-800 font-['jf-openhuninn-2.0'] tracking-wider">探索更多故事</h2>
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-emerald-800 font-jf-openhuninn tracking-wider">探索更多故事</h2>
         </div>
 
         {/* 相關商品輪播 */}
@@ -138,13 +138,13 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
                   </div>
 
                   {/* 書名 */}
-                  <h3 className="text-center text-base md:text-lg font-medium text-[#2F726D] font-['jf-openhuninn-2.0'] hover:text-[#E8652B] transition-colors duration-300 line-clamp-2 min-h-[3rem]">
+                  <h3 className="text-center text-base md:text-lg font-medium text-[#2F726D] font-jf-openhuninn hover:text-[#E8652B] transition-colors duration-300 line-clamp-2 min-h-[3rem]">
                     {item.name}
                   </h3>
 
                   {/* 價格 */}
                   <div className="flex items-center justify-center mt-2">
-                    <span className="text-base md:text-lg text-[#E8652B] font-['jf-openhuninn-2.0']">
+                    <span className="text-base md:text-lg text-[#E8652B] font-jf-openhuninn">
                       NT${item.price}
                     </span>
                     <span className="ml-2 text-xs md:text-sm text-gray-500 line-through">原價 NT${item.originalPrice}</span>

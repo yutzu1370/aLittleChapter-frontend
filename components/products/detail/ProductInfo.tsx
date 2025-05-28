@@ -6,9 +6,11 @@ import { toast } from "sonner";
 
 interface ProductInfoProps {
   product: ProductDetail;
+  category?: string;
+  ageRange?: string;
 }
 
-export default function ProductInfo({ product }: ProductInfoProps) {
+export default function ProductInfo({ product, category, ageRange }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("author");
 
@@ -42,10 +44,27 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     <div className="w-full md:w-[984px] flex-1 pl-8">
       {/* 標題與收藏分享按鈕 */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-emerald-800 font-jf-openhuninn">
-          {product.name}
-        </h1>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-4 flex-1">
+          <h1 className="text-3xl md:text-4xl font-bold text-emerald-800 font-jf-openhuninn">
+            {product.name}
+          </h1>
+          {/* Category and Age Range Tags */}
+          {(category || ageRange) && (
+            <div className="flex gap-2">
+              {category && (
+                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58] ">
+                  {category}
+                </span>
+              )}
+              {ageRange && (
+                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#FEF5EE] text-[#B4371A]">
+                  {ageRange}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="flex gap-2 ml-4">
           <button className="p-3 rounded-full border-2 border-orange-500 bg-white shadow-md hover:bg-orange-50">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -62,21 +81,17 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         </div>
       </div>
 
-      {/* 商品描述 */}
-      <p className="text-gray-700 text-lg mb-6">
-        {product.description}
-      </p>
-
       {/* 分隔線 */}
       <div className="w-full h-px bg-gray-300 my-6"></div>
 
-      {/* 價格區塊 */}
+     
+ {/* 價格區塊 */}
       <div className="mb-6">
         <div className="flex items-end gap-2 mb-1">
           <span className="text-2xl font-bold text-orange-500">NT$ {product.price}</span>
           <span className="text-gray-500 line-through">原價 NT$ {product.originalPrice}</span>
         </div>
-        <p className="text-red-800 text-sm">優惠期限：{product.promotionEnd}</p>
+
       </div>
 
       {/* 數量選擇和加入購物車 */}
@@ -114,36 +129,32 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
       {/* 標籤選項 */}
       <div className="mt-8">
-        <div className="flex gap-2">
+        <div className="flex gap-2 relative">
           <button 
-            className={`px-8 py-3 rounded-t-2xl text-lg font-medium ${activeTab === 'author' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900' : 'bg-[#FCE9D8] text-gray-600'}`}
+            className={`px-8 py-3 rounded-t-2xl text-lg font-medium relative ${activeTab === 'author' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
             onClick={() => setActiveTab('author')}
           >
             作者
           </button>
           <button 
-            className={`px-8 py-3 rounded-t-2xl text-lg font-medium ${activeTab === 'publisher' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900' : 'bg-[#FCE9D8] text-gray-600'}`}
+            className={`px-8 py-3 rounded-t-2xl text-lg font-medium relative ${activeTab === 'publisher' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
             onClick={() => setActiveTab('publisher')}
           >
             出版
           </button>
           <button 
-            className={`px-8 py-3 rounded-t-2xl text-lg font-medium ${activeTab === 'specs' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900' : 'bg-[#FCE9D8] text-gray-600'}`}
+            className={`px-8 py-3 rounded-t-2xl text-lg font-medium relative ${activeTab === 'specs' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
             onClick={() => setActiveTab('specs')}
           >
             規格
           </button>
         </div>
-        <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0]">
+        <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0] relative -mt-1">
           {activeTab === 'author' && (
             <div className="space-y-4">
               <p className="text-gray-800">
                 <strong>作者：{product.author.name}</strong><br />
                 善於觀察小動物與大自然，擅長用溫暖筆觸編織勇氣與成長的小故事。
-              </p>
-              <p className="text-gray-800">
-                <strong>譯者：{product.translator.name}</strong><br />
-                擁有豐富中英雙語翻譯經驗，致力於讓每個故事都能跨越語言，觸動孩子的心靈。
               </p>
               <p className="text-gray-800">
                 <strong>繪者：{product.illustrator.name}</strong><br />
@@ -152,14 +163,24 @@ export default function ProductInfo({ product }: ProductInfoProps) {
             </div>
           )}
           {activeTab === 'publisher' && (
-            <div>
-              <p className="text-gray-800">出版資訊將顯示在這裡</p>
+            <div className="space-y-4">
+              <p className="text-gray-800">
+                <strong>出版社：{product.publisherName || '未提供'}</strong><br />
+              </p>
+              <p className="text-gray-800">
+                <strong>出版日期：未提供</strong><br />
+              </p>
             </div>
           )}
           {activeTab === 'specs' && (
-            <div>
-              <p className="text-gray-800">商品規格將顯示在這裡</p>
-            </div>
+            <div className="space-y-4">
+            <p className="text-gray-800">
+              <strong>ISBN：未提供</strong><br />
+            </p>
+            <p className="text-gray-800">
+              <strong>頁數：未提供</strong><br />
+            </p>
+          </div>
           )}
         </div>
       </div>

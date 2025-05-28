@@ -24,9 +24,10 @@ export default function ProductAbout({ aboutContent }: ProductAboutProps) {
         </div>
 
         <div className="bg-white rounded-[48px] p-8 md:p-16 border-[12px] border-[#B1DED6]">
-          <div className="whitespace-pre-line text-gray-800 leading-relaxed">
-            {aboutContent}
-          </div>
+          <div 
+            className="text-gray-800 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: aboutContent }}
+          />
         </div>
       </div>
     </section>

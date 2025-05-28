@@ -111,7 +111,9 @@ export default function ProductDetailPage() {
               aboutContent: product.introductionHtml,
               authorName: product.author,
               publisherName: product.publisher
-            }} 
+            }}
+            category={product.categoryInfo.name}
+            ageRange={product.ageRange.name}
           />
         </div>
       </section>
