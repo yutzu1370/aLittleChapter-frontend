@@ -2,12 +2,26 @@
 
 import Image from "next/image";
 import { Review } from "@/lib/types/product";
+import { useState } from "react";
 
 interface ProductReviewsProps {
   reviews: Review[];
 }
 
 export default function ProductReviews({ reviews }: ProductReviewsProps) {
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [showAllReviews, setShowAllReviews] = useState(false);
+
+  const handleImageError = (reviewId: string) => {
+    setFailedImages(prev => new Set(prev).add(reviewId));
+  };
+
+  const handleShowAllReviews = () => {
+    setShowAllReviews(true);
+  };
+
+  const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3);
+
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,17 +60,18 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
 
           {/* 評論列表 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {reviews.map((review) => (
+            {displayedReviews.map((review) => (
               <div key={review.id} className="bg-white rounded-2xl p-6 border-4 border-[#F8D0B0] h-full flex flex-col">
                 {/* 用戶資訊 */}
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 rounded-full overflow-hidden mr-3">
                     <Image 
-                      src={review.profilePic} 
+                      src={failedImages.has(review.id.toString()) ? "/images/user_icon/user_icon_3.png" : review.profilePic}
                       alt={review.username} 
                       width={48} 
                       height={48}
                       className="w-full h-full object-cover"
+                      onError={() => handleImageError(review.id.toString())}
                     />
                   </div>
                   <div>
@@ -87,14 +102,19 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
           </div>
 
           {/* 查看所有評論按鈕 */}
-          <div className="flex justify-end">
-            <button className="flex items-center text-gray-800 font-semibold hover:text-orange-500">
-              查看所有評論
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-          </div>
+          {reviews.length > 3 && (
+            <div className="flex justify-end">
+              <button 
+                onClick={showAllReviews ? () => setShowAllReviews(false) : handleShowAllReviews}
+                className="flex items-center text-gray-800 font-semibold hover:text-orange-500"
+              >
+                {showAllReviews ? "隱藏評論" : "查看所有評論"}
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </section>
