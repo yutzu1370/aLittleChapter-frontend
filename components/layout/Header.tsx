@@ -6,10 +6,15 @@ import Link from "next/link"
 import { Search, ShoppingCart, Heart, Bell } from "lucide-react"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { useAuthStore } from "@/lib/store/useAuthStore"
+import { useCartStore } from "@/lib/store/useCartStore"
 
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { isAuthenticated } = useAuthStore()
+  const { items } = useCartStore()
+  
+  // 計算購物車總數量
+  const cartItemCount = items.reduce((total, item) => total + item.quantity, 0)
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 py-4">
@@ -55,7 +60,7 @@ export default function Header() {
               <>
                 {/* My Favorites */}
                 <div className="relative flex-shrink-0">
-                  <Link href="/favorites" className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/account/favorites" className="p-2 hover:bg-gray-100 rounded-full inline-block">
                     <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
                   </Link>
                 </div>
@@ -64,15 +69,17 @@ export default function Header() {
                 <div className="relative flex-shrink-0">
                   <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full inline-block">
                     <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
-                      2
-                    </span>
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                        {cartItemCount > 99 ? '99+' : cartItemCount}
+                      </span>
+                    )}
                   </Link>
                 </div>
 
                 {/* Notifications */}
                 <div className="relative flex-shrink-0">
-                  <Link href="/notifications" className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/account/notifications" className="p-2 hover:bg-gray-100 rounded-full inline-block">
                     <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
                     <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
                       8
@@ -94,12 +101,26 @@ export default function Header() {
                 </div>
               </>
             ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="bg-[#E8652B] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-orange-600 transition-colors shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] flex-shrink-0"
-              >
-                登入/註冊
-              </button>
+              <>
+                {/* Cart for guests */}
+                <div className="relative flex-shrink-0">
+                  <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                    <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
+                    {cartItemCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                        {cartItemCount > 99 ? '99+' : cartItemCount}
+                      </span>
+                    )}
+                  </Link>
+                </div>
+                
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="bg-[#E8652B] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-orange-600 transition-colors shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] flex-shrink-0"
+                >
+                  登入/註冊
+                </button>
+              </>
             )}
           </div>
         </div>

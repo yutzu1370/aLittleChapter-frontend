@@ -1,8 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ProductDetail } from "@/lib/types/product";
+import { ProductDetail, Product } from "@/lib/types/product";
 import { toast } from "sonner";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useCartStore } from "@/lib/store/useCartStore";
+import { Heart } from "lucide-react";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -13,6 +17,12 @@ interface ProductInfoProps {
 export default function ProductInfo({ product, category, ageRange }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("author");
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  const { isAuthenticated } = useAuthStore();
+  const { addItem } = useCartStore();
 
   const increaseQuantity = () => {
     if (quantity < product.stockQuantity) {
@@ -28,6 +38,21 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
   const decreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(prev => prev - 1);
+    }
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 1;
+    if (value > product.stockQuantity) {
+      toast.warning("庫存不足", {
+        description: `目前庫存僅剩 ${product.stockQuantity} 件`,
+        duration: 3000,
+      });
+      setQuantity(product.stockQuantity);
+    } else if (value < 1) {
+      setQuantity(1);
+    } else {
+      setQuantity(value);
     }
   };
   
@@ -47,7 +72,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
     });
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (product.stockQuantity === 0) {
       toast.error("商品缺貨", {
         description: "此商品目前缺貨中",
@@ -56,9 +81,84 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       return;
     }
     
-    // 這裡可以添加加入購物車的邏輯
-    toast.success("已加入購物車", {
-      description: `${product.name} x ${quantity} 已加入購物車`,
+    setIsAddingToCart(true);
+    
+    try {
+      // 將 ProductDetail 轉換為 Product 類型以符合 addItem 的要求
+      const productForCart: Product = {
+        id: product.productId.toString(),
+        name: product.name,
+        description: product.aboutContent || '',
+        price: product.price,
+        originalPrice: product.originalPrice,
+        image: product.images[0] || '',
+        authorName: product.author,
+        publisherName: product.publisher,
+      };
+      
+      // 訪客使用者：使用 Zustand store（會自動持久化到 localStorage）
+      addItem(productForCart, quantity);
+      
+      if (isAuthenticated) {
+        toast.success("已加入購物車", {
+          description: `${product.name} x ${quantity} 已加入購物車`,
+          duration: 3000,
+        });
+      } else {
+        toast.success("已加入購物車", {
+          description: `${product.name} x ${quantity} 已加入購物車`,
+          action: {
+            label: "立即登入",
+            onClick: () => {
+              setShowAuthModal(true);
+            }
+          },
+          duration: 4000,
+        });
+      }
+      
+      // 重置數量為 1
+      setQuantity(1);
+      
+    } catch (error) {
+      console.error("加入購物車失敗:", error);
+      toast.error("加入購物車失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    if (!isAuthenticated) {
+      // 訪客使用者：儲存到 localStorage
+      const favorites = JSON.parse(localStorage.getItem('guest-favorites') || '[]');
+      const productIdStr = product.productId.toString();
+      const newFavorites = isFavorite 
+        ? favorites.filter((id: string) => id !== productIdStr)
+        : [...favorites, productIdStr];
+      
+      localStorage.setItem('guest-favorites', JSON.stringify(newFavorites));
+      setIsFavorite(!isFavorite);
+      
+      toast.success(isFavorite ? "已從收藏移除" : "已加入收藏", {
+        description: "登入後可永久保存收藏",
+        action: {
+          label: "立即登入",
+          onClick: () => {
+            setShowAuthModal(true);
+          }
+        },
+        duration: 4000,
+      });
+      return;
+    }
+
+    // TODO: 已登入使用者的收藏功能
+    setIsFavorite(!isFavorite);
+    toast.success(isFavorite ? "已從收藏移除" : "已加入收藏", {
       duration: 3000,
     });
   };
@@ -88,10 +188,22 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           )}
         </div>
         <div className="flex gap-2 ml-4">
-          <button className="p-3 rounded-full border-2 border-orange-500 bg-white shadow-md hover:bg-orange-50">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
+          <button 
+            className={`p-3 rounded-full border-2 bg-white shadow-md transition-all ${
+              isFavorite 
+                ? 'border-red-500 bg-red-50 hover:bg-red-100' 
+                : 'border-orange-500 hover:bg-orange-50'
+            }`}
+            onClick={handleToggleFavorite}
+            aria-label={isFavorite ? "從收藏移除" : "加入收藏"}
+          >
+            <Heart 
+              className={`h-6 w-6 ${
+                isFavorite 
+                  ? 'text-red-500 fill-current' 
+                  : 'text-orange-500'
+              }`} 
+            />
           </button>
           <button 
             className="p-3 rounded-full border-2 border-orange-500 bg-white shadow-md hover:bg-orange-50"
@@ -130,19 +242,24 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         <div className="flex items-center h-12 border-4 border-[#F8D0B0] rounded-full overflow-hidden w-[250px]">
           <button 
             onClick={decreaseQuantity}
-            className="bg-white h-full w-12 flex items-center justify-center"
+            className="bg-white h-full w-12 flex items-center justify-center hover:bg-gray-50 transition-colors"
             disabled={quantity <= 1}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
             </svg>
           </button>
-          <div className="flex-1 h-full flex items-center justify-center font-bold">
-            {quantity}
-          </div>
+          <input
+            type="number"
+            min="1"
+            max={product.stockQuantity}
+            value={quantity}
+            onChange={handleQuantityChange}
+            className="flex-1 h-full text-center font-bold bg-transparent border-none outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
           <button 
             onClick={increaseQuantity}
-            className="bg-white h-full w-12 flex items-center justify-center"
+            className="bg-white h-full w-12 flex items-center justify-center hover:bg-gray-50 transition-colors"
             disabled={quantity >= product.stockQuantity}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,17 +269,26 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         </div>
         <button 
           className={`w-[250px] text-white rounded-full px-8 py-3 font-semibold flex items-center justify-center gap-2 transition-all ${
-            product.stockQuantity === 0 
+            product.stockQuantity === 0 || isAddingToCart
               ? 'bg-gray-400 cursor-not-allowed' 
               : 'bg-orange-500 shadow-[2px_3px_0px_0px_rgba(116,40,26,1)] hover:translate-y-1 hover:shadow-[1px_1px_0px_0px_rgba(116,40,26,1)]'
           }`}
           onClick={handleAddToCart}
-          disabled={product.stockQuantity === 0}
+          disabled={product.stockQuantity === 0 || isAddingToCart}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          {product.stockQuantity === 0 ? '缺貨中' : '加入購物車'}
+          {isAddingToCart ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              加入中...
+            </>
+          ) : (
+            <>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              {product.stockQuantity === 0 ? '缺貨中' : '加入購物車'}
+            </>
+          )}
         </button>
       </div>
 
@@ -226,6 +352,12 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           )}
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+      />
     </div>
   );
 } 
