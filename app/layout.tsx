@@ -6,6 +6,7 @@ import ClientChat from "@/components/interaction/chat/ClientChat"
 import { Toaster } from "@/components/ui/sonner"
 import localFont from "next/font/local"
 import { Coiny } from "next/font/google"
+import { StagewiseToolbar } from '@stagewise/toolbar-next'
 
 // 定義 jf-openhuninn-2.0 字體
 const jfOpenHuninn = localFont({
@@ -27,6 +28,11 @@ export const metadata: Metadata = {
   description: "專為兒童打造的優質閱讀體驗",
 }
 
+// Stagewise 配置
+const stagewiseConfig = {
+  plugins: []
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -39,6 +45,10 @@ export default function RootLayout({
         <FloatingButtons />
         <ClientChat />
         <Toaster position="top-center" richColors />
+        {/* Stagewise 工具欄 - 僅在開發模式下顯示 */}
+        {process.env.NODE_ENV === 'development' && (
+          <StagewiseToolbar config={stagewiseConfig} />
+        )}
       </body>
     </html>
   )
