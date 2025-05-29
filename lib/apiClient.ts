@@ -6,7 +6,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
 // 定義 API 回應的通用介面
 export interface ApiResponse<T = any> {
   status: boolean;
-  message: string;
+  message?: string;
   data?: T;
 }
 

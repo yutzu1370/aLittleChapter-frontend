@@ -15,7 +15,14 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
   const [activeTab, setActiveTab] = useState("author");
 
   const increaseQuantity = () => {
-    setQuantity(prev => prev + 1);
+    if (quantity < product.stockQuantity) {
+      setQuantity(prev => prev + 1);
+    } else {
+      toast.warning("庫存不足", {
+        description: `目前庫存僅剩 ${product.stockQuantity} 件`,
+        duration: 3000,
+      });
+    }
   };
 
   const decreaseQuantity = () => {
@@ -37,6 +44,22 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         duration: 3000,
       });
       console.error("無法複製連結:", err);
+    });
+  };
+
+  const handleAddToCart = () => {
+    if (product.stockQuantity === 0) {
+      toast.error("商品缺貨", {
+        description: "此商品目前缺貨中",
+        duration: 3000,
+      });
+      return;
+    }
+    
+    // 這裡可以添加加入購物車的邏輯
+    toast.success("已加入購物車", {
+      description: `${product.name} x ${quantity} 已加入購物車`,
+      duration: 3000,
     });
   };
 
@@ -84,14 +107,22 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       {/* 分隔線 */}
       <div className="w-full h-px bg-gray-300 my-6"></div>
 
-     
- {/* 價格區塊 */}
+      {/* 價格區塊 */}
       <div className="mb-6">
         <div className="flex items-end gap-2 mb-1">
           <span className="text-2xl font-bold text-orange-500">NT$ {product.price}</span>
-          <span className="text-gray-500 line-through">原價 NT$ {product.originalPrice}</span>
+          {product.discountPrice && (
+            <span className="text-gray-500 line-through">原價 NT$ {product.originalPrice}</span>
+          )}
         </div>
-
+        {/* 庫存資訊 */}
+        <div className="text-sm text-gray-600 mt-2">
+          {product.stockQuantity > 0 ? (
+            <span className="text-[#B4371A]">庫存：{product.stockQuantity} 件</span>
+          ) : (
+            <span className="text-red-600">目前缺貨</span>
+          )}
+        </div>
       </div>
 
       {/* 數量選擇和加入購物車 */}
@@ -100,6 +131,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           <button 
             onClick={decreaseQuantity}
             className="bg-white h-full w-12 flex items-center justify-center"
+            disabled={quantity <= 1}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
@@ -111,6 +143,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           <button 
             onClick={increaseQuantity}
             className="bg-white h-full w-12 flex items-center justify-center"
+            disabled={quantity >= product.stockQuantity}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -118,12 +151,18 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           </button>
         </div>
         <button 
-          className="w-[250px] bg-orange-500 text-white rounded-full px-8 py-3 font-semibold flex items-center justify-center gap-2 shadow-[2px_3px_0px_0px_rgba(116,40,26,1)] hover:translate-y-1 hover:shadow-[1px_1px_0px_0px_rgba(116,40,26,1)] transition-all"
+          className={`w-[250px] text-white rounded-full px-8 py-3 font-semibold flex items-center justify-center gap-2 transition-all ${
+            product.stockQuantity === 0 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-orange-500 shadow-[2px_3px_0px_0px_rgba(116,40,26,1)] hover:translate-y-1 hover:shadow-[1px_1px_0px_0px_rgba(116,40,26,1)]'
+          }`}
+          onClick={handleAddToCart}
+          disabled={product.stockQuantity === 0}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          加入購物車
+          {product.stockQuantity === 0 ? '缺貨中' : '加入購物車'}
         </button>
       </div>
 
@@ -153,11 +192,11 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           {activeTab === 'author' && (
             <div className="space-y-4">
               <p className="text-gray-800">
-                <strong>作者：{product.author.name}</strong><br />
+                <strong>作者：{product.author}</strong><br />
                 善於觀察小動物與大自然，擅長用溫暖筆觸編織勇氣與成長的小故事。
               </p>
               <p className="text-gray-800">
-                <strong>繪者：{product.illustrator.name}</strong><br />
+                <strong>繪者：{product.illustrator}</strong><br />
                 專攻粉蠟筆插畫，擅長打造溫柔夢幻的森林世界，讓每個故事都像童話般展開。
               </p>
             </div>
@@ -165,22 +204,25 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           {activeTab === 'publisher' && (
             <div className="space-y-4">
               <p className="text-gray-800">
-                <strong>出版社：{product.publisherName || '未提供'}</strong><br />
+                <strong>出版社：{product.publisher}</strong><br />
               </p>
               <p className="text-gray-800">
-                <strong>出版日期：未提供</strong><br />
+                <strong>出版日期：{product.publishDate}</strong><br />
               </p>
             </div>
           )}
           {activeTab === 'specs' && (
             <div className="space-y-4">
-            <p className="text-gray-800">
-              <strong>ISBN：未提供</strong><br />
-            </p>
-            <p className="text-gray-800">
-              <strong>頁數：未提供</strong><br />
-            </p>
-          </div>
+              <p className="text-gray-800">
+                <strong>ISBN：{product.isbn}</strong><br />
+              </p>
+              <p className="text-gray-800">
+                <strong>頁數：{product.pageCount}</strong><br />
+              </p>
+              <p className="text-gray-800">
+                <strong>商品編號：{product.productId}</strong><br />
+              </p>
+            </div>
           )}
         </div>
       </div>

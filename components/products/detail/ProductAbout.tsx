@@ -7,6 +7,10 @@ interface ProductAboutProps {
 }
 
 export default function ProductAbout({ aboutContent }: ProductAboutProps) {
+  console.log('ProductAbout 收到的 aboutContent:', aboutContent);
+  console.log('aboutContent 長度:', aboutContent?.length);
+  console.log('aboutContent 類型:', typeof aboutContent);
+
   return (
     <section className="bg-[#F3FAF8] py-16 rounded-t-[64px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,10 +28,17 @@ export default function ProductAbout({ aboutContent }: ProductAboutProps) {
         </div>
 
         <div className="bg-white rounded-[48px] p-8 md:p-16 border-[12px] border-[#B1DED6]">
-          <div 
-            className="text-gray-800 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: aboutContent }}
-          />
+          {aboutContent ? (
+            <div 
+              className="text-gray-800 leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: aboutContent }}
+            />
+          ) : (
+            <div className="text-gray-500 text-center py-8">
+              <p>暫無內容簡介</p>
+              <p className="text-sm mt-2">Debug: aboutContent = "{aboutContent}"</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

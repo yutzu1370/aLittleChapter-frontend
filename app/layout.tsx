@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import FloatingButtons from "@/components/interaction/FloatingButtons"
 import ClientChat from "@/components/interaction/chat/ClientChat"
-import { Toaster } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 import localFont from "next/font/local"
 import { Coiny } from "next/font/google"
 
