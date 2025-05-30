@@ -7,14 +7,17 @@ import { Search, ShoppingCart, Heart, Bell } from "lucide-react"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import { useCartStore } from "@/lib/store/useCartStore"
+import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
 
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { items } = useCartStore()
+  const { getFavoriteCount } = useFavoritesStore()
   
   // 計算購物車總數量
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0)
+  const favoriteCount = getFavoriteCount()
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 py-4">
@@ -62,6 +65,11 @@ export default function Header() {
                 <div className="relative flex-shrink-0">
                   <Link href="/account/favorites" className="p-2 hover:bg-gray-100 rounded-full inline-block">
                     <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
+                    {favoriteCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                        {favoriteCount > 99 ? '99+' : favoriteCount}
+                      </span>
+                    )}
                   </Link>
                 </div>
 

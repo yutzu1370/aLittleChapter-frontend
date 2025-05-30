@@ -1,19 +1,37 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { CartItem, AddOnItem } from '../types/cart';
 import { Product } from '../types/product';
 
+// 簡化的購物車項目類型 - 用於 localStorage 儲存
+interface SimpleCartItem {
+  productId: number;
+  name: string;
+  discountPrice: number;
+  price: number;
+  imageUrl: string;
+  quantity: number;
+  isSelected: boolean;
+  stockQuantity: number;
+}
+
+// 加購商品類型
+interface AddOnItem {
+  id: string;
+  name: string;
+  image: string;
+  originalPrice: number;
+  discountPrice: number;
+}
+
 interface CartStore {
-  items: CartItem[];
+  items: SimpleCartItem[];
   addOns: AddOnItem[];
-  shippingFee: number;
-  discount: number;
   
   // 商品相關操作
   addItem: (product: Product, quantity?: number) => void;
-  removeItem: (itemId: string) => void;
-  updateQuantity: (itemId: string, quantity: number) => void;
-  toggleSelect: (itemId: string) => void;
+  removeItem: (productId: number) => void;
+  updateQuantity: (productId: number, quantity: number) => void;
+  toggleSelect: (productId: number) => void;
   toggleSelectAll: (selected: boolean) => void;
   clearCart: () => void;
 
@@ -77,59 +95,65 @@ export const useCartStore = create<CartStore>()(
           discountPrice: 199
         }
       ],
-      shippingFee: 60,
-      discount: 0,
 
       addItem: (product, quantity = 1) => {
         console.log('正在加入商品到購物車:', product.name, 'x', quantity);
+        const productId = parseInt(product.id);
+        
         set((state) => {
-          const existingItem = state.items.find(item => item.product.id === product.id);
+          const existingItem = state.items.find(item => item.productId === productId);
           
           if (existingItem) {
             // 如果商品已存在，則增加數量
             console.log('商品已存在，增加數量');
             return {
               items: state.items.map(item => 
-                item.product.id === product.id 
+                item.productId === productId 
                   ? { ...item, quantity: item.quantity + quantity } 
                   : item
               )
             };
           } else {
-            // 否則新增商品
+            // 否則新增商品 - 轉換為簡化格式
             console.log('新增商品到購物車');
+            const simpleItem: SimpleCartItem = {
+              productId: productId,
+              name: product.name,
+              discountPrice: product.price,
+              price: product.originalPrice,
+              imageUrl: product.image,
+              quantity,
+              isSelected: true,
+              stockQuantity: product.stockQuantity
+            };
+            
             return {
-              items: [...state.items, { 
-                id: product.id, 
-                product, 
-                quantity,
-                isSelected: true
-              }]
+              items: [...state.items, simpleItem]
             };
           }
         });
       },
 
-      removeItem: (itemId) => {
-        console.log('從購物車移除商品:', itemId);
+      removeItem: (productId) => {
+        console.log('從購物車移除商品:', productId);
         set((state) => ({
-          items: state.items.filter(item => item.id !== itemId)
+          items: state.items.filter(item => item.productId !== productId)
         }));
       },
 
-      updateQuantity: (itemId, quantity) => {
-        console.log('更新商品數量:', itemId, quantity);
+      updateQuantity: (productId, quantity) => {
+        console.log('更新商品數量:', productId, quantity);
         set((state) => ({
           items: state.items.map(item => 
-            item.id === itemId ? { ...item, quantity } : item
+            item.productId === productId ? { ...item, quantity } : item
           )
         }));
       },
 
-      toggleSelect: (itemId) => {
+      toggleSelect: (productId) => {
         set((state) => ({
           items: state.items.map(item => 
-            item.id === itemId ? { ...item, isSelected: !item.isSelected } : item
+            item.productId === productId ? { ...item, isSelected: !item.isSelected } : item
           )
         }));
       },
@@ -149,12 +173,12 @@ export const useCartStore = create<CartStore>()(
         const { items } = get();
         return items
           .filter(item => item.isSelected)
-          .reduce((total, item) => total + (item.product.price * item.quantity), 0);
+          .reduce((total, item) => total + (item.discountPrice * item.quantity), 0);
       },
 
       getTotal: () => {
-        const { getSubtotal, shippingFee, discount } = get();
-        return getSubtotal() + shippingFee - discount;
+        const { getSubtotal } = get();
+        return getSubtotal();
       }
     }),
     {
@@ -171,11 +195,7 @@ export const useCartStore = create<CartStore>()(
           removeItem: () => null,
         };
       }),
-      partialize: (state) => ({
-        items: state.items,
-        shippingFee: state.shippingFee,
-        discount: state.discount,
-      }),
+      partialize: (state: CartStore) => state.items,
     }
   )
 ); 

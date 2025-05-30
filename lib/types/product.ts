@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   originalPrice: number;
   image: string;
+  stockQuantity: number;
   isNew?: boolean;
   isHot?: boolean;
   authorName?: string;

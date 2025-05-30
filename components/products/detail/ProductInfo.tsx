@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProductDetail, Product } from "@/lib/types/product";
 import { toast } from "sonner";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useCartStore } from "@/lib/store/useCartStore";
+import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
 import { Heart } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
 
@@ -17,12 +18,15 @@ interface ProductInfoProps {
 export default function ProductInfo({ product, category, ageRange }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("author");
-  const [isFavorite, setIsFavorite] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   
   const { isAuthenticated } = useAuthStore();
   const { addItem } = useCartStore();
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  
+  const productId = product.productId;
+  const isFavoriteProduct = isFavorite(productId);
 
   const increaseQuantity = () => {
     if (quantity < product.stockQuantity) {
@@ -92,6 +96,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         price: product.price,
         originalPrice: product.originalPrice,
         image: product.images[0] || '',
+        stockQuantity: product.stockQuantity,
         authorName: product.author,
         publisherName: product.publisher,
       };
@@ -132,18 +137,11 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
   };
 
   const handleToggleFavorite = () => {
+    const newFavoriteState = toggleFavorite(productId);
+    
     if (!isAuthenticated) {
-      // 訪客使用者：儲存到 localStorage
-      const favorites = JSON.parse(localStorage.getItem('guest-favorites') || '[]');
-      const productIdStr = product.productId.toString();
-      const newFavorites = isFavorite 
-        ? favorites.filter((id: string) => id !== productIdStr)
-        : [...favorites, productIdStr];
-      
-      localStorage.setItem('guest-favorites', JSON.stringify(newFavorites));
-      setIsFavorite(!isFavorite);
-      
-      toast.success(isFavorite ? "已從收藏移除" : "已加入收藏", {
+      // 訪客使用者：顯示登入提示
+      toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
         description: "登入後可永久保存收藏",
         action: {
           label: "立即登入",
@@ -156,9 +154,8 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       return;
     }
 
-    // TODO: 已登入使用者的收藏功能
-    setIsFavorite(!isFavorite);
-    toast.success(isFavorite ? "已從收藏移除" : "已加入收藏", {
+    // TODO: 已登入使用者的收藏功能 - 同步到後端
+    toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
       duration: 3000,
     });
   };
@@ -190,16 +187,16 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         <div className="flex gap-2 ml-4">
           <button 
             className={`p-3 rounded-full border-2 bg-white shadow-md transition-all ${
-              isFavorite 
+              isFavoriteProduct 
                 ? 'border-red-500 bg-red-50 hover:bg-red-100' 
                 : 'border-orange-500 hover:bg-orange-50'
             }`}
             onClick={handleToggleFavorite}
-            aria-label={isFavorite ? "從收藏移除" : "加入收藏"}
+            aria-label={isFavoriteProduct ? "從收藏移除" : "加入收藏"}
           >
             <Heart 
               className={`h-6 w-6 ${
-                isFavorite 
+                isFavoriteProduct 
                   ? 'text-red-500 fill-current' 
                   : 'text-orange-500'
               }`} 
