@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
 import { API_BASE_URL } from "@/lib/constants"
@@ -39,7 +38,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<string>("login")
   const [resetPasswordStep, setResetPasswordStep] = useState<number>(1)
   const [verificationEmail, setVerificationEmail] = useState<string>("")
-  const router = useRouter()
   const { login: storeLogin } = useAuthStore()
   const { 
     loginForm, 
@@ -124,7 +122,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       })
       
       onOpenChange(false)
-      router.push("/")
     } catch (error) {
       console.error("登入請求過程發生錯誤", error)
       toast.error("登入失敗", {
@@ -157,7 +154,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       })
       
       onOpenChange(false)
-      router.push("/")
     } catch (error) {
       console.error("註冊請求過程發生錯誤", error)
       toast.error("註冊失敗", {

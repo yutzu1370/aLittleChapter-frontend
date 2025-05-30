@@ -276,16 +276,6 @@ export function ForgotPasswordFlow({
           </div>
           
           <ProgressSteps currentStep={step} />
-
-          <motion.button
-            type="button"
-            className="w-full bg-[#E8652B] text-white py-2 mt-4 rounded-full font-bold shadow-[4px_6px_0px_#74281A]"
-            onClick={onBackToLogin}
-            whileTap={{ scale: 0.98 }}
-            whileHover={{ scale: 1.02 }}
-          >
-            立即登入
-          </motion.button>
         </div>
       )}
     </div>

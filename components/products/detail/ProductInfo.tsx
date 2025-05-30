@@ -143,12 +143,6 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       // 訪客使用者：顯示登入提示
       toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
         description: "登入後可永久保存收藏",
-        action: {
-          label: "立即登入",
-          onClick: () => {
-            setShowAuthModal(true);
-          }
-        },
         duration: 4000,
       });
       return;
