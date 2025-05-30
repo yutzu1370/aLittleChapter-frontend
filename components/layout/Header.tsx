@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Search, ShoppingCart, Heart, Bell } from "lucide-react"
@@ -11,12 +11,18 @@ import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
 
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
   const { isAuthenticated } = useAuthStore()
   const { items } = useCartStore()
   const { getFavoriteCount } = useFavoritesStore()
   
+  // 確保客戶端 hydration 完成
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+  
   // 計算購物車總數量
-  const cartItemCount = items.reduce((total, item) => total + item.quantity, 0)
+  const cartItemCount = isHydrated ? items.reduce((total, item) => total + item.quantity, 0) : 0
   const favoriteCount = getFavoriteCount()
 
   return (

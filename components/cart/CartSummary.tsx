@@ -9,7 +9,13 @@ import { useRouter } from "next/navigation";
 
 const CartSummary = () => {
   const router = useRouter();
-  const { getSubtotal, getTotal, shippingFee, discount } = useCartStore();
+  const { getSubtotal } = useCartStore();
+  
+  // 在組件內部計算運費和折扣
+  const shippingFee = 60;
+  const discount = 0;
+  const subtotal = getSubtotal();
+  const total = subtotal + shippingFee - discount;
   
   const handleCheckout = () => {
     router.push("/cart/checkout");
@@ -22,7 +28,7 @@ const CartSummary = () => {
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-center">
           <span className="text-sm">小計</span>
-          <span className="text-sm">{formatPrice(getSubtotal())}</span>
+          <span className="text-sm">{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm">折扣</span>
@@ -38,7 +44,7 @@ const CartSummary = () => {
       
       <div className="flex justify-between items-center mb-6">
         <span className="font-medium">應付金額</span>
-        <span className="text-lg font-bold text-amber-600">{formatPrice(getTotal())}</span>
+        <span className="text-lg font-bold text-amber-600">{formatPrice(total)}</span>
       </div>
       
       <FancyButton 

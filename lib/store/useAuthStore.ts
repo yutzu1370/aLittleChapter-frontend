@@ -14,7 +14,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   token: string | null;
-  login: (user: User) => void;
+  login: (user: User) => Promise<void>;
   logout: () => void;
   updateUser: (user: Partial<User>) => void;
 }
@@ -49,14 +49,38 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       token: null,
-      login: (user) => {
+      login: async (user) => {
         console.log('正在儲存使用者資訊到 store:', user);
+        
+        // 先設置登入狀態
         set({
           user,
           isAuthenticated: true,
           token: user.token,
         });
         
+        // 登入成功後同步購物車
+        try {
+          // 動態導入 useCartStore 以避免循環依賴
+          const { useCartStore } = await import('./useCartStore');
+          const cartStore = useCartStore.getState();
+          
+          // 檢查是否有購物車項目需要同步
+          if (cartStore.items.length > 0) {
+            console.log('開始同步訪客購物車到後端...');
+            const syncSuccess = await cartStore.syncCartToBackend();
+            
+            if (syncSuccess) {
+              console.log('購物車同步成功');
+              // 同步成功後可以選擇清空本地購物車，或保留讓用戶決定
+              // cartStore.clearCart();
+            } else {
+              console.error('購物車同步失敗');
+            }
+          }
+        } catch (error) {
+          console.error('購物車同步過程中發生錯誤:', error);
+        }
       },
       logout: () => {
         console.log('登出中...');

@@ -103,7 +103,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           };
 
           console.log('準備儲存到 store 的資料:', userData);
-          storeLogin(userData);
+          await storeLogin(userData);
           console.log('儲存到 useAuthStore 完成');
 
           if (typeof window !== 'undefined') {

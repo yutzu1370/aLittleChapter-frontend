@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Product } from '../types/product';
+import { syncCartToBackendApi, CartItemRequest } from '../api/cart';
 
 // 簡化的購物車項目類型 - 用於 localStorage 儲存
 interface SimpleCartItem {
@@ -38,6 +39,9 @@ interface CartStore {
   // 計算
   getSubtotal: () => number;
   getTotal: () => number;
+  
+  // 同步功能
+  syncCartToBackend: () => Promise<boolean>;
 }
 
 // 檢查是否在客戶端以及 localStorage 是否可用的函數
@@ -178,7 +182,25 @@ export const useCartStore = create<CartStore>()(
 
       getTotal: () => {
         const { getSubtotal } = get();
-        return getSubtotal();
+        const subtotal = getSubtotal();
+        return subtotal;
+      },
+
+      syncCartToBackend: async () => {
+        const { items } = get();
+        const cartItems: CartItemRequest[] = items.map(item => ({
+          product_id: item.productId,
+          quantity: item.quantity
+        }));
+
+        try {
+          const response = await syncCartToBackendApi(cartItems);
+          console.log('購物車同步結果:', response);
+          return response.status;
+        } catch (error) {
+          console.error('同步購物車到後端失敗:', error);
+          return false;
+        }
       }
     }),
     {
@@ -195,7 +217,7 @@ export const useCartStore = create<CartStore>()(
           removeItem: () => null,
         };
       }),
-      partialize: (state: CartStore) => state.items,
+      partialize: (state: CartStore) => ({ items: state.items }),
     }
   )
 ); 
