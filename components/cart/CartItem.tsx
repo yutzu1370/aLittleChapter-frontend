@@ -3,7 +3,10 @@
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCartStore } from "@/lib/store/useCartStore";
+import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 import { Heart, Trash2, Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 // 簡化的購物車項目類型 - 與 useCartStore 中的類型保持一致
 interface SimpleCartItem {
@@ -23,7 +26,11 @@ interface CartItemProps {
 
 const CartItem = ({ item }: CartItemProps) => {
   const { toggleSelect, updateQuantity, removeItem } = useCartStore();
-  const { productId, name, discountPrice, price, imageUrl, quantity, isSelected } = item;
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const { isAuthenticated } = useAuthStore();
+  const { productId, name, discountPrice, price, imageUrl, quantity, isSelected, stockQuantity } = item;
+
+  const isFavoriteProduct = isFavorite(productId);
 
   const handleDecrease = () => {
     if (quantity > 1) {
@@ -32,7 +39,56 @@ const CartItem = ({ item }: CartItemProps) => {
   };
 
   const handleIncrease = () => {
-    updateQuantity(productId, quantity + 1);
+    if (quantity < stockQuantity) {
+      updateQuantity(productId, quantity + 1);
+    } else {
+      toast.warning("庫存不足", {
+        description: `目前庫存僅剩 ${stockQuantity} 件`,
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = parseInt(e.target.value);
+    if (!isNaN(newQuantity) && newQuantity > 0) {
+      if (newQuantity <= stockQuantity) {
+        updateQuantity(productId, newQuantity);
+      } else {
+        toast.warning("庫存不足", {
+          description: `目前庫存僅剩 ${stockQuantity} 件`,
+          duration: 3000,
+        });
+        updateQuantity(productId, stockQuantity);
+      }
+    }
+  };
+
+  const handleQuantityBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const newQuantity = parseInt(e.target.value);
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      updateQuantity(productId, 1);
+    } else if (newQuantity > stockQuantity) {
+      updateQuantity(productId, stockQuantity);
+    }
+  };
+
+  const handleToggleFavorite = () => {
+    const newFavoriteState = toggleFavorite(productId);
+    
+    if (!isAuthenticated) {
+      // 訪客使用者：顯示登入提示
+      toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
+        description: "登入後可永久保存收藏",
+        duration: 4000,
+      });
+      return;
+    }
+
+    // TODO: 已登入使用者的收藏功能 - 同步到後端
+    toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
+      duration: 3000,
+    });
   };
 
   return (
@@ -62,7 +118,7 @@ const CartItem = ({ item }: CartItemProps) => {
         <div className="flex flex-col">
           <h3 className="text-base font-medium">{name}</h3>
           <div className="text-sm text-green-800">
-            {productId === 1 ? "僅剩 2 本" : "預計 5/20 出貨"}
+            {stockQuantity > 0 ? `僅剩 ${stockQuantity} 本` : "缺貨中"}
           </div>
         </div>
       </div>
@@ -71,12 +127,10 @@ const CartItem = ({ item }: CartItemProps) => {
       <div className="w-[110px]">
         <div className="flex flex-col">
           <span className="text-base font-medium">
-            <span className="font-jf-openhuninn">$</span>
-            <span className="font-coiny">{discountPrice.toLocaleString('zh-TW')}</span>
+            <span className="font-jf-openhuninn">${discountPrice.toLocaleString('zh-TW')}</span>
           </span>
           <span className="text-xs line-through text-gray-500">
-            <span className="font-jf-openhuninn">$</span>
-            <span className="font-coiny">{price.toLocaleString('zh-TW')}</span>
+            <span className="font-jf-openhuninn">${price.toLocaleString('zh-TW')}</span>
           </span>
         </div>
       </div>
@@ -91,9 +145,15 @@ const CartItem = ({ item }: CartItemProps) => {
             >
               <Minus className="w-4 h-4" />
             </button>
-            <div className="w-10 text-center font-medium">
-              {quantity}
-            </div>
+            <input
+              type="number"
+              value={quantity}
+              onChange={handleQuantityChange}
+              onBlur={handleQuantityBlur}
+              min="1"
+              max={stockQuantity}
+              className="w-10 text-center font-medium bg-transparent border-none outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
             <button 
               onClick={handleIncrease}
               className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
@@ -104,11 +164,20 @@ const CartItem = ({ item }: CartItemProps) => {
           
           <div className="flex gap-2">
             <button 
-              onClick={() => {}}
-              className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700"
+              onClick={handleToggleFavorite}
+              className={`inline-flex items-center text-xs transition-colors ${
+                isFavoriteProduct 
+                  ? 'text-red-500 hover:text-red-600' 
+                  : 'text-amber-600 hover:text-amber-700'
+              }`}
+              aria-label={isFavoriteProduct ? "從收藏移除" : "加入收藏"}
             >
-              <Heart className="w-4 h-4 mr-1" />
-              收藏
+              <Heart 
+                className={`w-4 h-4 mr-1 ${
+                  isFavoriteProduct ? 'fill-current' : ''
+                }`} 
+              />
+              {isFavoriteProduct ? '已收藏' : '收藏'}
             </button>
             <button 
               onClick={() => removeItem(productId)}
@@ -124,8 +193,7 @@ const CartItem = ({ item }: CartItemProps) => {
       {/* 小計 */}
       <div className="w-[100px] text-right">
         <span className="text-lg font-medium">
-          <span className="font-jf-openhuninn">$</span>
-          <span className="font-coiny">{(discountPrice * quantity).toLocaleString('zh-TW')}</span>
+          <span className="font-jf-openhuninn">${(discountPrice * quantity).toLocaleString('zh-TW')}</span>
         </span>
       </div>
     </div>
