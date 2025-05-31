@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Product } from '../types/product';
 import { syncCartToBackendApi, CartItemRequest } from '../api/cart';
+import { useState, useEffect } from 'react';
 
 // 簡化的購物車項目類型 - 用於 localStorage 儲存
 interface SimpleCartItem {
@@ -46,7 +47,6 @@ interface CartStore {
 
 // 檢查是否在客戶端以及 localStorage 是否可用的函數
 const isLocalStorageAvailable = () => {
-  // 檢查是否在瀏覽器環境中
   if (typeof window === 'undefined') {
     return false;
   }
@@ -110,13 +110,16 @@ export const useCartStore = create<CartStore>()(
           if (existingItem) {
             // 如果商品已存在，則增加數量
             console.log('商品已存在，增加數量');
-            return {
+            const newState = {
+              ...state,
               items: state.items.map(item => 
                 item.productId === productId 
                   ? { ...item, quantity: item.quantity + quantity } 
                   : item
               )
             };
+            console.log('更新後的 state:', newState);
+            return newState;
           } else {
             // 否則新增商品 - 轉換為簡化格式
             console.log('新增商品到購物車');
@@ -131,9 +134,12 @@ export const useCartStore = create<CartStore>()(
               stockQuantity: product.stockQuantity
             };
             
-            return {
+            const newState = {
+              ...state,
               items: [...state.items, simpleItem]
             };
+            console.log('新增後的 state:', newState);
+            return newState;
           }
         });
       },
@@ -141,6 +147,7 @@ export const useCartStore = create<CartStore>()(
       removeItem: (productId) => {
         console.log('從購物車移除商品:', productId);
         set((state) => ({
+          ...state,
           items: state.items.filter(item => item.productId !== productId)
         }));
       },
@@ -148,6 +155,7 @@ export const useCartStore = create<CartStore>()(
       updateQuantity: (productId, quantity) => {
         console.log('更新商品數量:', productId, quantity);
         set((state) => ({
+          ...state,
           items: state.items.map(item => 
             item.productId === productId ? { ...item, quantity } : item
           )
@@ -156,6 +164,7 @@ export const useCartStore = create<CartStore>()(
 
       toggleSelect: (productId) => {
         set((state) => ({
+          ...state,
           items: state.items.map(item => 
             item.productId === productId ? { ...item, isSelected: !item.isSelected } : item
           )
@@ -164,13 +173,14 @@ export const useCartStore = create<CartStore>()(
 
       toggleSelectAll: (selected) => {
         set((state) => ({
+          ...state,
           items: state.items.map(item => ({ ...item, isSelected: selected }))
         }));
       },
 
       clearCart: () => {
         console.log('清空購物車');
-        set({ items: [] });
+        set((state) => ({ ...state, items: [] }));
       },
 
       getSubtotal: () => {
@@ -204,20 +214,27 @@ export const useCartStore = create<CartStore>()(
       }
     }),
     {
-      name: 'cart-storage', // localStorage 的金鑰名稱
-      storage: createJSONStorage(() => {
-        // 使用安全的存儲方式，檢查是否在客戶端環境
-        if (isBrowser && isLocalStorageAvailable()) {
-          return localStorage;
-        }
-        // 服務端渲染時提供空的存儲實現
-        return {
-          getItem: () => null,
-          setItem: () => null,
-          removeItem: () => null,
-        };
-      }),
+      name: 'cart-storage',
+      storage: createJSONStorage(() => localStorage),
       partialize: (state: CartStore) => ({ items: state.items }),
+      onRehydrateStorage: () => (state) => {
+        console.log('購物車 hydration 完成:', state);
+      },
     }
   )
-); 
+);
+
+// Hook 用於處理購物車的 hydration
+export const useCartHydration = () => {
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  useEffect(() => {
+    // 確保在客戶端環境下才執行 rehydrate
+    if (typeof window !== 'undefined') {
+      useCartStore.persist.rehydrate();
+      setIsHydrated(true);
+    }
+  }, []);
+  
+  return isHydrated;
+}; 

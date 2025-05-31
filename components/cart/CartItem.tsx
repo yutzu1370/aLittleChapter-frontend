@@ -2,28 +2,37 @@
 
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CartItem as CartItemType } from "@/lib/types/cart";
 import { useCartStore } from "@/lib/store/useCartStore";
-import { formatPrice } from "@/lib/utils";
 import { Heart, Trash2, Minus, Plus } from "lucide-react";
 
+// 簡化的購物車項目類型 - 與 useCartStore 中的類型保持一致
+interface SimpleCartItem {
+  productId: number;
+  name: string;
+  discountPrice: number;
+  price: number;
+  imageUrl: string;
+  quantity: number;
+  isSelected: boolean;
+  stockQuantity: number;
+}
+
 interface CartItemProps {
-  item: CartItemType;
+  item: SimpleCartItem;
 }
 
 const CartItem = ({ item }: CartItemProps) => {
   const { toggleSelect, updateQuantity, removeItem } = useCartStore();
-  const { id, product, quantity, isSelected } = item;
-  const { name, price, originalPrice, image } = product;
+  const { productId, name, discountPrice, price, imageUrl, quantity, isSelected } = item;
 
   const handleDecrease = () => {
     if (quantity > 1) {
-      updateQuantity(id, quantity - 1);
+      updateQuantity(productId, quantity - 1);
     }
   };
 
   const handleIncrease = () => {
-    updateQuantity(id, quantity + 1);
+    updateQuantity(productId, quantity + 1);
   };
 
   return (
@@ -32,7 +41,7 @@ const CartItem = ({ item }: CartItemProps) => {
       <div className="w-[40px] ">
         <Checkbox 
           checked={isSelected}
-          onCheckedChange={() => toggleSelect(id)}
+          onCheckedChange={() => toggleSelect(productId)}
           className="h-5 w-5 border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white"
         />
       </div>
@@ -42,7 +51,7 @@ const CartItem = ({ item }: CartItemProps) => {
         <div className="aspect-square relative w-[168px] rounded-xl overflow-hidden border-4 border-gray-300 bg-gray-50 mr-4 flex items-center justify-center">
           <div className="w-[88%] h-[88%] relative">
             <Image
-              src={image || "/images/books/placeholder.jpg"}
+              src={imageUrl || "/images/books/placeholder.jpg"}
               alt={name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 120px"
@@ -53,7 +62,7 @@ const CartItem = ({ item }: CartItemProps) => {
         <div className="flex flex-col">
           <h3 className="text-base font-medium">{name}</h3>
           <div className="text-sm text-green-800">
-            {product.id === "1" ? "僅剩 2 本" : "預計 5/20 出貨"}
+            {productId === 1 ? "僅剩 2 本" : "預計 5/20 出貨"}
           </div>
         </div>
       </div>
@@ -61,8 +70,14 @@ const CartItem = ({ item }: CartItemProps) => {
       {/* 價格 */}
       <div className="w-[110px]">
         <div className="flex flex-col">
-          <span className="text-base font-medium">{formatPrice(price)}</span>
-          <span className="text-xs line-through text-gray-500">{formatPrice(originalPrice)}</span>
+          <span className="text-base font-medium">
+            <span className="font-jf-openhuninn">$</span>
+            <span className="font-coiny">{discountPrice.toLocaleString('zh-TW')}</span>
+          </span>
+          <span className="text-xs line-through text-gray-500">
+            <span className="font-jf-openhuninn">$</span>
+            <span className="font-coiny">{price.toLocaleString('zh-TW')}</span>
+          </span>
         </div>
       </div>
 
@@ -96,7 +111,7 @@ const CartItem = ({ item }: CartItemProps) => {
               收藏
             </button>
             <button 
-              onClick={() => removeItem(id)}
+              onClick={() => removeItem(productId)}
               className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700"
             >
               <Trash2 className="w-4 h-4 mr-1" />
@@ -108,7 +123,10 @@ const CartItem = ({ item }: CartItemProps) => {
 
       {/* 小計 */}
       <div className="w-[100px] text-right">
-        <span className="text-lg font-medium">{formatPrice(price * quantity)}</span>
+        <span className="text-lg font-medium">
+          <span className="font-jf-openhuninn">$</span>
+          <span className="font-coiny">{(discountPrice * quantity).toLocaleString('zh-TW')}</span>
+        </span>
       </div>
     </div>
   );

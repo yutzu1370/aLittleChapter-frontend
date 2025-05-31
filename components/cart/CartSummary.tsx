@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/store/useCartStore";
-import { formatPrice } from "@/lib/utils";
 import FancyButton from "@/components/ui/FancyButton";
 import { ArrowRight, ArrowRightCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,15 +27,21 @@ const CartSummary = () => {
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-center">
           <span className="text-sm">小計</span>
-          <span className="text-sm">{formatPrice(subtotal)}</span>
+          <span className="text-sm">
+            <span className="font-jf-openhuninn">${subtotal.toLocaleString('zh-TW')}</span>
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm">折扣</span>
-          <span className="text-sm">{formatPrice(discount)}</span>
+          <span className="text-sm">
+            <span className="font-jf-openhuninn">${discount.toLocaleString('zh-TW')}</span>
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-sm">運費</span>
-          <span className="text-sm">{formatPrice(shippingFee)}</span>
+          <span className="text-sm">
+            <span className="font-jf-openhuninn">${shippingFee.toLocaleString('zh-TW')}</span>
+          </span>
         </div>
       </div>
       
@@ -44,7 +49,9 @@ const CartSummary = () => {
       
       <div className="flex justify-between items-center mb-6">
         <span className="font-medium">應付金額</span>
-        <span className="text-lg font-bold text-amber-600">{formatPrice(total)}</span>
+        <span className="text-lg font-bold text-amber-600">
+          <span className="font-jf-openhuninn">${total.toLocaleString('zh-TW')}</span>
+        </span>
       </div>
       
       <FancyButton 

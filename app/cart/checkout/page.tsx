@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
-import { useCartStore } from "@/lib/store/useCartStore"
+import { useCartStore, useCartHydration } from "@/lib/store/useCartStore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import FancyButton from "@/components/ui/FancyButton"
 import { ArrowRight, ArrowRightCircle } from "lucide-react"
-import { formatPrice } from "@/lib/utils"
 import { useRouter } from "next/navigation"
 
 interface CityData {
@@ -24,9 +23,14 @@ interface LocationData {
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { getSubtotal, getTotal, shippingFee, discount } = useCartStore()
+  const { getSubtotal, getTotal } = useCartStore()
+  const isHydrated = useCartHydration()
   const [paymentMethod, setPaymentMethod] = useState("信用卡")
   const [deviceType, setDeviceType] = useState("手機條碼")
+  
+  // 運費和折扣的本地狀態
+  const [shippingFee, setShippingFee] = useState(0)
+  const [discount, setDiscount] = useState(0)
   
   // 縣市與鄉鎮區狀態
   const [locationData, setLocationData] = useState<LocationData | null>(null)
@@ -70,6 +74,12 @@ export default function CheckoutPage() {
     // 提交表單資料到後端 API
     // 然後導向到付款頁面
     router.push("/cart/payment-redirect")
+  }
+
+  // 計算最終總額
+  const calculateFinalTotal = () => {
+    const subtotal = getSubtotal()
+    return subtotal + shippingFee - discount
   }
 
   return (
@@ -286,15 +296,24 @@ export default function CheckoutPage() {
                 <div className="flex flex-col gap-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">小計</span>
-                    <span className="text-sm">{formatPrice(getSubtotal())}</span>
+                    <span className="text-sm">
+                      <span className="font-jf-openhuninn">$</span>
+                      <span className="font-coiny">{getSubtotal().toLocaleString('zh-TW')}</span>
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">折扣</span>
-                    <span className="text-sm">{formatPrice(discount)}</span>
+                    <span className="text-sm">
+                      -<span className="font-jf-openhuninn">$</span>
+                      <span className="font-coiny">{discount.toLocaleString('zh-TW')}</span>
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">運費</span>
-                    <span className="text-sm">{formatPrice(shippingFee)}</span>
+                    <span className="text-sm">
+                      <span className="font-jf-openhuninn">$</span>
+                      <span className="font-coiny">{shippingFee.toLocaleString('zh-TW')}</span>
+                    </span>
                   </div>
                 </div>
                 
@@ -302,7 +321,10 @@ export default function CheckoutPage() {
                 
                 <div className="flex justify-between items-center mb-6">
                   <span className="font-medium">應付金額</span>
-                  <span className="text-lg font-bold text-amber-600">{formatPrice(getTotal())}</span>
+                  <span className="text-lg font-bold text-amber-600">
+                    <span className="font-jf-openhuninn">$</span>
+                    <span className="font-coiny">{calculateFinalTotal().toLocaleString('zh-TW')}</span>
+                  </span>
                 </div>
                 
                 <FancyButton 

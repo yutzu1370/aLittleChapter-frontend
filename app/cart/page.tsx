@@ -1,17 +1,19 @@
 "use client"
 
+import { useEffect } from "react"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import CartItem from "@/components/cart/CartItem"
 import AddOnItem from "@/components/cart/AddOnItem"
 import CartSummary from "@/components/cart/CartSummary"
-import { useCartStore } from "@/lib/store/useCartStore"
+import { useCartStore, useCartHydration } from "@/lib/store/useCartStore"
 import { Checkbox } from "@/components/ui/checkbox"
-import { CartItem as CartItemType, AddOnItem as AddOnItemType } from "@/lib/types/cart"
 
 export default function CartPage() {
   const { items, addOns, toggleSelectAll } = useCartStore();
-  const allSelected = items.every((item: CartItemType) => item.isSelected);
+  const isHydrated = useCartHydration();
+  
+  const allSelected = items.every((item) => item.isSelected);
 
   return (
     <main className="min-h-screen bg-orange-50">
@@ -40,8 +42,8 @@ export default function CartPage() {
               
               {/* 購物車商品列表 */}
               <div>
-                {items.map((item: CartItemType) => (
-                  <CartItem key={item.id} item={item} />
+                {items.map((item) => (
+                  <CartItem key={item.productId} item={item} />
                 ))}
               </div>
             </div>
@@ -51,7 +53,7 @@ export default function CartPage() {
               <h2 className="text-3xl font-medium text-teal-800 mb-6">超級優惠加購價</h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {addOns.map((item: AddOnItemType) => (
+                {addOns.map((item) => (
                   <AddOnItem key={item.id} item={item} />
                 ))}
               </div>

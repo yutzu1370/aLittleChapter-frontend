@@ -23,9 +23,20 @@ export function FormatNumber({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * 數字樣式化函數，返回帶有 Coiny 字體的數字
+ * 數字格式化函數，返回格式化的字符串
  */
-export function formatPrice(price: number | string, showSymbol = true): JSX.Element {
+export function formatPrice(price: number | string, showSymbol = true): string {
+  const formattedPrice = typeof price === 'number' 
+    ? price.toLocaleString('zh-TW', { minimumFractionDigits: 0 }) 
+    : price;
+  
+  return showSymbol ? `$${formattedPrice}` : formattedPrice;
+}
+
+/**
+ * 數字樣式化函數，返回帶有 Coiny 字體的數字 JSX
+ */
+export function formatPriceWithStyle(price: number | string, showSymbol = true): JSX.Element {
   const formattedPrice = typeof price === 'number' 
     ? price.toLocaleString('zh-TW', { minimumFractionDigits: 0 }) 
     : price;

@@ -104,23 +104,10 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       // 訪客使用者：使用 Zustand store（會自動持久化到 localStorage）
       addItem(productForCart, quantity);
       
-      if (isAuthenticated) {
-        toast.success("已加入購物車", {
-          description: `${product.name} x ${quantity} 已加入購物車`,
-          duration: 3000,
-        });
-      } else {
-        toast.success("已加入購物車", {
-          description: `${product.name} x ${quantity} 已加入購物車`,
-          action: {
-            label: "立即登入",
-            onClick: () => {
-              setShowAuthModal(true);
-            }
-          },
-          duration: 4000,
-        });
-      }
+      toast.success("已加入購物車", {
+        description: `${product.name} x ${quantity} 已加入購物車`,
+        duration: 3000,
+      });
       
       // 重置數量為 1
       setQuantity(1);
