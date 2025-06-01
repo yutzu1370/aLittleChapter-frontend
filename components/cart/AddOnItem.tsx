@@ -49,14 +49,16 @@ const AddOnItem = ({ item, onAddToCart }: AddOnItemProps) => {
   return (
     <div className="flex flex-col items-center">
       {/* 商品圖片 */}
-      <div className="aspect-square relative w-full rounded-xl overflow-hidden border-4 border-gray-300  mb-3">
-        <Image 
-          src={imageUrl || "/images/books/placeholder.jpg"} 
-          alt={name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-          className="object-cover"
-        />
+      <div className="aspect-square relative w-full rounded-xl overflow-hidden border-4 border-gray-300 bg-gray-50 mb-3 flex items-center justify-center">
+        <div className="w-[88%] h-[88%] relative">
+          <Image 
+            src={imageUrl || "/images/books/placeholder.jpg"} 
+            alt={name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+            className="object-cover rounded-lg"
+          />
+        </div>
       </div>
 
       {/* 商品資訊 (外部) */}

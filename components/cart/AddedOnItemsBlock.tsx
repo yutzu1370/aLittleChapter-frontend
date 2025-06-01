@@ -64,14 +64,16 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
           return (
             <div key={item.productId} className="flex items-center gap-4 p-4 bg-[#F3FAF8] rounded-xl">
               {/* 商品圖片 */}
-              <div className="aspect-square relative w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-300 flex-shrink-0">
-                <Image 
-                  src={item.imageUrl || "/images/books/placeholder.jpg"} 
-                  alt={item.name}
-                  fill
-                  sizes="80px"
-                  className="object-cover"
-                />
+              <div className="aspect-square relative w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-300 bg-gray-50 flex-shrink-0 flex items-center justify-center">
+                <div className="w-[88%] h-[88%] relative">
+                  <Image 
+                    src={item.imageUrl || "/images/books/placeholder.jpg"} 
+                    alt={item.name}
+                    fill
+                    sizes="80px"
+                    className="object-cover rounded-lg"
+                  />
+                </div>
               </div>
 
               {/* 商品資訊 */}

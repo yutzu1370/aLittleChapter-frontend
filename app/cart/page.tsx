@@ -7,6 +7,7 @@ import CartItem from "@/components/cart/CartItem"
 import AddOnItem from "@/components/cart/AddOnItem"
 import AddedOnItemsBlock from "@/components/cart/AddedOnItemsBlock"
 import CartSummary from "@/components/cart/CartSummary"
+import DiscountCode from "@/components/cart/DiscountCode"
 import { useCartStore, useCartHydration, useLoadAddOns } from "@/lib/store/useCartStore"
 import { Checkbox } from "@/components/ui/checkbox"
 
@@ -57,19 +58,42 @@ export default function CartPage() {
             <div className="bg-white rounded-3xl p-6 mb-8 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-medium text-teal-800">購物車商品</h2>
-                {items.length > 0 && (
-                  <div className="flex items-center space-x-2">
+              </div>
+
+              {/* 表格標題列 */}
+              {items.length > 0 && (
+                <div className="flex items-center py-3 border-b border-gray-200 mb-4">
+                  {/* 全選勾選框 */}
+                  <div className="w-[40px]">
                     <Checkbox
                       id="select-all"
                       checked={allSelected}
                       onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                      className="h-5 w-5 border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white"
                     />
-                    <label htmlFor="select-all" className="text-sm font-medium">
-                      全選
-                    </label>
                   </div>
-                )}
-              </div>
+                  
+                  {/* 商品 */}
+                  <div className="flex flex-1 items-center gap-4">
+                    <span className="text-base font-medium text-gray-600">商品</span>
+                  </div>
+
+                  {/* 價格 */}
+                  <div className="w-[110px]">
+                    <span className="text-base font-medium text-gray-600">價格</span>
+                  </div>
+
+                  {/* 數量 */}
+                  <div className="w-[120px] text-center">
+                    <span className="text-base font-medium text-gray-600">數量</span>
+                  </div>
+
+                  {/* 小計 */}
+                  <div className="w-[100px] text-right">
+                    <span className="text-base font-medium text-gray-600">小計</span>
+                  </div>
+                </div>
+              )}
               
               {items.length === 0 ? (
                 <div className="text-center py-12">
@@ -121,6 +145,7 @@ export default function CartPage() {
           {/* 總金額區塊 */}
           <div className="md:col-span-1">
             <div className="sticky top-24">
+              <DiscountCode />
               <CartSummary />
             </div>
           </div>
