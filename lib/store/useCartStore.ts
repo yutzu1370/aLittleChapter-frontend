@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Product } from '../types/product';
 import { syncCartToBackendApi, CartItemRequest } from '../api/cart';
+import { fetchAddOnItems, getRandomAddOnItems } from '../api/addOnItem';
 import { useState, useEffect } from 'react';
 
 // 簡化的購物車項目類型 - 用於 localStorage 儲存
@@ -30,6 +31,7 @@ interface CartStore {
   items: SimpleCartItem[];
   addedOnItems: AddOnItem[];
   addOns: AddOnItem[];
+  isLoadingAddOns: boolean;
   
   // 商品相關操作
   addItem: (product: Product, quantity?: number) => void;
@@ -44,6 +46,7 @@ interface CartStore {
   removeAddOnItem: (itemId: number) => void;
   updateAddOnQuantity: (itemId: number, quantity: number) => void;
   clearAddOnItems: () => void;
+  loadAddOnsFromAPI: () => Promise<void>;
 
   // 計算
   getSubtotal: () => number;
@@ -79,36 +82,8 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       addedOnItems: [],
-      addOns: [
-        {
-          productId: 3,
-          name: '稻草人的微笑',
-          price: 300,
-          addOnPrice: 150, // price * 0.5
-          imageUrl: '/images/other/book_10-3.png'
-        },
-        {
-          productId: 4,
-          name: '音樂森林的秘密',
-          price: 300,
-          addOnPrice: 150, // price * 0.5
-          imageUrl: '/images/other/book_10-4.png'
-        },
-        {
-          productId: 5,
-          name: 'My Animal Friends',
-          price: 300,
-          addOnPrice: 150, // price * 0.5
-          imageUrl: '/images/other/book_10-1.png'
-        },
-        {
-          productId: 6,
-          name: '彩虹河的守護者',
-          price: 300,
-          addOnPrice: 150, // price * 0.5
-          imageUrl: '/images/other/book_10-2.png'
-        }
-      ],
+      addOns: [],
+      isLoadingAddOns: false,
 
       addItem: (product, quantity = 1) => {
         console.log('正在加入商品到購物車:', product.name, 'x', quantity);
@@ -242,6 +217,68 @@ export const useCartStore = create<CartStore>()(
         set((state) => ({ ...state, addedOnItems: [] }));
       },
 
+      // 從API加載加購商品
+      loadAddOnsFromAPI: async () => {
+        console.log('開始從API加載加購商品...');
+        set((state) => ({ ...state, isLoadingAddOns: true }));
+        
+        try {
+          // 獲取熱門商品（已轉換為加購商品格式）
+          const addOnItems = await fetchAddOnItems();
+          console.log('獲取到的加購商品:', addOnItems);
+          
+          // 隨機選取4個商品
+          const selectedAddOns = getRandomAddOnItems(addOnItems, 4);
+          console.log('隨機選取的加購商品:', selectedAddOns);
+          
+          set((state) => ({ 
+            ...state, 
+            addOns: selectedAddOns,
+            isLoadingAddOns: false 
+          }));
+          
+        } catch (error) {
+          console.error('加載加購商品失敗:', error);
+          // 如果API失敗，使用預設的加購商品
+          const defaultAddOns: AddOnItem[] = [
+            {
+              productId: 3,
+              name: '稻草人的微笑',
+              price: 300,
+              addOnPrice: 150,
+              imageUrl: '/images/other/book_10-3.png'
+            },
+            {
+              productId: 4,
+              name: '音樂森林的秘密',
+              price: 300,
+              addOnPrice: 150,
+              imageUrl: '/images/other/book_10-4.png'
+            },
+            {
+              productId: 5,
+              name: 'My Animal Friends',
+              price: 300,
+              addOnPrice: 150,
+              imageUrl: '/images/other/book_10-1.png'
+            },
+            {
+              productId: 6,
+              name: '彩虹河的守護者',
+              price: 300,
+              addOnPrice: 150,
+              imageUrl: '/images/other/book_10-2.png'
+            }
+          ];
+          
+          set((state) => ({ 
+            ...state, 
+            addOns: defaultAddOns,
+            isLoadingAddOns: false 
+          }));
+        }
+      },
+
       getSubtotal: () => {
         const { items } = get();
         return items
@@ -302,4 +339,18 @@ export const useCartHydration = () => {
   }, []);
   
   return isHydrated;
+};
+
+// Hook 用於自動加載加購商品
+export const useLoadAddOns = () => {
+  const { addOns, isLoadingAddOns, loadAddOnsFromAPI } = useCartStore();
+  
+  useEffect(() => {
+    // 如果還沒有加購商品且不在加載中，則自動加載
+    if (addOns.length === 0 && !isLoadingAddOns) {
+      loadAddOnsFromAPI();
+    }
+  }, [addOns.length, isLoadingAddOns, loadAddOnsFromAPI]);
+  
+  return { addOns, isLoadingAddOns };
 }; 

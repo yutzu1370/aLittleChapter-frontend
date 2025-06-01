@@ -61,7 +61,7 @@ const AddOnItem = ({ item, onAddToCart }: AddOnItemProps) => {
 
       {/* 商品資訊 (外部) */}
       <div className="w-full text-center">
-        <h3 className="text-lg font-medium text-teal-800 mb-1">{name}</h3>
+        <h3 className="text-lg font-medium text-teal-800 mb-1 h-14 flex items-center justify-center line-clamp-2 leading-tight">{name}</h3>
         <div className="mb-2">
           <div className="text-xs text-gray-500 line-through">原價 NT${price}</div>
           <div className="text-base font-medium text-amber-700">加購價 ${addOnPrice}</div>
