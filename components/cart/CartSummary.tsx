@@ -10,14 +10,15 @@ import { toast } from "sonner";
 
 const CartSummary = () => {
   const router = useRouter();
-  const { getSubtotal } = useCartStore();
+  const { getSubtotal, getAddOnSubtotal } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   
   // 在組件內部計算運費和折扣
   const shippingFee = 60;
   const discount = 0;
   const subtotal = getSubtotal();
-  const total = subtotal + shippingFee - discount;
+  const addOnSubtotal = getAddOnSubtotal();
+  const total = subtotal + addOnSubtotal + shippingFee - discount;
   
   const handleCheckout = () => {
     if (!isAuthenticated) {
@@ -36,11 +37,19 @@ const CartSummary = () => {
       
       <div className="flex flex-col gap-3">
         <div className="flex justify-between items-center">
-          <span className="text-sm">小計</span>
+          <span className="text-sm">商品小計</span>
           <span className="text-sm">
             <span className="font-jf-openhuninn">${subtotal.toLocaleString('zh-TW')}</span>
           </span>
         </div>
+        {addOnSubtotal > 0 && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm">加購商品小計</span>
+            <span className="text-sm">
+              <span className="font-jf-openhuninn">${addOnSubtotal.toLocaleString('zh-TW')}</span>
+            </span>
+          </div>
+        )}
         <div className="flex justify-between items-center">
           <span className="text-sm">折扣</span>
           <span className="text-sm">

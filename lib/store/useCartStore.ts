@@ -18,15 +18,17 @@ interface SimpleCartItem {
 
 // 加購商品類型
 interface AddOnItem {
-  id: string;
+  productId: number;
   name: string;
-  image: string;
-  originalPrice: number;
-  discountPrice: number;
+  price: number;
+  addOnPrice: number; // 加購價格統一為price乘以0.5的價格
+  imageUrl: string;
+  quantity?: number; // 加購商品數量統一只能+1，可選屬性
 }
 
 interface CartStore {
   items: SimpleCartItem[];
+  addedOnItems: AddOnItem[];
   addOns: AddOnItem[];
   
   // 商品相關操作
@@ -37,9 +39,16 @@ interface CartStore {
   toggleSelectAll: (selected: boolean) => void;
   clearCart: () => void;
 
+  // 加購商品相關操作
+  addOnItem: (addOnItem: AddOnItem, quantity?: number) => void;
+  removeAddOnItem: (itemId: number) => void;
+  updateAddOnQuantity: (itemId: number, quantity: number) => void;
+  clearAddOnItems: () => void;
+
   // 計算
   getSubtotal: () => number;
   getTotal: () => number;
+  getAddOnSubtotal: () => number;
   
   // 同步功能
   syncCartToBackend: () => Promise<boolean>;
@@ -69,34 +78,35 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      addedOnItems: [],
       addOns: [
         {
-          id: '3',
+          productId: 3,
           name: '稻草人的微笑',
-          image: '/images/other/book_10-3.png',
-          originalPrice: 300,
-          discountPrice: 199
+          price: 300,
+          addOnPrice: 150, // price * 0.5
+          imageUrl: '/images/other/book_10-3.png'
         },
         {
-          id: '4',
+          productId: 4,
           name: '音樂森林的秘密',
-          image: '/images/other/book_10-4.png',
-          originalPrice: 300,
-          discountPrice: 199
+          price: 300,
+          addOnPrice: 150, // price * 0.5
+          imageUrl: '/images/other/book_10-4.png'
         },
         {
-          id: '5',
+          productId: 5,
           name: 'My Animal Friends',
-          image: '/images/other/book_10-1.png',
-          originalPrice: 300,
-          discountPrice: 199
+          price: 300,
+          addOnPrice: 150, // price * 0.5
+          imageUrl: '/images/other/book_10-1.png'
         },
         {
-          id: '6',
+          productId: 6,
           name: '彩虹河的守護者',
-          image: '/images/other/book_10-2.png',
-          originalPrice: 300,
-          discountPrice: 199
+          price: 300,
+          addOnPrice: 150, // price * 0.5
+          imageUrl: '/images/other/book_10-2.png'
         }
       ],
 
@@ -183,6 +193,55 @@ export const useCartStore = create<CartStore>()(
         set((state) => ({ ...state, items: [] }));
       },
 
+      // 加購商品相關操作
+      addOnItem: (addOnItem, quantity = 1) => {
+        console.log('正在加入加購商品:', addOnItem.name, 'x', quantity);
+        set((state) => {
+          const existingItem = state.addedOnItems.find(item => item.productId === addOnItem.productId);
+          
+          if (existingItem) {
+            // 如果加購商品已存在，不允許重複加入（數量統一只能+1）
+            console.log('加購商品已存在，不允許重複加入');
+            return state;
+          } else {
+            // 新增加購商品，數量固定為1
+            console.log('新增加購商品');
+            const addedItem: AddOnItem = {
+              ...addOnItem,
+              quantity: 1 // 加購商品數量統一只能+1
+            };
+            
+            return {
+              ...state,
+              addedOnItems: [...state.addedOnItems, addedItem]
+            };
+          }
+        });
+      },
+
+      removeAddOnItem: (itemId) => {
+        console.log('從購物車移除加購商品:', itemId);
+        set((state) => ({
+          ...state,
+          addedOnItems: state.addedOnItems.filter(item => item.productId !== itemId)
+        }));
+      },
+
+      updateAddOnQuantity: (itemId, quantity) => {
+        console.log('更新加購商品數量:', itemId, quantity);
+        set((state) => ({
+          ...state,
+          addedOnItems: state.addedOnItems.map(item => 
+            item.productId === itemId ? { ...item, quantity } : item
+          )
+        }));
+      },
+
+      clearAddOnItems: () => {
+        console.log('清空加購商品');
+        set((state) => ({ ...state, addedOnItems: [] }));
+      },
+
       getSubtotal: () => {
         const { items } = get();
         return items
@@ -190,10 +249,16 @@ export const useCartStore = create<CartStore>()(
           .reduce((total, item) => total + (item.discountPrice * item.quantity), 0);
       },
 
+      getAddOnSubtotal: () => {
+        const { addedOnItems } = get();
+        return addedOnItems.reduce((total, item) => total + (item.addOnPrice * (item.quantity || 0)), 0);
+      },
+
       getTotal: () => {
-        const { getSubtotal } = get();
+        const { getSubtotal, getAddOnSubtotal } = get();
         const subtotal = getSubtotal();
-        return subtotal;
+        const addOnSubtotal = getAddOnSubtotal();
+        return subtotal + addOnSubtotal;
       },
 
       syncCartToBackend: async () => {
@@ -216,7 +281,7 @@ export const useCartStore = create<CartStore>()(
     {
       name: 'cart-storage',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state: CartStore) => ({ items: state.items }),
+      partialize: (state: CartStore) => ({ items: state.items, addedOnItems: state.addedOnItems }),
       onRehydrateStorage: () => (state) => {
         console.log('購物車 hydration 完成:', state);
       },

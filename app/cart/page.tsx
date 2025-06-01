@@ -1,19 +1,36 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import CartItem from "@/components/cart/CartItem"
 import AddOnItem from "@/components/cart/AddOnItem"
+import AddedOnItemsBlock from "@/components/cart/AddedOnItemsBlock"
 import CartSummary from "@/components/cart/CartSummary"
 import { useCartStore, useCartHydration } from "@/lib/store/useCartStore"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export default function CartPage() {
-  const { items, addOns, toggleSelectAll } = useCartStore();
+  const { items, addOns, addedOnItems, toggleSelectAll } = useCartStore();
   const isHydrated = useCartHydration();
+  const [showAddedOnItems, setShowAddedOnItems] = useState(false);
   
   const allSelected = items.every((item) => item.isSelected);
+
+  // 當有加購商品時自動顯示已加購商品區塊
+  useEffect(() => {
+    if (addedOnItems.length > 0) {
+      setShowAddedOnItems(true);
+    }
+  }, [addedOnItems.length]);
+
+  const handleAddOnItemToCart = () => {
+    setShowAddedOnItems(true);
+  };
+
+  const handleCloseAddedOnItems = () => {
+    setShowAddedOnItems(false);
+  };
 
   return (
     <main className="min-h-screen bg-orange-50">
@@ -47,6 +64,12 @@ export default function CartPage() {
                 ))}
               </div>
             </div>
+
+            {/* 已加購商品區塊 */}
+            <AddedOnItemsBlock 
+              isVisible={showAddedOnItems}
+              onClose={handleCloseAddedOnItems}
+            />
           
             {/* 加購商品區塊 */}
             <div className="bg-white rounded-3xl p-6 mb-8 shadow-sm">
@@ -54,7 +77,11 @@ export default function CartPage() {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {addOns.map((item) => (
-                  <AddOnItem key={item.id} item={item} />
+                  <AddOnItem 
+                    key={item.productId} 
+                    item={item} 
+                    onAddToCart={handleAddOnItemToCart}
+                  />
                 ))}
               </div>
             </div>
