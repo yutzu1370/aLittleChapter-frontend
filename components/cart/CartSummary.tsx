@@ -2,13 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/store/useCartStore";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 import FancyButton from "@/components/ui/FancyButton";
 import { ArrowRight, ArrowRightCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const CartSummary = () => {
   const router = useRouter();
   const { getSubtotal } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
   
   // 在組件內部計算運費和折扣
   const shippingFee = 60;
@@ -17,6 +20,13 @@ const CartSummary = () => {
   const total = subtotal + shippingFee - discount;
   
   const handleCheckout = () => {
+    if (!isAuthenticated) {
+      toast.warning("請登入，才能進一步結帳", {
+        duration: 3000,
+      });
+      return;
+    }
+    
     router.push("/cart/checkout");
   };
   
@@ -66,4 +76,4 @@ const CartSummary = () => {
   );
 };
 
-export default CartSummary; 
+export default CartSummary;

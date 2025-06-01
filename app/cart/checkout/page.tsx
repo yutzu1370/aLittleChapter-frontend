@@ -297,22 +297,19 @@ export default function CheckoutPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm">小計</span>
                     <span className="text-sm">
-                      <span className="font-jf-openhuninn">$</span>
-                      <span className="font-coiny">{getSubtotal().toLocaleString('zh-TW')}</span>
+                      <span className="font-jf-openhuninn">${getSubtotal().toLocaleString('zh-TW')}</span>
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">折扣</span>
                     <span className="text-sm">
-                      -<span className="font-jf-openhuninn">$</span>
-                      <span className="font-coiny">{discount.toLocaleString('zh-TW')}</span>
+                      <span className="font-jf-openhuninn">-${discount.toLocaleString('zh-TW')}</span>
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">運費</span>
                     <span className="text-sm">
-                      <span className="font-jf-openhuninn">$</span>
-                      <span className="font-coiny">{shippingFee.toLocaleString('zh-TW')}</span>
+                      <span className="font-jf-openhuninn">${shippingFee.toLocaleString('zh-TW')}</span>
                     </span>
                   </div>
                 </div>
@@ -322,8 +319,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between items-center mb-6">
                   <span className="font-medium">應付金額</span>
                   <span className="text-lg font-bold text-amber-600">
-                    <span className="font-jf-openhuninn">$</span>
-                    <span className="font-coiny">{calculateFinalTotal().toLocaleString('zh-TW')}</span>
+                    <span className="font-jf-openhuninn">${calculateFinalTotal().toLocaleString('zh-TW')}</span>
                   </span>
                 </div>
                 

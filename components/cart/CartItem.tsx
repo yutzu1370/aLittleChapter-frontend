@@ -129,9 +129,11 @@ const CartItem = ({ item }: CartItemProps) => {
           <span className="text-base font-medium">
             <span className="font-jf-openhuninn">${discountPrice.toLocaleString('zh-TW')}</span>
           </span>
-          <span className="text-xs line-through text-gray-500">
-            <span className="font-jf-openhuninn">${price.toLocaleString('zh-TW')}</span>
-          </span>
+          {price !== discountPrice && (
+            <span className="text-xs line-through text-gray-500">
+              <span className="font-jf-openhuninn">${price.toLocaleString('zh-TW')}</span>
+            </span>
+          )}
         </div>
       </div>
 
