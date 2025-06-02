@@ -301,7 +301,7 @@ export const useCartStore = create<CartStore>()(
       syncCartToBackend: async () => {
         const { items } = get();
         const cartItems: CartItemRequest[] = items.map(item => ({
-          product_id: item.productId,
+          productId: item.productId,
           quantity: item.quantity
         }));
 

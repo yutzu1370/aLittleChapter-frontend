@@ -58,16 +58,16 @@ export default function AccountLayout({
       <Header />
       <div className="pt-28 pb-20 min-h-screen bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex overflow-x-auto space-x-1">
+          <div className="flex gap-2 relative overflow-x-auto">
             {menuItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "px-6 py-3 min-w-fit text-center rounded-t-2xl border-4 border-b-0 text-[#3E120C] font-medium whitespace-nowrap relative",
+                  "px-8 py-3 rounded-t-2xl text-lg font-medium relative min-w-fit whitespace-nowrap",
                   pathname.includes(item.href)
-                    ? "bg-white border-[#F8D0B0] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1 after:bg-white"
-                    : "bg-[#FCE9D8] border-[#F8D0B0] border-opacity-50 hover:bg-[#FCE9D8]/80"
+                    ? "bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10"
+                    : "bg-[#FCE9D8] text-gray-600 hover:bg-[#FCE9D8]/80"
                 )}
               >
                 {item.label}{item.count ? `(${item.count})` : ""}
@@ -75,7 +75,7 @@ export default function AccountLayout({
             ))}
           </div>
 
-          <div className="rounded-b-lg rounded-tr-lg border-4 border-[#F8D0B0] bg-white p-6 md:p-12 shadow-sm min-h-[calc(100vh-280px)]">
+          <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0] relative -mt-1 shadow-sm min-h-[calc(100vh-280px)]">
             {children}
           </div>
         </div>

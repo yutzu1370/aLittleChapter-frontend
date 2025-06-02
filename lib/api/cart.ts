@@ -2,7 +2,7 @@ import apiClient, { ApiResponse } from "@/lib/apiClient";
 
 // 購物車項目介面 - 用於 API 傳輸
 export interface CartItemRequest {
-  product_id: number;
+  productId: number;
   quantity: number;
 }
 

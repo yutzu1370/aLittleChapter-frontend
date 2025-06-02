@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import FancyButton from "@/components/ui/FancyButton"
+import ProfileButton from "@/components/ui/ProfileButton"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { CalendarIcon, PencilIcon, SaveIcon, XIcon, LogOut } from "lucide-react"
@@ -454,9 +455,9 @@ export default function ProfileClient() {
           
           {/* 按鈕群組 */}
           <div className="space-y-3 w-full">
-            <FancyButton 
-              className="w-full font-noto-sans-tc text-base"
-              hideIcons
+            <ProfileButton 
+              className="w-full"
+              variant="primary"
               onClick={() => document.getElementById('avatar-upload')?.click()}
             >
               更換大頭貼
@@ -467,52 +468,53 @@ export default function ProfileClient() {
                 className="hidden"
                 onChange={handleFileChange}
               />
-            </FancyButton>
+            </ProfileButton>
             
-            <FancyButton 
-              className="w-full font-noto-sans-tc text-base"
-              hideIcons
+            <ProfileButton 
+              className="w-full"
+              variant="primary"
               onClick={() => router.push("/account/change-password")}
             >
               修改密碼
-            </FancyButton>
+            </ProfileButton>
             
-            <FancyButton 
-              className="w-full font-noto-sans-tc text-base"
-              hideIcons
+            <ProfileButton 
+              className="w-full"
+              variant="primary"
               leftIcon={<LogOut className="w-4 h-4" />}
               onClick={handleLogout}
             >
               登出
-            </FancyButton>
+            </ProfileButton>
           </div>
         </div>
       </div>
 
       {/* 右側：表單區域 */}
       <div className="flex-1">
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 ">
           {!isEditing && (
-            <FancyButton
+            <ProfileButton
               type="button"
-              className="font-noto-sans-tc text-base"
-              hideIcons
+              variant="primary"
               leftIcon={<PencilIcon className="w-4 h-4" />}
               onClick={() => setIsEditing(true)}
             >
               編輯資料
-            </FancyButton>
+            </ProfileButton>
           )}
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* 姓名欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label htmlFor="name" className="col-span-2 font-noto-sans-tc">姓名</Label>
+            <Label htmlFor="name" className="col-span-2 font-noto-sans-tc text-base">姓名</Label>
             <div className="col-span-10">
               <input
                 {...register("name")}
                 id="name"
-                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc"
+                className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                  !isEditing ? "bg-white text-gray-500" : ""
+                }`}
                 disabled={!isEditing}
               />
               {errors.name && (
@@ -523,7 +525,7 @@ export default function ProfileClient() {
           
           {/* 性別欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label className="col-span-2 font-noto-sans-tc">性別</Label>
+            <Label className="col-span-2 font-noto-sans-tc text-base">性別</Label>
             <div className="col-span-10">
               <RadioGroup 
                 value={gender} 
@@ -535,19 +537,41 @@ export default function ProfileClient() {
                   <RadioGroupItem 
                     value="男" 
                     id="male" 
-                    className={gender === "男" ? "border-[#D94A1D] text-[#D94A1D]" : ""} 
+                    className={
+                      !isEditing 
+                        ? "border-gray-300 text-gray-400" 
+                        : gender === "男" 
+                          ? "border-[#D94A1D] text-[#D94A1D]" 
+                          : ""
+                    } 
                     disabled={!isEditing}
                   />
-                  <Label htmlFor="male" className={`font-noto-sans-tc ${!isEditing ? "opacity-70" : ""}`}>男</Label>
+                  <Label 
+                    htmlFor="male" 
+                    className={`font-noto-sans-tc ${!isEditing ? "text-gray-400" : ""}`}
+                  >
+                    男
+                  </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem 
                     value="女" 
                     id="female" 
-                    className={gender === "女" ? "border-[#D94A1D] text-[#D94A1D]" : ""}
+                    className={
+                      !isEditing 
+                        ? "border-gray-300 text-gray-400" 
+                        : gender === "女" 
+                          ? "border-[#D94A1D] text-[#D94A1D]" 
+                          : ""
+                    }
                     disabled={!isEditing}
                   />
-                  <Label htmlFor="female" className={`font-noto-sans-tc ${!isEditing ? "opacity-70" : ""}`}>女</Label>
+                  <Label 
+                    htmlFor="female" 
+                    className={`font-noto-sans-tc ${!isEditing ? "text-gray-400" : ""}`}
+                  >
+                    女
+                  </Label>
                 </div>
               </RadioGroup>
               {errors.gender && (
@@ -558,20 +582,22 @@ export default function ProfileClient() {
           
           {/* 生日欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label className="col-span-2 font-noto-sans-tc">生日</Label>
-            <div className="col-span-10">
+            <Label className="col-span-2 font-noto-sans-tc text-base">生日</Label>
+            <div className="col-span-10 ">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={`w-full justify-between rounded-full border-[#E5E5E5] px-4 py-3 h-auto text-left font-normal font-noto-sans-tc ${!isEditing ? 'opacity-70 pointer-events-none' : ''}`}
+                    className={`w-full justify-between rounded-full border-[#E5E5E5] px-4 py-3 h-auto text-left font-normal font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                      !isEditing ? 'bg-white text-gray-500 pointer-events-none' : ''
+                    }`}
                     disabled={!isEditing}
                   >
                     {birthdate ? format(birthdate, "yyyy/MM/dd") : "選擇生日"}
                     <CalendarIcon className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0 rounded-2xl shadow-xl border-0" align="start">
                   <Calendar
                     mode="single"
                     selected={birthdate}
@@ -590,12 +616,14 @@ export default function ProfileClient() {
           
           {/* 電話欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label htmlFor="phone" className="col-span-2 font-noto-sans-tc">電話</Label>
+            <Label htmlFor="phone" className="col-span-2 font-noto-sans-tc text-base">電話</Label>
             <div className="col-span-10">
               <input
                 {...register("phone")}
                 id="phone"
-                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc"
+                className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                  !isEditing ? "bg-white text-gray-500" : ""
+                }`}
                 disabled={!isEditing}
                 maxLength={10}
                 inputMode="numeric"
@@ -609,13 +637,15 @@ export default function ProfileClient() {
           
           {/* 地址欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label className="col-span-2 font-noto-sans-tc">地址</Label>
+            <Label className="col-span-2 font-noto-sans-tc text-base">地址</Label>
             <div className="col-span-10 flex flex-row gap-3 items-start">
               {/* 城市選擇 */}
               <div className="w-[22%]">
                 <select
                   {...register("address.city")}
-                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc"
+                  className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                    !isEditing ? "bg-white text-gray-500" : ""
+                  }`}
                   disabled={!isEditing}
                 >
                   <option value="">請選擇城市</option>
@@ -634,7 +664,9 @@ export default function ProfileClient() {
               <div className="w-[22%]">
                 <select
                   {...register("address.district")}
-                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc"
+                  className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                    !isEditing ? "bg-white text-gray-500" : ""
+                  }`}
                   disabled={!isEditing || !selectedCity}
                 >
                   <option value="">請選擇區域</option>
@@ -655,7 +687,9 @@ export default function ProfileClient() {
               <div className="flex-1">
                 <input
                   {...register("address.detail")}
-                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc"
+                  className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                    !isEditing ? "bg-white text-gray-500" : ""
+                  }`}
                   placeholder="詳細地址"
                   disabled={!isEditing}
                 />
@@ -668,12 +702,12 @@ export default function ProfileClient() {
           
           {/* Email欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label htmlFor="email" className="col-span-2 font-noto-sans-tc">E-mail</Label>
+            <Label htmlFor="email" className="col-span-2 font-noto-sans-tc text-base">E-mail</Label>
             <div className="col-span-10">
               <input
                 {...register("email")}
                 id="email"
-                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-gray-50 font-noto-sans-tc"
+                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-white text-gray-500 font-noto-sans-tc"
                 disabled
               />
               {errors.email && (
@@ -686,20 +720,18 @@ export default function ProfileClient() {
           <div className="flex justify-end mt-8 space-x-4">
             {isEditing ? (
               <>
-                <FancyButton 
+                <ProfileButton 
                   type="button" 
-                  className="font-noto-sans-tc text-base"
-                  hideIcons
+                  variant="primary"
                   leftIcon={<XIcon className="w-4 h-4" />}
                   onClick={handleCancel}
                   disabled={isLoading}
                 >
                   取消
-                </FancyButton>
-                <FancyButton 
+                </ProfileButton>
+                <ProfileButton 
                   type="submit" 
-                  className="font-noto-sans-tc text-base"
-                  hideIcons
+                  variant="secondary"
                   leftIcon={isLoading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
@@ -708,7 +740,7 @@ export default function ProfileClient() {
                   disabled={isLoading}
                 >
                   儲存變更
-                </FancyButton>
+                </ProfileButton>
               </>
             ) : null}
           </div>
