@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, ShoppingCart, Heart, Bell } from "lucide-react"
+import { Search, ShoppingCart, Heart, Bell, ChevronDown } from "lucide-react"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import { useCartStore } from "@/lib/store/useCartStore"
@@ -12,6 +12,8 @@ import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const [showProductsDropdown, setShowProductsDropdown] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const { isAuthenticated } = useAuthStore()
   const { items } = useCartStore()
   const { getFavoriteCount } = useFavoritesStore()
@@ -20,10 +22,41 @@ export default function Header() {
   useEffect(() => {
     setIsHydrated(true)
   }, [])
+
+  // 處理點擊外部關閉下拉選單
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowProductsDropdown(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
   
   // 計算購物車總數量
   const cartItemCount = isHydrated ? items.reduce((total, item) => total + item.quantity, 0) : 0
   const favoriteCount = getFavoriteCount()
+
+  // 產品分類選項
+  const productCategories = [
+    { name: "健康生活", href: "/products?category=health" },
+    { name: "科學知識", href: "/products?category=science" },
+    { name: "藝術啟蒙", href: "/products?category=art" },
+    { name: "音樂欣賞", href: "/products?category=music" },
+    { name: "勵志成長", href: "/products?category=motivation" }
+  ]
+
+  const handleProductsMouseEnter = () => {
+    setShowProductsDropdown(true)
+  }
+
+  const handleProductsMouseLeave = () => {
+    setShowProductsDropdown(false)
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 py-4">
@@ -47,9 +80,42 @@ export default function Header() {
             <Link href="/hot" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
               熱銷排行
             </Link>
-            <Link href="/products" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
-              探索商品
-            </Link>
+            
+            {/* Products Dropdown */}
+            <div 
+              ref={dropdownRef}
+              className="relative"
+              onMouseEnter={handleProductsMouseEnter}
+              onMouseLeave={handleProductsMouseLeave}
+            >
+              <button 
+                className="flex items-center text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base"
+                aria-expanded={showProductsDropdown}
+                aria-haspopup="true"
+              >
+                探索商品
+               
+              </button>
+              
+              {/* Dropdown Menu */}
+              {showProductsDropdown && (
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-32 bg-white border-4 border-[#F8D0B0] rounded-3xl shadow-lg overflow-hidden z-50 text-center">
+                  <div className="py-2">
+                    {productCategories.map((category, index) => (
+                      <Link
+                        key={category.name}
+                        href={category.href}
+                        className="block px-6 py-3 text-sm font-medium text-gray-900 hover:bg-[#FEF5EE] hover:text-orange-500 transition-colors"
+                        onClick={() => setShowProductsDropdown(false)}
+                      >
+                        {category.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            
             <Link href="/about" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base">
               關於我們
             </Link>
