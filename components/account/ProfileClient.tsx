@@ -342,21 +342,55 @@ export default function ProfileClient() {
       const response = await uploadAvatar(file);
       
       if (!response || !response.status) {
-        toast.error("上傳頭像失敗", {
-          description: response?.message || "上傳頭像失敗，請稍後再試",
-        });
+        // 檢查是否為 Google Cloud 認證錯誤
+        const errorMessage = response?.message || "";
+        if (errorMessage.includes("Could not load the default credentials") || 
+            errorMessage.includes("Google Cloud")) {
+          toast.error("系統暫時無法處理頭像上傳", {
+            description: "伺服器配置問題，請稍後再試或聯繫客服",
+          });
+        } else {
+          toast.error("上傳頭像失敗", {
+            description: response?.message || "上傳頭像失敗，請稍後再試",
+          });
+        }
+        // 清理預覽 URL
+        URL.revokeObjectURL(fileUrl);
+        setValue("avatar", userProfile.avatar || "/images/user_icon/user.png");
         return;
+      }
+      
+      // 成功上傳，使用後端回傳的頭像URL
+      const newAvatarUrl = response.data?.avatar;
+      if (newAvatarUrl) {
+        setValue("avatar", newAvatarUrl);
+        setUserProfile(prev => ({
+          ...prev,
+          avatar: newAvatarUrl
+        }));
       }
       
       toast.success("頭像已更新");
       
-      // 清理舊的預覽 URL 物件（如果有的話）
-      if (avatar && avatar !== fileUrl && avatar.startsWith("blob:")) {
-        URL.revokeObjectURL(avatar);
-      }
+      // 清理舊的預覽 URL 物件
+      URL.revokeObjectURL(fileUrl);
     } catch (error) {
       console.error("上傳頭像失敗:", error)
-      toast.error("上傳頭像失敗，請稍後再試")
+      
+      // 檢查錯誤訊息是否包含 Google Cloud 相關內容
+      const errorMessage = error instanceof Error ? error.message : "";
+      if (errorMessage.includes("Could not load the default credentials") || 
+          errorMessage.includes("Google Cloud")) {
+        toast.error("系統暫時無法處理頭像上傳", {
+          description: "伺服器配置問題，請稍後再試或聯繫客服",
+        });
+      } else {
+        toast.error("上傳頭像失敗，請稍後再試");
+      }
+      
+      // 清理預覽 URL 並恢復原始頭像
+      URL.revokeObjectURL(fileUrl);
+      setValue("avatar", userProfile.avatar || "/images/user_icon/user.png");
     }
   }
 
@@ -445,7 +479,7 @@ export default function ProfileClient() {
       <div className="w-full md:w-64">
         <div className="flex flex-col items-center">
           <Avatar className="w-32 h-32 mb-3">
-            <AvatarImage src={userProfile.avatar || ""} />
+            <AvatarImage src={userProfile.avatar || "/images/user_icon/user.png"} />
             <AvatarFallback className="bg-blue-500 font-noto-sans-tc">
               {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}
             </AvatarFallback>

@@ -18,12 +18,17 @@ export async function updateUserProfile(data: UpdateProfileData): Promise<ApiRes
   return apiClient.put('/api/users/profile', data);
 }
 
-// 上傳頭像相關功能 (如果需要)
-export async function uploadAvatar(file: File): Promise<ApiResponse> {
+// 上傳頭像回應資料類型
+export interface UploadAvatarResponse {
+  avatar: string;
+}
+
+// 上傳頭像功能
+export async function uploadAvatar(file: File): Promise<ApiResponse<UploadAvatarResponse>> {
   const formData = new FormData();
   formData.append("avatar", file);
   
-  return apiClient.post('/api/users/upload-avatar', formData, {
+  return apiClient.post('/api/upload/avatar', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
