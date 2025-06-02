@@ -56,7 +56,7 @@ export default function AccountLayout({
   return (
     <>
       <Header />
-      <div className="pt-28 pb-20 min-h-screen bg-[#FEF5EE]">
+      <div className="pt-28 pb-20 min-h-screen bg-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex overflow-x-auto space-x-1">
             {menuItems.map((item) => (

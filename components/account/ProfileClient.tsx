@@ -7,6 +7,7 @@ import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import FancyButton from "@/components/ui/FancyButton"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { CalendarIcon, PencilIcon, SaveIcon, XIcon, LogOut } from "lucide-react"
@@ -431,31 +432,31 @@ export default function ProfileClient() {
 
   if (isInitialLoading) {
     return (
-      <div className="flex justify-center items-center h-60">
+      <div className="flex justify-center items-center h-60 font-noto-sans-tc">
         <div className="animate-pulse text-lg text-gray-500">載入中...</div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-12">
+    <div className="flex flex-col md:flex-row gap-12 font-noto-sans-tc">
       {/* 左側：使用者資訊卡 */}
       <div className="w-full md:w-64">
         <div className="flex flex-col items-center">
           <Avatar className="w-32 h-32 mb-3">
             <AvatarImage src={userProfile.avatar || ""} />
-            <AvatarFallback className="bg-blue-500">
+            <AvatarFallback className="bg-blue-500 font-noto-sans-tc">
               {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}
             </AvatarFallback>
           </Avatar>
-          <h3 className="text-lg font-medium">{userProfile.name}</h3>
-          <p className="text-sm text-gray-500 mb-5">{userProfile.email}</p>
+          <h3 className="text-lg font-medium font-noto-sans-tc">{userProfile.name}</h3>
+          <p className="text-sm text-gray-500 mb-5 font-noto-sans-tc">{userProfile.email}</p>
           
           {/* 按鈕群組 */}
           <div className="space-y-3 w-full">
-            <Button 
-              variant="outline"
-              className="w-full bg-white border-[#E8652B] text-[#E8652B] hover:bg-[#FCE9D8] rounded-full font-medium shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all"
+            <FancyButton 
+              className="w-full font-noto-sans-tc text-base"
+              hideIcons
               onClick={() => document.getElementById('avatar-upload')?.click()}
             >
               更換大頭貼
@@ -466,24 +467,24 @@ export default function ProfileClient() {
                 className="hidden"
                 onChange={handleFileChange}
               />
-            </Button>
+            </FancyButton>
             
-            <Button 
-              variant="outline"
-              className="w-full bg-white border-[#E8652B] text-[#E8652B] hover:bg-[#FCE9D8] rounded-full font-medium shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all"
+            <FancyButton 
+              className="w-full font-noto-sans-tc text-base"
+              hideIcons
               onClick={() => router.push("/account/change-password")}
             >
               修改密碼
-            </Button>
+            </FancyButton>
             
-            <Button 
-              variant="outline"
-              className="w-full bg-white border-[#E8652B] text-[#E8652B] hover:bg-[#FCE9D8] rounded-full font-medium shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all flex items-center"
+            <FancyButton 
+              className="w-full font-noto-sans-tc text-base"
+              hideIcons
+              leftIcon={<LogOut className="w-4 h-4" />}
               onClick={handleLogout}
             >
-              <LogOut className="w-4 h-4 mr-2" />
               登出
-            </Button>
+            </FancyButton>
           </div>
         </div>
       </div>
@@ -492,36 +493,37 @@ export default function ProfileClient() {
       <div className="flex-1">
         <div className="flex justify-end mb-4">
           {!isEditing && (
-            <Button
+            <FancyButton
               type="button"
-              className="px-6 py-3 bg-[#E8652B] hover:bg-[#D94A1D] text-white rounded-full flex items-center gap-2"
+              className="font-noto-sans-tc text-base"
+              hideIcons
+              leftIcon={<PencilIcon className="w-4 h-4" />}
               onClick={() => setIsEditing(true)}
             >
-              <PencilIcon className="w-4 h-4" />
               編輯資料
-            </Button>
+            </FancyButton>
           )}
         </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* 姓名欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label htmlFor="name" className="col-span-2">姓名</Label>
+            <Label htmlFor="name" className="col-span-2 font-noto-sans-tc">姓名</Label>
             <div className="col-span-10">
               <input
                 {...register("name")}
                 id="name"
-                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
+                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc"
                 disabled={!isEditing}
               />
               {errors.name && (
-                <p className="text-red-500 text-sm mt-1 ml-2">{errors.name.message}</p>
+                <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.name.message}</p>
               )}
             </div>
           </div>
           
           {/* 性別欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label className="col-span-2">性別</Label>
+            <Label className="col-span-2 font-noto-sans-tc">性別</Label>
             <div className="col-span-10">
               <RadioGroup 
                 value={gender} 
@@ -536,7 +538,7 @@ export default function ProfileClient() {
                     className={gender === "男" ? "border-[#D94A1D] text-[#D94A1D]" : ""} 
                     disabled={!isEditing}
                   />
-                  <Label htmlFor="male" className={!isEditing ? "opacity-70" : ""}>男</Label>
+                  <Label htmlFor="male" className={`font-noto-sans-tc ${!isEditing ? "opacity-70" : ""}`}>男</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem 
@@ -545,24 +547,24 @@ export default function ProfileClient() {
                     className={gender === "女" ? "border-[#D94A1D] text-[#D94A1D]" : ""}
                     disabled={!isEditing}
                   />
-                  <Label htmlFor="female" className={!isEditing ? "opacity-70" : ""}>女</Label>
+                  <Label htmlFor="female" className={`font-noto-sans-tc ${!isEditing ? "opacity-70" : ""}`}>女</Label>
                 </div>
               </RadioGroup>
               {errors.gender && (
-                <p className="text-red-500 text-sm mt-1 ml-2">{errors.gender.message}</p>
+                <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.gender.message}</p>
               )}
             </div>
           </div>
           
           {/* 生日欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label className="col-span-2">生日</Label>
+            <Label className="col-span-2 font-noto-sans-tc">生日</Label>
             <div className="col-span-10">
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={`w-full justify-between rounded-full border-[#E5E5E5] px-4 py-3 h-auto text-left font-normal ${!isEditing ? 'opacity-70 pointer-events-none' : ''}`}
+                    className={`w-full justify-between rounded-full border-[#E5E5E5] px-4 py-3 h-auto text-left font-normal font-noto-sans-tc ${!isEditing ? 'opacity-70 pointer-events-none' : ''}`}
                     disabled={!isEditing}
                   >
                     {birthdate ? format(birthdate, "yyyy/MM/dd") : "選擇生日"}
@@ -581,39 +583,39 @@ export default function ProfileClient() {
                 </PopoverContent>
               </Popover>
               {errors.birthdate && (
-                <p className="text-red-500 text-sm mt-1 ml-2">{errors.birthdate.message}</p>
+                <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.birthdate.message}</p>
               )}
             </div>
           </div>
           
           {/* 電話欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label htmlFor="phone" className="col-span-2">電話</Label>
+            <Label htmlFor="phone" className="col-span-2 font-noto-sans-tc">電話</Label>
             <div className="col-span-10">
               <input
                 {...register("phone")}
                 id="phone"
-                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
+                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc"
                 disabled={!isEditing}
                 maxLength={10}
                 inputMode="numeric"
                 pattern="[0-9]*"
               />
               {errors.phone && (
-                <p className="text-red-500 text-sm mt-1 ml-2">{errors.phone.message}</p>
+                <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.phone.message}</p>
               )}
             </div>
           </div>
           
           {/* 地址欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label className="col-span-2">地址</Label>
+            <Label className="col-span-2 font-noto-sans-tc">地址</Label>
             <div className="col-span-10 flex flex-row gap-3 items-start">
               {/* 城市選擇 */}
               <div className="w-[22%]">
                 <select
                   {...register("address.city")}
-                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8"
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc"
                   disabled={!isEditing}
                 >
                   <option value="">請選擇城市</option>
@@ -624,7 +626,7 @@ export default function ProfileClient() {
                   ))}
                 </select>
                 {errors.address?.city && (
-                  <p className="text-red-500 text-sm mt-1 ml-2">{errors.address.city.message}</p>
+                  <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.city.message}</p>
                 )}
               </div>
               
@@ -632,7 +634,7 @@ export default function ProfileClient() {
               <div className="w-[22%]">
                 <select
                   {...register("address.district")}
-                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8"
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc"
                   disabled={!isEditing || !selectedCity}
                 >
                   <option value="">請選擇區域</option>
@@ -645,7 +647,7 @@ export default function ProfileClient() {
                   }
                 </select>
                 {errors.address?.district && (
-                  <p className="text-red-500 text-sm mt-1 ml-2">{errors.address.district.message}</p>
+                  <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.district.message}</p>
                 )}
               </div>
               
@@ -653,12 +655,12 @@ export default function ProfileClient() {
               <div className="flex-1">
                 <input
                   {...register("address.detail")}
-                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5]"
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc"
                   placeholder="詳細地址"
                   disabled={!isEditing}
                 />
                 {errors.address?.detail && (
-                  <p className="text-red-500 text-sm mt-1 ml-2">{errors.address.detail.message}</p>
+                  <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.detail.message}</p>
                 )}
               </div>
             </div>
@@ -666,16 +668,16 @@ export default function ProfileClient() {
           
           {/* Email欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
-            <Label htmlFor="email" className="col-span-2">E-mail</Label>
+            <Label htmlFor="email" className="col-span-2 font-noto-sans-tc">E-mail</Label>
             <div className="col-span-10">
               <input
                 {...register("email")}
                 id="email"
-                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-gray-50"
+                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-gray-50 font-noto-sans-tc"
                 disabled
               />
               {errors.email && (
-                <p className="text-red-500 text-sm mt-1 ml-2">{errors.email.message}</p>
+                <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.email.message}</p>
               )}
             </div>
           </div>
@@ -684,28 +686,29 @@ export default function ProfileClient() {
           <div className="flex justify-end mt-8 space-x-4">
             {isEditing ? (
               <>
-                <Button 
+                <FancyButton 
                   type="button" 
-                  variant="outline"
-                  className="px-6 py-3 border-[#E8652B] text-[#E8652B] rounded-full flex items-center gap-2"
+                  className="font-noto-sans-tc text-base"
+                  hideIcons
+                  leftIcon={<XIcon className="w-4 h-4" />}
                   onClick={handleCancel}
                   disabled={isLoading}
                 >
-                  <XIcon className="w-4 h-4" />
                   取消
-                </Button>
-                <Button 
+                </FancyButton>
+                <FancyButton 
                   type="submit" 
-                  className="px-6 py-3 bg-[#E8652B] hover:bg-[#D94A1D] text-white rounded-full flex items-center gap-2"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
+                  className="font-noto-sans-tc text-base"
+                  hideIcons
+                  leftIcon={isLoading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
                     <SaveIcon className="w-4 h-4" />
                   )}
+                  disabled={isLoading}
+                >
                   儲存變更
-                </Button>
+                </FancyButton>
               </>
             ) : null}
           </div>
