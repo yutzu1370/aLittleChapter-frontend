@@ -6,7 +6,7 @@ import { Instagram, Twitter, Youtube } from "lucide-react"
 
 export default function Footer() {
   return (
-    <footer className="relative mt-32 pt-24 pb-6 bg-[#FEF5EE] rounded-t-3xl">
+    <footer className="relative mt-32 pt-12 pb-1 bg-[#FEF5EE] rounded-t-3xl font-noto-sans-tc">
       <div className="absolute -top-36 left-1/2 -translate-x-1/2 flex z-10">
         <Image
           src="/images/home/Rabbit.png"
@@ -39,20 +39,19 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid md:grid-cols-4 gap-4 mb-8 justify-items-center">
-          <div>
-            <div className="flex items-center mb-2">
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 mb-4">
+          {/* Logo 區塊 */}
+          <div className="flex flex-col items-center">
+            <div className="mb-2">
               <Image
                 src="/images/home/footer_logo.png"
                 alt="Little Chapter Logo"
-                width={48}
-                height={48}
-                className="mr-2 w-full object-cover"
+                width={24}
+                height={24}
+                className="w-48 h-24 object-contain"
               />
-              <div>
-              </div>
             </div>
-            <div className="flex space-x-3 mt-2 justify-center">
+            <div className="flex space-x-2">
               <Link href="#" className="text-gray-600 hover:text-orange-500">
                 <svg viewBox="0 0 32 32" fill="none" className="w-6 h-6">
                   <circle cx="16" cy="16" r="16" fill="#000"/>
@@ -80,70 +79,73 @@ export default function Footer() {
             </div>
           </div>
 
-          <div>
-            <h3 className="font-bold text-amber-800 mb-4">關於我們</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/about" className="hover:text-orange-500">
-                  公司簡介
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-orange-500">
-                  聯絡我們
-                </Link>
-              </li>
-              <li>
-                <Link href="/careers" className="hover:text-orange-500">
-                  加入我們
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="hover:text-orange-500">
-                  隱私政策
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* 右側三欄區塊 */}
+          <div className="grid grid-cols-3 gap-6 justify-items-start">
+            <div>
+              <h3 className="font-bold text-amber-800 mb-4 font-noto-sans-tc text-xl">關於我們</h3>
+              <ul className="space-y-2 text-sm font-noto-sans-tc">
+                <li>
+                  <Link href="/about" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    公司簡介
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/contact" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    聯絡我們
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/careers" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    加入我們
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    隱私政策
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-bold text-amber-800 mb-4">客戶服務</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/faq" className="hover:text-orange-500">
-                  常見問題
-                </Link>
-              </li>
-              <li>
-                <Link href="/shipping" className="hover:text-orange-500">
-                  配送說明
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="hover:text-orange-500">
-                  退換貨政策
-                </Link>
-              </li>
-              <li>
-                <Link href="/membership" className="hover:text-orange-500">
-                  會員權益
-                </Link>
-              </li>
-            </ul>
-          </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-amber-800 mb-4 font-noto-sans-tc text-xl">客戶服務</h3>
+              <ul className="space-y-2 text-sm font-noto-sans-tc">
+                <li>
+                  <Link href="/faq" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    常見問題
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/shipping" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    配送說明
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/returns" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    退換貨政策
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/membership" className="hover:text-orange-500 font-noto-sans-tc text-base">
+                    會員權益
+                  </Link>
+                </li>
+              </ul>
+            </div>
 
-          <div>
-            <h3 className="font-bold text-amber-800 mb-4">聯絡資訊</h3>
-            <ul className="space-y-2 text-sm">
-              <li>客服電話：(02) 1234-5678</li>
-              <li>服務時間：週一至週五 9:00-18:00</li>
-              <li>Email：service@littlechapter.com</li>
-            </ul>
+            <div className="flex-1">
+              <h3 className="font-bold text-amber-800 mb-4 font-noto-sans-tc text-xl">聯絡資訊</h3>
+              <ul className="space-y-2 text-sm font-noto-sans-tc">
+                <li className="text-base font-noto-sans-tc">客服電話：(02) 1234-5678</li>
+                <li className="text-base font-noto-sans-tc">服務時間：週一至週五 9:00-18:00</li>
+                <li className="text-base font-noto-sans-tc">Email：service@littlechapter.com</li>
+              </ul>
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-amber-200 pt-6 text-center text-xs text-gray-600">
-          <p>© {new Date().getFullYear()} Little Chapter 小小篇章 版權所有</p>
+        <div className="border-t border-gray-300 pt-6 text-center text-xs text-gray-600">
+          <p className="font-noto-sans-tc text-base">© {new Date().getFullYear()} Little Chapter 小小篇章 版權所有</p>
         </div>
       </div>
     </footer>

@@ -174,7 +174,7 @@ export default function CheckoutPage() {
   return (
     <main className="min-h-screen bg-white font-noto-sans-tc">
       <Header />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* 個人資料表單 */}
           <div className="md:col-span-2">

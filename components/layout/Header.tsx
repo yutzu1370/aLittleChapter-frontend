@@ -69,7 +69,7 @@ export default function Header() {
               <>
                 {/* My Favorites */}
                 <div className="relative flex-shrink-0">
-                  <Link href="/account/favorites" className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/account/favorites" className="p-2 hover:bg-[#FEF5EE] rounded-full inline-block">
                     <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
                     {favoriteCount > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
@@ -81,7 +81,7 @@ export default function Header() {
 
                 {/* Cart */}
                 <div className="relative flex-shrink-0">
-                  <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/cart" className="p-2 hover:bg-[#FEF5EE] rounded-full inline-block">
                     <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
                     {cartItemCount > 0 && (
                       <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
@@ -93,7 +93,7 @@ export default function Header() {
 
                 {/* Notifications */}
                 <div className="relative flex-shrink-0">
-                  <Link href="/account/notifications" className="p-2 hover:bg-gray-100 rounded-full inline-block">
+                  <Link href="/account/notifications" className="p-2 hover:bg-[#FEF5EE] rounded-full inline-block">
                     <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
                     <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
                       8
