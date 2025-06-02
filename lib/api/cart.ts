@@ -9,6 +9,14 @@ export interface CartItemRequest {
 // 同步購物車到後端
 export async function syncCartToBackendApi(cartItems: CartItemRequest[]): Promise<ApiResponse> {
   try {
+    // 先清空後端購物車
+    const clearResult = await clearCartInBackendApi();
+    
+    // 如果清空失敗，記錄錯誤但繼續執行同步
+    if (!clearResult.status) {
+      console.warn('清空後端購物車失敗:', clearResult.message);
+    }
+    
     // 逐一發送每個購物車項目到後端
     const promises = cartItems.map(item => 
       apiClient.post('/api/cart', item)
