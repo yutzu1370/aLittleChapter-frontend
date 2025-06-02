@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import { useCartStore, useCartHydration } from "@/lib/store/useCartStore"
+import { useDiscountStore } from "@/lib/store/useDiscountStore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -23,14 +24,14 @@ interface LocationData {
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { getSubtotal, getTotal } = useCartStore()
+  const { getSubtotal, getAddOnSubtotal } = useCartStore()
+  const { appliedDiscount } = useDiscountStore()
   const isHydrated = useCartHydration()
   const [paymentMethod, setPaymentMethod] = useState("信用卡")
   const [deviceType, setDeviceType] = useState("手機條碼")
   
-  // 運費和折扣的本地狀態
-  const [shippingFee, setShippingFee] = useState(0)
-  const [discount, setDiscount] = useState(0)
+  // 運費和折扣的本地狀態 - 使用與 CartSummary 相同的邏輯
+  const [shippingFee] = useState(60) // 固定運費
   
   // 縣市與鄉鎮區狀態
   const [locationData, setLocationData] = useState<LocationData | null>(null)
@@ -76,20 +77,22 @@ export default function CheckoutPage() {
     router.push("/cart/payment-redirect")
   }
 
-  // 計算最終總額
+  // 計算最終總額 - 包含加購商品和折扣
   const calculateFinalTotal = () => {
     const subtotal = getSubtotal()
-    return subtotal + shippingFee - discount
+    const addOnSubtotal = getAddOnSubtotal()
+    const discount = appliedDiscount?.discountAmount || 0
+    return subtotal + addOnSubtotal + shippingFee - discount
   }
 
   return (
-    <main className="min-h-screen bg-orange-50 font-noto-sans-tc">
+    <main className="min-h-screen bg-white font-noto-sans-tc">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-32">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* 個人資料表單 */}
           <div className="md:col-span-2">
-            <div className="bg-white rounded-3xl p-6 mb-8 shadow-sm">
+            <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm">
               <h1 className="text-3xl font-medium text-teal-800 mb-6">寄送資料</h1>
               
               <form id="shipping-form" onSubmit={handleSubmit} className="font-noto-sans-tc">
@@ -252,26 +255,6 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                   
-                  {/* 折扣碼 */}
-                  <div className="flex items-center">
-                    <label htmlFor="discountCode" className="text-xl w-24">折扣碼</label>
-                    <div className="flex gap-2 w-[calc(100%-6rem)]">
-                      <Input 
-                        id="discountCode" 
-                        name="discountCode" 
-                        placeholder="輸入折扣碼" 
-                        className="flex-1 rounded-full border-2 border-gray-300 p-6 text-base font-noto-sans-tc" 
-                      />
-                      <FancyButton 
-                        type="button" 
-                        className="px-4 h-auto text-sm font-noto-sans-tc"
-                        hideIcons
-                      >
-                        套用折扣碼
-                      </FancyButton>
-                    </div>
-                  </div>
-                  
                   {/* 備註 */}
                   <div className="flex items-start">
                     <label htmlFor="note" className="text-xl w-24 pt-2">備註</label>
@@ -295,17 +278,27 @@ export default function CheckoutPage() {
                 
                 <div className="flex flex-col gap-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">小計</span>
+                    <span className="text-sm">商品小計</span>
                     <span className="text-sm">
                       <span className="font-jf-openhuninn">${getSubtotal().toLocaleString('zh-TW')}</span>
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">折扣</span>
-                    <span className="text-sm">
-                      <span className="font-jf-openhuninn">-${discount.toLocaleString('zh-TW')}</span>
-                    </span>
-                  </div>
+                  {getAddOnSubtotal() > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">加購商品小計</span>
+                      <span className="text-sm">
+                        <span className="font-jf-openhuninn">${getAddOnSubtotal().toLocaleString('zh-TW')}</span>
+                      </span>
+                    </div>
+                  )}
+                  {appliedDiscount && (
+                    <div className="flex justify-between items-center text-[#509D94]">
+                      <span className="text-sm">折扣 ({appliedDiscount.code})</span>
+                      <span className="text-sm">
+                        <span className="font-jf-openhuninn">-${appliedDiscount.discountAmount.toLocaleString('zh-TW')}</span>
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center">
                     <span className="text-sm">運費</span>
                     <span className="text-sm">

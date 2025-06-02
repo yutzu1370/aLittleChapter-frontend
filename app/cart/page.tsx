@@ -9,15 +9,20 @@ import AddedOnItemsBlock from "@/components/cart/AddedOnItemsBlock"
 import CartSummary from "@/components/cart/CartSummary"
 import DiscountCode from "@/components/cart/DiscountCode"
 import { useCartStore, useCartHydration, useLoadAddOns } from "@/lib/store/useCartStore"
+import { useDiscountStore } from "@/lib/store/useDiscountStore"
 import { Checkbox } from "@/components/ui/checkbox"
 
 export default function CartPage() {
-  const { items, addedOnItems, toggleSelectAll } = useCartStore();
+  const { items, addedOnItems, toggleSelectAll, getSubtotal, getAddOnSubtotal } = useCartStore();
   const isHydrated = useCartHydration();
   const { addOns, isLoadingAddOns } = useLoadAddOns();
   const [showAddedOnItems, setShowAddedOnItems] = useState(false);
+  const { appliedDiscount } = useDiscountStore();
   
   const allSelected = items.every((item) => item.isSelected);
+
+  // 計算購物車總金額（用於折扣碼驗證）
+  const cartTotal = getSubtotal() + getAddOnSubtotal();
 
   // 當有加購商品時自動顯示已加購商品區塊
   useEffect(() => {
@@ -36,7 +41,7 @@ export default function CartPage() {
 
   if (!isHydrated) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
+      <main className="min-h-screen bg-white">
         <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">載入中...</div>
@@ -47,7 +52,7 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50">
+    <main className="min-h-screen bg-white">
       <Header />
       <div className="container mx-auto px-4 py-16">
         <h1 className="text-4xl font-bold text-teal-800 mb-8 text-center">購物車</h1>
@@ -55,7 +60,7 @@ export default function CartPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             {/* 購物車商品列表 */}
-            <div className="bg-white rounded-3xl p-6 mb-8 shadow-sm">
+            <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-medium text-teal-800">購物車商品</h2>
               </div>
@@ -116,7 +121,7 @@ export default function CartPage() {
             />
 
             {/* 加購商品區塊 */}
-            <div className="bg-white rounded-3xl p-6 mb-8 shadow-sm">
+            <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm">
               <h2 className="text-3xl font-medium text-teal-800 mb-6">超級優惠加購價</h2>
               
               {isLoadingAddOns ? (
@@ -145,8 +150,10 @@ export default function CartPage() {
           {/* 總金額區塊 */}
           <div className="md:col-span-1">
             <div className="sticky top-24">
-              <DiscountCode />
-              <CartSummary />
+              <DiscountCode 
+                cartTotal={cartTotal}
+              />
+              <CartSummary appliedDiscount={appliedDiscount} />
             </div>
           </div>
         </div>

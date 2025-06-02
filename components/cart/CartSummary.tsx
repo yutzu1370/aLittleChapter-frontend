@@ -8,14 +8,24 @@ import { ArrowRight, ArrowRightCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-const CartSummary = () => {
+interface CartSummaryProps {
+  appliedDiscount?: {
+    code: string;
+    type: string;
+    value: number;
+    discountAmount: number;
+    description: string;
+  } | null;
+}
+
+const CartSummary = ({ appliedDiscount }: CartSummaryProps) => {
   const router = useRouter();
   const { getSubtotal, getAddOnSubtotal } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   
   // 在組件內部計算運費和折扣
   const shippingFee = 60;
-  const discount = 0;
+  const discount = appliedDiscount?.discountAmount || 0;
   const subtotal = getSubtotal();
   const addOnSubtotal = getAddOnSubtotal();
   const total = subtotal + addOnSubtotal + shippingFee - discount;
@@ -50,12 +60,14 @@ const CartSummary = () => {
             </span>
           </div>
         )}
-        <div className="flex justify-between items-center">
-          <span className="text-sm">折扣</span>
-          <span className="text-sm">
-            <span className="font-jf-openhuninn">${discount.toLocaleString('zh-TW')}</span>
-          </span>
-        </div>
+        {appliedDiscount && (
+          <div className="flex justify-between items-center text-[#509D94]">
+            <span className="text-sm">折扣 ({appliedDiscount.code})</span>
+            <span className="text-sm">
+              <span className="font-jf-openhuninn">-${discount.toLocaleString('zh-TW')}</span>
+            </span>
+          </div>
+        )}
         <div className="flex justify-between items-center">
           <span className="text-sm">運費</span>
           <span className="text-sm">

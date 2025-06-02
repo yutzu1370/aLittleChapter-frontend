@@ -52,7 +52,7 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
   const subtotal = getAddOnSubtotal();
 
   return (
-    <div className="bg-white rounded-3xl p-6 mb-8 shadow-sm ">
+    <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm ">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-medium text-teal-800">已加購商品</h2>
       </div>
