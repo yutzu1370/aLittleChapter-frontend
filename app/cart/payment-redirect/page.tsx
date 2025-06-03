@@ -21,94 +21,39 @@ function PaymentProcessor() {
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    const fetchPaymentData = async () => {
-      try {
-        // 從 URL 參數中取得訂單 ID 或其他必要參數
-        const orderId = searchParams.get("orderId")
-        
-        if (!orderId) {
-          throw new Error("訂單 ID 不存在")
-        }
-
-        // 呼叫後端 API 取得付款資訊
-        const response = await fetch(`/api/payment/${orderId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error("無法取得付款資訊")
-        }
-
-        const data: PaymentResponse = await response.json()
-
-        if (!data.status) {
-          throw new Error(data.message || "處理付款時發生錯誤")
-        }
-
-        // 設定付款資訊
-        setPaymentInfo(data.data)
-        setLoading(false)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "處理付款時發生錯誤")
-        setLoading(false)
-        
-        // 5秒後重定向到結帳頁面
-        const timer = setTimeout(() => {
-          router.push("/cart/checkout")
-        }, 5000)
-        
-        return () => clearTimeout(timer)
-      }
-    }
-
-    // 檢查是否有 jsonData 參數（用於測試時直接傳入完整 JSON 資料）
+    // 檢查是否有 jsonData 參數（從結帳頁面傳入的完整付款資料）
     const jsonDataParam = searchParams.get("jsonData")
-    if (jsonDataParam) {
-      try {
-        const jsonData: PaymentResponse = JSON.parse(decodeURIComponent(jsonDataParam))
-        
-        if (!jsonData.status || !jsonData.data) {
-          throw new Error("JSON 資料格式不正確")
-        }
-        
-        setPaymentInfo(jsonData.data)
-        setLoading(false)
-        return
-      } catch (err) {
-        setError("JSON 資料解析錯誤：" + (err instanceof Error ? err.message : "未知錯誤"))
-        setLoading(false)
-        
-        const timer = setTimeout(() => {
-          router.push("/cart/checkout")
-        }, 5000)
-        
-        return () => clearTimeout(timer)
-      }
+    
+    if (!jsonDataParam) {
+      setError("未收到付款資訊，請重新進行結帳")
+      setLoading(false)
+      
+      // 3秒後重定向到結帳頁面
+      const timer = setTimeout(() => {
+        router.push("/cart/checkout")
+      }, 3000)
+      
+      return () => clearTimeout(timer)
     }
 
-    // 從 URL 參數檢查是否有直接傳入的付款資訊
-    const payGateWay = searchParams.get("payGateWay")
-    const merchantID = searchParams.get("merchantID")
-    const tradeInfo = searchParams.get("tradeInfo") 
-    const tradeSha = searchParams.get("tradeSha")
-    const version = searchParams.get("version")
-
-    // 檢查是否有完整的直接傳入付款資訊
-    if (payGateWay && merchantID && tradeInfo && tradeSha && version) {
-      setPaymentInfo({
-        payGateWay,
-        merchantID,
-        tradeInfo,
-        tradeSha,
-        version
-      })
+    try {
+      const jsonData: PaymentResponse = JSON.parse(decodeURIComponent(jsonDataParam))
+      
+      if (!jsonData.status || !jsonData.data) {
+        throw new Error("付款資料格式不正確")
+      }
+      
+      setPaymentInfo(jsonData.data)
       setLoading(false)
-    } else {
-      // 若沒有直接傳入資訊，則從 API 取得
-      fetchPaymentData()
+    } catch (err) {
+      setError("付款資料解析錯誤：" + (err instanceof Error ? err.message : "未知錯誤"))
+      setLoading(false)
+      
+      const timer = setTimeout(() => {
+        router.push("/cart/checkout")
+      }, 3000)
+      
+      return () => clearTimeout(timer)
     }
   }, [searchParams, router])
 

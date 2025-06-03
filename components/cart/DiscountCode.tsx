@@ -22,6 +22,20 @@ const DISCOUNT_CODES = [
     discount_value: 0.25,
     min_amount: 0,
     description: '總金額75折'
+  },
+  {
+    code: 'FREESHIP50',
+    discount_type: 'fixed',
+    discount_value: 60.00,
+    min_amount: 500,
+    description: '滿500免運折抵60'
+  },
+  {
+    code: 'SUMMER15',
+    discount_type: 'percentage',
+    discount_value: 0.15,
+    min_amount: 1000,
+    description: '滿1000享15%折扣'
   }
 ];
 
@@ -151,6 +165,8 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
             <p>可用折扣碼：</p>
             <p>• MOMSDAY2025 - 滿500折150</p>
             <p>• KIDSFEST25 - 總金額75折</p>
+            <p>• FREESHIP50 - 滿500免運折抵60</p>
+            <p>• SUMMER15 - 滿1000享15%折扣</p>
           </div>
         </div>
       )}

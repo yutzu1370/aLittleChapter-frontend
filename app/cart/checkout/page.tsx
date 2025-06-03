@@ -13,6 +13,7 @@ import { ArrowRight, ArrowRightCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { submitCheckoutApi } from "@/lib/api/checkout"
 import { CheckoutRequest, CheckoutItem } from "@/lib/types/checkout"
+import { toast } from "sonner"
 
 interface CityData {
   name: string;
@@ -132,10 +133,12 @@ export default function CheckoutPage() {
     setMobileBarcodeError("")
     
     let hasError = false
+    let errorMessages: string[] = []
     
     // 驗證發票類型
     if (!deviceType || deviceType === "") {
       setInvoiceTypeError("請選擇發票類型")
+      errorMessages.push("請選擇發票類型")
       hasError = true
     }
     
@@ -143,8 +146,10 @@ export default function CheckoutPage() {
     if (deviceType === "電子發票") {
       if (!mobileBarcode || mobileBarcode.trim() === "") {
         setMobileBarcodeError("請填寫手機條碼載具")
+        errorMessages.push("請填寫手機條碼載具")
         hasError = true
       } else if (!validateMobileBarcode(mobileBarcode)) {
+        errorMessages.push("手機條碼格式不正確")
         hasError = true
       }
     }
@@ -152,11 +157,16 @@ export default function CheckoutPage() {
     // 驗證付款方式
     if (!paymentMethod || paymentMethod === "") {
       setPaymentMethodError("請選擇付款方式")
+      errorMessages.push("請選擇付款方式")
       hasError = true
     }
     
-    // 如果有錯誤，不提交表單
+    // 如果有錯誤，顯示 toast 並不提交表單
     if (hasError) {
+      toast.error('表單填寫有誤', {
+        description: errorMessages.join('、'),
+        duration: 4000
+      })
       return
     }
     
@@ -172,7 +182,9 @@ export default function CheckoutPage() {
     
     // 驗證必要欄位
     if (!name || !phone || !email || !city || !district || !address) {
-      alert('請填寫所有必要欄位')
+      toast.error('請填寫所有必要欄位', {
+        description: '請確認收件人、電話、Email 和地址等必要資訊已完整填寫'
+      })
       return
     }
     
@@ -181,7 +193,9 @@ export default function CheckoutPage() {
     const selectedItems = items.filter(item => item.isSelected)
     
     if (selectedItems.length === 0 && addedOnItems.length === 0) {
-      alert('購物車是空的，無法結帳')
+      toast.error('購物車是空的，無法結帳', {
+        description: '請先將商品加入購物車後再進行結帳'
+      })
       return
     }
     
@@ -238,6 +252,12 @@ export default function CheckoutPage() {
       // 調用結帳API
       const paymentInfo = await submitCheckoutApi(checkoutData)
       
+      // 顯示成功訊息
+      toast.success('結帳成功', {
+        description: '正在跳轉至付款頁面，請稍候...',
+        duration: 2000
+      })
+      
       // 結帳成功，將付款資料傳遞給 payment-redirect 頁面
       const paymentData = {
         status: true,
@@ -250,7 +270,12 @@ export default function CheckoutPage() {
       router.push(`/cart/payment-redirect?jsonData=${encodedData}`)
     } catch (error) {
       console.error('結帳錯誤:', error)
-      alert(error instanceof Error ? error.message : '結帳過程中發生錯誤，請稍後再試')
+      const errorMessage = error instanceof Error ? error.message : '結帳過程中發生錯誤，請稍後再試'
+      
+      toast.error('結帳失敗', {
+        description: errorMessage,
+        duration: 5000
+      })
     }
   }
 

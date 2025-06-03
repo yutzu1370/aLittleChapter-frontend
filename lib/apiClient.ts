@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { API_BASE_URL } from '@/lib/constants';
-
 const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL || API_BASE_URL;
 
 // 定義 API 回應的通用介面
