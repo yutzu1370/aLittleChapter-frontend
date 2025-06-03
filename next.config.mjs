@@ -26,6 +26,27 @@ const nextConfig = {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
+    optimizeCss: true,
+  },
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks?.cacheGroups,
+            styles: {
+              name: 'styles',
+              test: /\.(css|scss|sass)$/,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        },
+      }
+    }
+    return config
   },
 }
 
