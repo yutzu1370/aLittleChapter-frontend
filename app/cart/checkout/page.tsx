@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea"
 import FancyButton from "@/components/ui/FancyButton"
 import { ArrowRight, ArrowRightCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { submitCheckoutApi } from "@/lib/api/checkout"
+import { CheckoutRequest, CheckoutItem } from "@/lib/types/checkout"
 
 interface CityData {
   name: string;
@@ -121,7 +123,7 @@ export default function CheckoutPage() {
   }
   
   // 處理表單提交
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     // 重置錯誤狀態
@@ -158,9 +160,98 @@ export default function CheckoutPage() {
       return
     }
     
-    // 提交表單資料到後端 API
-    // 然後導向到付款頁面
-    router.push("/cart/payment-redirect")
+    // 獲取表單資料
+    const formData = new FormData(e.target as HTMLFormElement)
+    const name = formData.get('name') as string
+    const phone = formData.get('phone') as string
+    const email = formData.get('email') as string
+    const city = formData.get('city') as string
+    const district = formData.get('district') as string
+    const address = formData.get('address') as string
+    const note = formData.get('note') as string
+    
+    // 驗證必要欄位
+    if (!name || !phone || !email || !city || !district || !address) {
+      alert('請填寫所有必要欄位')
+      return
+    }
+    
+    // 獲取購物車資料
+    const { items, addedOnItems } = useCartStore.getState()
+    const selectedItems = items.filter(item => item.isSelected)
+    
+    if (selectedItems.length === 0 && addedOnItems.length === 0) {
+      alert('購物車是空的，無法結帳')
+      return
+    }
+    
+    // 準備商品項目資料
+    const checkoutItems: CheckoutItem[] = [
+      // 一般商品
+      ...selectedItems.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.discountPrice
+      })),
+      // 加購商品
+      ...addedOnItems.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity || 1,
+        price: item.addOnPrice
+      }))
+    ]
+    
+    // 計算金額
+    const subtotal = getSubtotal()
+    const addOnSubtotal = getAddOnSubtotal()
+    const discount = appliedDiscount?.discountAmount || 0
+    const finalAmount = subtotal + addOnSubtotal + shippingFee - discount
+    
+    // 準備結帳資料
+    const checkoutData: CheckoutRequest = {
+      totalAmount: subtotal + addOnSubtotal,
+      discountAmount: discount,
+      shippingFee: shippingFee,
+      finalAmount: finalAmount,
+      discountCode: appliedDiscount?.code,
+      items: checkoutItems,
+      paymentMethod: paymentMethod === '信用卡' ? 'CREDIT' : paymentMethod === 'ATM匯款' ? 'WEBATM' : 'CREDIT',
+      shippingMethod: 'homeDelivery',
+      recipientName: name,
+      recipientEmail: email,
+      recipientPhone: phone,
+      shippingAddress: `${city}${district}${address}`,
+      invoiceType: deviceType === '電子發票' ? 'e-invoice' : deviceType === '紙本發票' ? 'paper' : deviceType,
+      ...(deviceType === '電子發票' && mobileBarcode ? { carrierNum: mobileBarcode } : {}),
+      note: note || undefined
+    }
+    
+    // 檢查折扣碼和結帳資料
+    console.log('=== 結帳資料檢查 ===')
+    console.log('appliedDiscount:', appliedDiscount)
+    console.log('折扣碼:', appliedDiscount?.code)
+    console.log('折扣金額:', discount)
+    console.log('完整結帳資料:', checkoutData)
+    console.log('==================')
+    
+    try {
+      // 調用結帳API
+      const paymentInfo = await submitCheckoutApi(checkoutData)
+      
+      // 結帳成功，將付款資料傳遞給 payment-redirect 頁面
+      const paymentData = {
+        status: true,
+        message: "轉向第三方金流處理付款",
+        data: paymentInfo
+      }
+      
+      // 將付款資料編碼為 URL 參數
+      const encodedData = encodeURIComponent(JSON.stringify(paymentData))
+      router.push(`/cart/payment-redirect?jsonData=${encodedData}`)
+    } catch (error) {
+      console.error('結帳錯誤:', error)
+      alert(error instanceof Error ? error.message : '結帳過程中發生錯誤，請稍後再試')
+    }
   }
 
   // 計算最終總額 - 包含加購商品和折扣
@@ -191,6 +282,7 @@ export default function CheckoutPage() {
                     </label>
                     <Input 
                       id="name" 
+                      name="name"
                       type="text" 
                       placeholder="輸入姓名" 
                       required 
@@ -216,6 +308,7 @@ export default function CheckoutPage() {
                     <div className="w-[calc(100%-6rem)]">
                       <Input 
                         id="phone" 
+                        name="phone"
                         type="tel" 
                         placeholder="輸入電話" 
                         required 

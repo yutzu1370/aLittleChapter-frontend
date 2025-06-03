@@ -4,22 +4,12 @@ import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertTriangle } from "lucide-react"
-
-interface PaymentInfo {
-  payGateWay: string
-  merchantID: string
-  tradeInfo: string
-  tradeSha: string
-  version: string
-}
+import { PaymentInfo } from "@/lib/types/checkout"
 
 interface PaymentResponse {
   status: boolean
   message: string
-  data: {
-    order: PaymentInfo
-  }
-  redirectUrl: string
+  data: PaymentInfo
 }
 
 // 提取客戶端搜索參數邏輯到獨立組件
@@ -27,7 +17,6 @@ function PaymentProcessor() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null)
-  const [redirectUrl, setRedirectUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
@@ -59,9 +48,8 @@ function PaymentProcessor() {
           throw new Error(data.message || "處理付款時發生錯誤")
         }
 
-        // 設定付款資訊和跳轉網址
-        setPaymentInfo(data.data.order)
-        setRedirectUrl(data.redirectUrl)
+        // 設定付款資訊
+        setPaymentInfo(data.data)
         setLoading(false)
       } catch (err) {
         setError(err instanceof Error ? err.message : "處理付款時發生錯誤")
@@ -82,12 +70,11 @@ function PaymentProcessor() {
       try {
         const jsonData: PaymentResponse = JSON.parse(decodeURIComponent(jsonDataParam))
         
-        if (!jsonData.status || !jsonData.data?.order) {
+        if (!jsonData.status || !jsonData.data) {
           throw new Error("JSON 資料格式不正確")
         }
         
-        setPaymentInfo(jsonData.data.order)
-        setRedirectUrl(jsonData.redirectUrl)
+        setPaymentInfo(jsonData.data)
         setLoading(false)
         return
       } catch (err) {
@@ -108,7 +95,6 @@ function PaymentProcessor() {
     const tradeInfo = searchParams.get("tradeInfo") 
     const tradeSha = searchParams.get("tradeSha")
     const version = searchParams.get("version")
-    const directRedirectUrl = searchParams.get("redirectUrl")
 
     // 檢查是否有完整的直接傳入付款資訊
     if (payGateWay && merchantID && tradeInfo && tradeSha && version) {
@@ -119,9 +105,6 @@ function PaymentProcessor() {
         tradeSha,
         version
       })
-      if (directRedirectUrl) {
-        setRedirectUrl(directRedirectUrl)
-      }
       setLoading(false)
     } else {
       // 若沒有直接傳入資訊，則從 API 取得
@@ -135,14 +118,10 @@ function PaymentProcessor() {
     if (paymentInfo && !loading && !error) {
       const form = document.getElementById("paymentForm") as HTMLFormElement
       if (form) {
-        // 如果有自定義的 redirectUrl，則將表單提交的 action 替換為它
-        if (redirectUrl) {
-          form.action = redirectUrl
-        }
         form.submit()
       }
     }
-  }, [paymentInfo, loading, error, redirectUrl])
+  }, [paymentInfo, loading, error])
 
   if (loading) {
     return (

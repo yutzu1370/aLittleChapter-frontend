@@ -1,5 +1,5 @@
 import { ProductDetail, Product, Review, ProductImage, ProductListItem } from '@/lib/types/product';
-import { getMockProductById, getMockRelatedProducts, getMockReviews } from '../mocks/products';
+import { getMockReviews } from '../mocks/products';
 import apiClient, { ApiResponse } from '@/lib/apiClient';
 
 // API基礎URL常數
@@ -82,19 +82,41 @@ export async function fetchProductById(productId: string): Promise<ProductDetail
 // 獲取相關商品
 export async function fetchRelatedProducts(productId: string): Promise<Product[]> {
   try {
-    // 在實際環境中，這裡會使用axios呼叫真實的API
-    // const response = await apiClient.get(`/api/products/${productId}/related`);
-    // return response.data;
+    console.log(`正在獲取商品 ID: ${productId} 的相關商品...`);
     
-    // 使用Mock數據
-    const relatedProducts = getMockRelatedProducts(productId);
+    // 使用 apiClient 呼叫真實的 API
+    const response: ApiResponse = await apiClient.get(`/api/products/${productId}/related`);
     
-    // 模擬axios請求與網路延遲
-    return await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(relatedProducts);
-      }, 200);
-    });
+    console.log('相關商品 API 回應:', response);
+    
+    // 檢查 API 回應狀態
+    if (!response.status || !response.data) {
+      console.error('相關商品 API 回應格式錯誤:', response);
+      return [];
+    }
+
+    // 檢查是否有 products 陣列
+    if (!response.data.products || !Array.isArray(response.data.products)) {
+      console.log('API 回應中沒有相關商品:', response.data);
+      return [];
+    }
+
+    // 將 API 資料映射到 Product 格式
+    const relatedProducts: Product[] = response.data.products.map((item: ProductListItem) => ({
+      id: item.productId.toString(),
+      name: item.title,
+      description: '', // API 回應中沒有描述，設為空字串
+      price: item.discountPrice || item.price,
+      originalPrice: item.price,
+      image: item.imageUrl || "/images/books/placeholder.jpg",
+      isNew: item.isNewArrival || false,
+      isHot: item.isBestseller || false,
+      authorName: item.author,
+      publisherName: item.publisher,
+    }));
+
+    console.log(`成功獲取 ${relatedProducts.length} 個相關商品`);
+    return relatedProducts;
   } catch (error) {
     console.error('獲取相關商品時發生錯誤:', error);
     return [];

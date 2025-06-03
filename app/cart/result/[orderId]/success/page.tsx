@@ -6,33 +6,61 @@ interface OrderSuccessProps {
   params: {
     orderId: string
   }
-}
-
-// 模擬取得訂單資料的函數
-async function getOrderDetails(orderId: string) {
-  // 這裡應該串接API獲取訂單資料，目前先用模擬資料
-  return {
-    orderId: orderId,
-    transactionId: '2203091509173661',
-    amount: 'NT$500',
-    paymentMethod: 'WEBATM',
-    paymentTime: '2022-03-09 15:09:17',
-    items: [
-      { id: 1, name: '小貓歷險記', quantity: 1, price: 'NT$300' },
-      { id: 2, name: '狗狗遊世界', quantity: 1, price: 'NT$200' }
-    ]
+  searchParams: {
+    orderNum?: string
+    serialNum?: string
+    price?: string
+    type?: string
   }
 }
 
-export default async function OrderSuccessPage({ params }: OrderSuccessProps) {
+// 格式化付款方式顯示
+function formatPaymentMethod(type: string) {
+  switch (type) {
+    case 'WEBATM':
+      return 'ATM 轉帳'
+    case 'CREDIT':
+      return '信用卡'
+    case 'CVS':
+      return '超商付款'
+    default:
+      return type || '未知'
+  }
+}
+
+// 格式化金額顯示
+function formatAmount(price: string) {
+  const numPrice = parseInt(price || '0')
+  return `NT$${numPrice.toLocaleString('zh-TW')}`
+}
+
+// 格式化當前時間
+function getCurrentTime() {
+  const now = new Date()
+  return now.toLocaleString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  })
+}
+
+export default async function OrderSuccessPage({ params, searchParams }: OrderSuccessProps) {
   const { orderId } = params;
+  const { orderNum, serialNum, price, type } = searchParams;
   
   // 訂單ID無效時導向首頁
-  if (!orderId ) {
+  if (!orderId) {
     redirect('/');
   }
-  
-  const orderDetails = await getOrderDetails(orderId);
+
+  // 如果沒有必要的付款資訊，也導向首頁
+  if (!orderNum || !serialNum || !price) {
+    redirect('/');
+  }
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center py-8 px-4">
@@ -40,13 +68,19 @@ export default async function OrderSuccessPage({ params }: OrderSuccessProps) {
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
             <div className="relative w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-              <Image 
-                src="/images/user_icon/user_icon_1.png" 
-                alt="成功" 
-                width={50} 
-                height={50}
-                className="text-green-500"
-              />
+              <svg 
+                className="w-12 h-12 text-green-500" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M5 13l4 4L19 7" 
+                />
+              </svg>
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">付款成功</h1>
@@ -56,42 +90,34 @@ export default async function OrderSuccessPage({ params }: OrderSuccessProps) {
         <div className="space-y-4 my-6 text-gray-700 bg-orange-50 p-4 rounded-lg">
           <div className="flex justify-between">
             <span className="text-gray-500">訂單編號：</span>
-            <span className="font-medium">{orderDetails.orderId}</span>
+            <span className="font-medium">{orderNum}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-500">交易序號：</span>
-            <span className="font-medium">{orderDetails.transactionId}</span>
+            <span className="font-medium">{serialNum}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-500">交易金額：</span>
-            <span className="font-medium text-[#E8652B]">{orderDetails.amount}</span>
+            <span className="font-medium text-[#E8652B]">{formatAmount(price)}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-500">支付方式：</span>
-            <span className="font-medium">{orderDetails.paymentMethod}</span>
+            <span className="font-medium">{formatPaymentMethod(type || '')}</span>
           </div>
           
           <div className="flex justify-between">
             <span className="text-gray-500">交易時間：</span>
-            <span className="font-medium">{orderDetails.paymentTime}</span>
+            <span className="font-medium">{getCurrentTime()}</span>
           </div>
         </div>
         
         <div className="border-t border-gray-200 pt-4 pb-2">
-          <h3 className="font-semibold text-gray-800 mb-3">訂單項目</h3>
-          <div className="space-y-2">
-            {orderDetails.items.map(item => (
-              <div key={item.id} className="flex justify-between items-center">
-                <div className="flex items-center">
-                  <span className="text-gray-800">{item.name}</span>
-                  <span className="text-gray-500 text-sm ml-2">x{item.quantity}</span>
-                </div>
-                <span className="text-gray-800">{item.price}</span>
-              </div>
-            ))}
+          <div className="text-center text-gray-600 text-sm">
+            <p>訂單詳細資訊請至會員中心查看</p>
+            <p className="mt-1">我們將盡快為您處理並寄出商品</p>
           </div>
         </div>
         
