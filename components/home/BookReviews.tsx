@@ -43,70 +43,228 @@ export default function BookReviews() {
   const totalReviews = reviews.length
   const carouselRef = useRef<HTMLDivElement>(null)
 
+  // 使用 requestAnimationFrame 優化輪播切換，避免強制重排
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % totalReviews)
+    requestAnimationFrame(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % totalReviews)
+    })
   }
 
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + totalReviews) % totalReviews)
+    requestAnimationFrame(() => {
+      setCurrentIndex((prevIndex) => (prevIndex - 1 + totalReviews) % totalReviews)
+    })
   }
 
-  // Auto slide every 5 seconds
+  // 記憶化索引計算，避免重複計算
+  const prevIndex = useMemo(() => (currentIndex - 1 + totalReviews) % totalReviews, [currentIndex, totalReviews])
+  const nextIndex = useMemo(() => (currentIndex + 1) % totalReviews, [currentIndex, totalReviews])
+
+  // Auto slide every 5 seconds - 使用 requestAnimationFrame 優化
   useEffect(() => {
+    let animationFrameId: number
     const interval = setInterval(() => {
-      nextSlide()
+      animationFrameId = requestAnimationFrame(nextSlide)
     }, 5000)
-    return () => clearInterval(interval)
+    
+    return () => {
+      clearInterval(interval)
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
+    }
   }, [])
 
-  // Get the previous, current, and next indices with wrap-around
-  const getPrevIndex = (index: number) => (index - 1 + totalReviews) % totalReviews
-  const getNextIndex = (index: number) => (index + 1) % totalReviews
-
-  // 評分星星渲染函數
-  const renderStars = (rating: number, size: "sm" | "md" | "lg") => {
-    const starSizes = {
-      sm: "w-5 h-5",
-      md: "w-6 h-6",
-      lg: "w-7 h-7"
-    };
-    
-    return (
-      <div className="flex">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className={`${starSizes[size]} ${
-              i < rating ? "fill-[#FBE84A] text-[#FBE84A]" : "text-[#FBE84A] opacity-50"
-            }`}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  // 用戶頭像渲染函數
-  const renderUserIcon = (authorIndex: number, size: "sm" | "md") => {
-    const iconSizes = {
-      sm: "w-10 h-10",
-      md: "w-12 h-12"
-    };
-    
-    return (
-      <div className="flex items-center gap-2">
-        <div className={`${iconSizes[size]} rounded-full overflow-hidden relative`}>
-          <Image 
-            src={userIcons[authorIndex]} 
-            alt={reviews[authorIndex].author} 
-            width={48}
-            height={48}
-            className="object-cover"
-          />
+  // 評分星星渲染函數 - 使用 useMemo 記憶化
+  const renderStars = useMemo(() => {
+    return (rating: number, size: "sm" | "md" | "lg") => {
+      const starSizes = {
+        sm: "w-5 h-5",
+        md: "w-6 h-6",
+        lg: "w-7 h-7"
+      };
+      
+      return (
+        <div className="flex">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`${starSizes[size]} ${
+                i < rating ? "fill-[#FBE84A] text-[#FBE84A]" : "text-[#FBE84A] opacity-50"
+              }`}
+            />
+          ))}
         </div>
-        <span className={size === "sm" ? "text-xs" : "text-sm"}>{reviews[authorIndex].author}</span>
+      );
+    };
+  }, []);
+
+  // 用戶頭像渲染函數 - 使用 useMemo 記憶化
+  const renderUserIcon = useMemo(() => {
+    return (authorIndex: number, size: "sm" | "md") => {
+      const iconSizes = {
+        sm: "w-10 h-10",
+        md: "w-12 h-12"
+      };
+      
+      return (
+        <div className="flex items-center gap-2">
+          <div className={`${iconSizes[size]} rounded-full overflow-hidden relative`}>
+            <Image 
+              src={userIcons[authorIndex]} 
+              alt={reviews[authorIndex].author} 
+              width={48}
+              height={48}
+              className="object-cover"
+            />
+          </div>
+          <span className={size === "sm" ? "text-xs" : "text-sm"}>{reviews[authorIndex].author}</span>
+        </div>
+      );
+    };
+  }, [reviews, userIcons]);
+
+  // 記憶化輪播卡片，避免不必要的重新渲染
+  const PrevReviewCard = useMemo(() => (
+    <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
+      <div className="absolute inset-0">
+        <Image
+          src="/images/home/reviews_card.png"
+          alt="卡片背景"
+          fill
+          className="object-contain"
+          priority
+        />
       </div>
-    );
-  };
+      
+      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
+        {renderStars(reviews[prevIndex].rating, "sm")}
+      </div>
+      
+      <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+        <Image
+          src={reviews[prevIndex].image}
+          alt={reviews[prevIndex].title}
+          width={110}
+          height={110}
+          className="object-cover"
+        />
+      </div>
+      
+      <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
+        {reviews[prevIndex].title}
+      </h3>
+      
+      <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
+        {reviews[prevIndex].content}
+      </p>
+      
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+        {renderUserIcon(prevIndex, "sm")}
+      </div>
+    </div>
+  ), [prevIndex, renderStars, renderUserIcon, reviews]);
+
+  const CurrentReviewCard = useMemo(() => (
+    <div className="w-[480px] h-[480px] relative flex flex-col items-center z-20">
+      <div className="absolute inset-0">
+        <Image
+          src="/images/home/reviews_card.png"
+          alt="卡片背景"
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
+      
+      <div className="absolute top-7 left-1/2 transform -translate-x-1/2 z-10">
+        {renderStars(reviews[currentIndex].rating, "lg")}
+      </div>
+      
+      <div className="mt-24 relative w-[150px] h-[150px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+        <Image
+          src={reviews[currentIndex].image}
+          alt={reviews[currentIndex].title}
+          width={150}
+          height={150}
+          className="object-cover"
+        />
+      </div>
+      
+      <h3 className="mt-4 text-2xl font-['jf-openhuninn-2.0'] z-10">
+        {reviews[currentIndex].title}
+      </h3>
+      
+      <p className="px-12 mt-3 text-sm tracking-wide leading-relaxed text-center z-10 min-h-[90px]">
+        {reviews[currentIndex].content}
+      </p>
+      
+      <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
+        {renderUserIcon(currentIndex, "md")}
+      </div>
+    </div>
+  ), [currentIndex, renderStars, renderUserIcon, reviews]);
+
+  const NextReviewCard = useMemo(() => (
+    <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
+      <div className="absolute inset-0">
+        <Image
+          src="/images/home/reviews_card.png"
+          alt="卡片背景"
+          fill
+          className="object-contain"
+          priority
+        />
+      </div>
+      
+      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
+        {renderStars(reviews[nextIndex].rating, "sm")}
+      </div>
+      
+      <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+        <Image
+          src={reviews[nextIndex].image}
+          alt={reviews[nextIndex].title}
+          width={110}
+          height={110}
+          className="object-cover"
+        />
+      </div>
+      
+      <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
+        {reviews[nextIndex].title}
+      </h3>
+      
+      <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
+        {reviews[nextIndex].content}
+      </p>
+      
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+        {renderUserIcon(nextIndex, "sm")}
+      </div>
+    </div>
+  ), [nextIndex, renderStars, renderUserIcon, reviews]);
+
+  // 記憶化點指示器，避免不必要的重新渲染
+  const DotsIndicator = useMemo(() => (
+    <div className="flex justify-center mt-8">
+      {reviews.map((_, index) => (
+        <button
+          key={index}
+          onClick={() => requestAnimationFrame(() => setCurrentIndex(index))}
+          className={`w-3 h-3 mx-1 rounded-full ${currentIndex === index ? "bg-[#E8652B]" : "bg-gray-300"}`}
+          aria-label={`跳至第 ${index + 1} 個評論`}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              requestAnimationFrame(() => setCurrentIndex(index));
+            }
+          }}
+        />
+      ))}
+    </div>
+  ), [currentIndex, reviews]);
 
   return (
     <section className="py-16 bg-[#F3FAF8] rounded-[64px]">
@@ -128,136 +286,13 @@ export default function BookReviews() {
         <div className="relative" ref={carouselRef}>
           <div className="flex justify-center items-center gap-6 h-[480px]">
             {/* Previous Review (Left) */}
-            <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
-              <div className="absolute inset-0">
-                <Image
-                  src="/images/home/reviews_card.png"
-                  alt="卡片背景"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              
-              {/* 評分星星 - 頂部 */}
-              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
-                {renderStars(reviews[getPrevIndex(currentIndex)].rating, "sm")}
-              </div>
-              
-              {/* 書籍圖片 */}
-              <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
-                <Image
-                  src={reviews[getPrevIndex(currentIndex)].image}
-                  alt={reviews[getPrevIndex(currentIndex)].title}
-                  width={110}
-                  height={110}
-                  className="object-cover"
-                />
-              </div>
-              
-              {/* 標題 */}
-              <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
-                {reviews[getPrevIndex(currentIndex)].title}
-              </h3>
-              
-              {/* 內容 */}
-              <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
-                {reviews[getPrevIndex(currentIndex)].content}
-              </p>
-              
-              {/* 用戶信息 */}
-              <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
-                {renderUserIcon(getPrevIndex(currentIndex), "sm")}
-              </div>
-            </div>
+            {PrevReviewCard}
 
             {/* Current Review (Center) */}
-            <div className="w-[480px] h-[480px] relative flex flex-col items-center z-20">
-              <div className="absolute inset-0">
-                <Image
-                  src="/images/home/reviews_card.png"
-                  alt="卡片背景"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              
-              {/* 評分星星 - 頂部 */}
-              <div className="absolute top-7 left-1/2 transform -translate-x-1/2 z-10">
-                {renderStars(reviews[currentIndex].rating, "lg")}
-              </div>
-              
-              {/* 書籍圖片 */}
-              <div className="mt-24 relative w-[150px] h-[150px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
-                <Image
-                  src={reviews[currentIndex].image}
-                  alt={reviews[currentIndex].title}
-                  width={150}
-                  height={150}
-                  className="object-cover"
-                />
-              </div>
-              
-              {/* 標題 */}
-              <h3 className="mt-4 text-2xl font-['jf-openhuninn-2.0'] z-10">
-                {reviews[currentIndex].title}
-              </h3>
-              
-              {/* 內容 */}
-              <p className="px-12 mt-3 text-sm tracking-wide leading-relaxed text-center z-10 min-h-[90px]">
-                {reviews[currentIndex].content}
-              </p>
-              
-              {/* 用戶信息 */}
-              <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
-                {renderUserIcon(currentIndex, "md")}
-              </div>
-            </div>
+            {CurrentReviewCard}
 
             {/* Next Review (Right) */}
-            <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
-              <div className="absolute inset-0">
-                <Image
-                  src="/images/home/reviews_card.png"
-                  alt="卡片背景"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              
-              {/* 評分星星 - 頂部 */}
-              <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
-                {renderStars(reviews[getNextIndex(currentIndex)].rating, "sm")}
-              </div>
-              
-              {/* 書籍圖片 */}
-              <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
-                <Image
-                  src={reviews[getNextIndex(currentIndex)].image}
-                  alt={reviews[getNextIndex(currentIndex)].title}
-                  width={110}
-                  height={110}
-                  className="object-cover"
-                />
-              </div>
-              
-              {/* 標題 */}
-              <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
-                {reviews[getNextIndex(currentIndex)].title}
-              </h3>
-              
-              {/* 內容 */}
-              <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
-                {reviews[getNextIndex(currentIndex)].content}
-              </p>
-              
-              {/* 用戶信息 */}
-              <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
-                {renderUserIcon(getNextIndex(currentIndex), "sm")}
-              </div>
-            </div>
+            {NextReviewCard}
           </div>
 
           {/* 裝飾性動物圖片 - 老鼠 */}
@@ -276,6 +311,13 @@ export default function BookReviews() {
             onClick={prevSlide}
             className="absolute -left-10 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-[#E8652B] rounded-full shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10"
             aria-label="前一個評論"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                prevSlide();
+              }
+            }}
           >
             <ChevronLeft className="w-8 h-8 text-white" />
           </button>
@@ -285,21 +327,19 @@ export default function BookReviews() {
             onClick={nextSlide}
             className="absolute -right-10 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-[#E8652B] rounded-full shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10"
             aria-label="下一個評論"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+              }
+            }}
           >
             <ChevronRight className="w-8 h-8 text-white" />
           </button>
 
           {/* Dots indicator */}
-          <div className="flex justify-center mt-8">
-            {reviews.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 mx-1 rounded-full ${currentIndex === index ? "bg-[#E8652B]" : "bg-gray-300"}`}
-                aria-label={`跳至第 ${index + 1} 個評論`}
-              />
-            ))}
-          </div>
+          {DotsIndicator}
         </div>
       </div>
     </section>

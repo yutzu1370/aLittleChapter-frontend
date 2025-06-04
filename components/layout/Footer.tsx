@@ -49,6 +49,7 @@ export default function Footer() {
                 width={24}
                 height={24}
                 className="w-48 h-24 object-contain"
+                priority
               />
             </div>
             <div className="flex space-x-2">
