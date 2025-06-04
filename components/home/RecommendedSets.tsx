@@ -35,7 +35,7 @@ export default function RecommendedSets() {
               height={48}
             />
           </div>
-          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest font-['jf-openhuninn-2.0']">套裝推薦</h2>
+          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest]">套裝推薦</h2>
         </div>
 
         <div className="space-y-6">
@@ -46,7 +46,7 @@ export default function RecommendedSets() {
             >
               <div className={`flex ${index % 2 === 0 ? "flex-row" : "flex-row-reverse"}`}>
                 {/* Book Image */}
-                <div className="w-[606px] h-[404px] relative flex-shrink-0">
+                <div className="w-[600px] h-[400px] relative flex-shrink-0">
                   <Image
                     src={collection.image || "/placeholder.svg"}
                     alt={collection.title}
@@ -56,9 +56,9 @@ export default function RecommendedSets() {
                 </div>
 
                 {/* Text Content */}
-                <div className="w-[606px] flex flex-col justify-center px-6">
-                  <h3 className="text-3xl font-['jf-openhuninn-2.0'] text-[#2F726D] mb-4">{collection.title}</h3>
-                  <p className="text-xl text-gray-900 mb-6">{collection.description}</p>
+                <div className="w-[606px] flex flex-col justify-center px-12">
+                  <h3 className="text-3xl text-[#2F726D] mb-4">{collection.title}</h3>
+                  <p className="text-xl text-gray-900 mb-6 font-noto-sans-tc text-justify" >{collection.description}</p>
                   <div className="flex space-x-3">
                     <Link
                       href={`/collections/${collection.id}`}
@@ -81,7 +81,7 @@ export default function RecommendedSets() {
                 className={`absolute w-[200px] h-[200px] ${
                   collection.animalPosition === "right"
                     ? "right-[-100px] bottom-[-20px]"
-                    : "left-[-100px] bottom-[-12px]"
+                    : "left-[-100px] bottom-[-20px]"
                 }`}
               >
                 <Image

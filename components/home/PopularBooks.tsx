@@ -463,10 +463,10 @@ export default function PopularBooks() {
                     >
                       {/* Category and Age Range */}
                       <div className="flex gap-2 mb-1">
-                        <span className="px-1 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
+                        <span className="px-4 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
                           {book.category}
                         </span>
-                        <span className="px-5 py-1 rounded-full text-sm font-semibold bg-[#FEF5EE] text-[#B4371A]">
+                        <span className="px-4 py-1 rounded-full text-sm font-semibold bg-[#FEF5EE] text-[#B4371A]">
                           {book.ageRange}
                         </span>
                       </div>

@@ -5,7 +5,7 @@ import FloatingButtons from "@/components/interaction/FloatingButtons"
 import ClientChat from "@/components/interaction/chat/ClientChat"
 import { Toaster } from "@/components/ui/sonner"
 import localFont from "next/font/local"
-import { Coiny } from "next/font/google"
+import { Coiny, Noto_Sans_TC } from "next/font/google"
 import { StagewiseToolbar } from '@stagewise/toolbar-next'
 
 // 定義 jf-openhuninn-2.0 字體
@@ -20,6 +20,14 @@ const coiny = Coiny({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-coiny",
+  display: "swap",
+})
+
+// 定義 Noto Sans TC 字體
+const notoSansTC = Noto_Sans_TC({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  variable: "--font-noto-sans-tc",
   display: "swap",
 })
 
@@ -39,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="zh-TW" className={`${jfOpenHuninn.variable} ${coiny.variable}`}>
+    <html lang="zh-TW" className={`${jfOpenHuninn.variable} ${coiny.variable} ${notoSansTC.variable}`}>
       <body className="font-jf-openhuninn" suppressHydrationWarning>
         {children}
         <FloatingButtons />
