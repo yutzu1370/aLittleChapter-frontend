@@ -1,9 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react"
 import { motion } from "framer-motion"
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Navigation } from 'swiper/modules'
+import type { SwiperRef } from 'swiper/react'
+import { toast } from "sonner"
 
 // 定義書籍類型
 type Book = {
@@ -28,6 +32,35 @@ type TimeSlotData = {
     label: string
   }
 }
+
+// 自定義 Swiper 樣式
+const swiperStyles = `
+  .swiper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding-top: 10px;
+  }
+  
+  .swiper-wrapper {
+    display: flex;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    transition-property: transform;
+    box-sizing: content-box;
+  }
+  
+  .swiper-slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition-property: transform;
+    display: block;
+  }
+`;
 
 export default function PopularBooks() {
   const popularBooks: Book[] = [
@@ -219,7 +252,7 @@ export default function PopularBooks() {
     },
   ]
 
-  // 正確定義類型
+  // 時段資料定義 - 只用於顯示按鈕，不再連動卡片
   const timeSlotData: TimeSlotData = {
     "12:00": {
       books: popularBooks.slice(0, 4),
@@ -241,6 +274,25 @@ export default function PopularBooks() {
   const [hours, setHours] = useState(1)
   const [minutes, setMinutes] = useState(59)
   const [seconds, setSeconds] = useState(36)
+  const swiperRef = useRef<SwiperRef | null>(null)
+
+  // 動態添加自定義樣式
+  useEffect(() => {
+    const styleId = 'swiper-custom-styles-popular';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = swiperStyles;
+      document.head.appendChild(style);
+    }
+    
+    return () => {
+      const existingStyle = document.getElementById(styleId);
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+    };
+  }, []);
 
   // 計時器
   useEffect(() => {
@@ -271,6 +323,31 @@ export default function PopularBooks() {
     }
   }
 
+  // 獲取當前螢幕的每頁顯示數量
+  const getSlidesPerView = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) return 1;
+      if (window.innerWidth < 768) return 2;
+      return 4;
+    }
+    return 4;
+  };
+
+  // 處理時段切換 - 僅更新活動時段，不再連動卡片
+  const handlePrevClick = () => {
+    if (swiperRef.current?.swiper) {
+      const slidesPerView = getSlidesPerView();
+      swiperRef.current.swiper.slideTo(swiperRef.current.swiper.activeIndex - slidesPerView);
+    }
+  };
+
+  const handleNextClick = () => {
+    if (swiperRef.current?.swiper) {
+      const slidesPerView = getSlidesPerView();
+      swiperRef.current.swiper.slideTo(swiperRef.current.swiper.activeIndex + slidesPerView);
+    }
+  };
+
   return (
     <section className="py-16 bg-white">
       <div className="container-wrapper">
@@ -290,9 +367,9 @@ export default function PopularBooks() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl font-normal text-[#2F726D] tracking-widest font-['jf-openhuninn-2.0']"
+            className="text-4xl font-normal text-[#2F726D] tracking-widest "
           >
-            限時搶購
+            熱銷排行
           </motion.h2>
         </div>
 
@@ -324,7 +401,7 @@ export default function PopularBooks() {
             </div>
           </motion.div>
 
-          {/* Filters */}
+          {/* Filters - 注意：此處時段篩選僅為UI展示，與下方書籍卡片輪播不連動 */}
           <div className="flex space-x-2 mt-4 md:mt-0">
             {Object.entries(timeSlotData).map(([time, data]) => (
               <motion.button
@@ -351,7 +428,7 @@ export default function PopularBooks() {
           </div>
         </div>
 
-        {/* Book Display */}
+        {/* Book Display - 注意：此輪播顯示所有書籍，與上方時段篩選不連動 */}
         <div className="relative">
           {/* Left Arrow */}
           <motion.button 
@@ -359,154 +436,177 @@ export default function PopularBooks() {
             initial={{ scale: 1 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              // 切換到上一個時段
-              const times = Object.keys(timeSlotData);
-              const currentIndex = times.indexOf(activeTimeSlot);
-              const prevIndex = (currentIndex - 1 + times.length) % times.length;
-              setActiveTimeSlot(times[prevIndex]);
-            }}
+            onClick={handlePrevClick}
             aria-label="上一頁"
             transition={{ type: "spring", stiffness: 300 }}
           >
             <ChevronLeft className="w-10 h-10 text-white" />
           </motion.button>
 
-          {/* Books Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {timeSlotData[activeTimeSlot].books.map((book) => (
-              <motion.div 
-                key={book.id} 
-                className="relative"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                whileHover={{ y: -5 }}
-              >
-                {/* Book Image with Tag */}
-                <div className="relative mb-4">
-                  <motion.div 
-                    className="border-4 border-gray-300 rounded-xl overflow-hidden"
-                    whileHover={{ 
-                      borderColor: "#E8652B",
-                      transition: { duration: 0.3 }
-                    }}
-                  >
-                    <Image
-                      src={book.image || "/placeholder.svg"}
-                      alt={book.title}
-                      width={354}
-                      height={354}
-                      className="w-full h-auto transition-transform duration-500 hover:scale-105"
-                    />
-                  </motion.div>
-
-                  {/* Corner Tag */}
-                  {book.isNew && (
+          {/* Books Grid with Swiper */}
+          <Swiper
+            modules={[Navigation]}
+            spaceBetween={24}
+            slidesPerView={getSlidesPerView()}
+            breakpoints={{
+              640: {
+                slidesPerView: 2,
+                spaceBetween: 20,
+              },
+              768: {
+                slidesPerView: 4,
+                spaceBetween: 24,
+              },
+            }}
+            className="!pb-10"
+            ref={swiperRef}
+          >
+            {popularBooks.map((book) => (
+              <SwiperSlide key={book.id}>
+                <motion.div 
+                  className="relative pt-2 group"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ y: -3 }}
+                >
+                  {/* Book Image with Tag */}
+                  <div className="relative mb-4">
                     <motion.div 
-                      className="absolute top-0 right-0 w-24 h-24 overflow-hidden"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <div className="absolute top-4 right-1 transform translate-x-8 -translate-y-2 rotate-45 bg-[#3E8E87] text-white py-1 px-8 text-center">
-                        <span className="text-white text-xl font-['jf-openhuninn-2.0']">NEW</span>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {book.isHot && (
-                    <motion.div 
-                      className="absolute top-0 right-0 w-24 h-24 overflow-hidden"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      <div className="absolute top-4 right-1 transform translate-x-8 -translate-y-2 rotate-45 bg-[#E8652B] text-white py-1 px-8 text-center">
-                        <span className="text-white text-xl font-['jf-openhuninn-2.0']">HOT</span>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Hover Action Buttons */}
-                  <div 
-                    className="absolute bottom-0 left-0 right-0 h-24 flex items-end justify-center gap-2 p-6"
-                  >
-                    <motion.button 
-                      whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex-1 h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] transition-colors duration-100"
-                      onClick={() => {
-                        alert(`已將《${book.title}》加入購物車！`)
+                      className="border-4 border-gray-300 rounded-xl overflow-hidden"
+                      whileHover={{ 
+                        borderColor: "#E8652B",
+                        boxShadow: "0 10px 15px -3px rgba(232, 101, 43, 0.3)",
+                        transition: { duration: 0.3 }
                       }}
                     >
-                      加入購物車
-                    </motion.button>
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`w-12 h-12 bg-white border-2 ${
-                        favorites.includes(book.id) 
-                          ? "border-[#E8652B] bg-[#FEF5EE]" 
-                          : "border-[#E8652B]"
-                      } rounded-full flex items-center justify-center shadow-[4px_6px_0px_#74281A]`}
-                      onClick={() => toggleFavorite(book.id)}
-                      aria-label={favorites.includes(book.id) ? "從收藏移除" : "加入收藏"}
-                    >
-                      <Heart 
-                        className={`w-6 h-6 ${
-                          favorites.includes(book.id) 
-                            ? "text-[#E8652B] fill-[#E8652B]" 
-                            : "text-[#E8652B]"
-                        }`} 
+                      <Image
+                        src={book.image || "/placeholder.svg"}
+                        alt={book.title}
+                        width={354}
+                        height={354}
+                        className="w-full h-auto transition-all duration-500"
                       />
-                    </motion.button>
-                  </div>
-                </div>
+                    </motion.div>
 
-                {/* Book Info */}
-                <motion.div 
-                  className="space-y-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  {/* Category and Age Range */}
-                  <div className="flex gap-2">
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
-                      {book.category}
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#FEF5EE] text-[#B4371A]">
-                      {book.ageRange}
-                    </span>
-                  </div>
+                    {/* Corner Tag */}
+                    {book.isNew && (
+                      <motion.div 
+                        className="absolute top-0 right-0 w-24 h-24 overflow-hidden"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <div className="absolute top-4 right-1 transform translate-x-8 -translate-y-2 rotate-45 bg-[#3E8E87] text-white py-1 px-8 text-center">
+                          <span className="text-white text-xl font-['jf-openhuninn-2.0']">NEW</span>
+                        </div>
+                      </motion.div>
+                    )}
 
-                  {/* Title */}
-                  <h3 className="text-xl text-[#2F726D] font-['jf-openhuninn-2.0'] hover:text-[#E8652B] transition-colors duration-300 cursor-pointer">
-                    {book.title}
-                  </h3>
+                    {book.isHot && (
+                      <motion.div 
+                        className="absolute top-0 right-0 w-24 h-24 overflow-hidden"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <div className="absolute top-4 right-1 transform translate-x-8 -translate-y-2 rotate-45 bg-[#E8652B] text-white py-1 px-8 text-center">
+                          <span className="text-white text-xl font-['jf-openhuninn-2.0']">HOT</span>
+                        </div>
+                      </motion.div>
+                    )}
 
-                  {/* Author & Publisher */}
-                  <div className="flex text-sm text-gray-700">
-                    <span className="mr-2">{book.author}</span>
-                    <span>{book.publisher}</span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="flex items-end">
-                    <motion.span 
-                      className="text-xl text-[#E8652B] font-['jf-openhuninn-2.0']"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ duration: 0.2 }}
+                    {/* Hover Action Buttons */}
+                    <div 
+                      className="absolute bottom-0 left-0 right-0 h-24 flex items-end justify-center gap-2 p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >
-                      ${book.price}
-                    </motion.span>
-                    <span className="ml-2 text-sm text-gray-700 line-through">原價 NT${book.originalPrice}</span>
+                      <motion.button 
+                        whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex-1 h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] transition-colors duration-100"
+                        onClick={() => {
+                          toast.success(`已將《${book.title}》加入購物車！`, {
+                            position: "top-center",
+                            duration: 2000,
+                          })
+                        }}
+                      >
+                        加入購物車
+                      </motion.button>
+                      <motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`w-12 h-12 bg-white border-2 ${
+                          favorites.includes(book.id) 
+                            ? "border-[#E8652B] bg-[#FEF5EE]" 
+                            : "border-[#E8652B]"
+                        } rounded-full flex items-center justify-center shadow-[4px_6px_0px_#74281A]`}
+                        onClick={() => {
+                          const isCurrentlyFavorite = favorites.includes(book.id);
+                          toggleFavorite(book.id);
+                          toast.success(isCurrentlyFavorite ? `《${book.title}》 已從收藏移除` : `《${book.title}》已加入收藏`, {
+                          
+                            position: "top-center",
+                            duration: 2000,
+                          });
+                        }}
+                        aria-label={favorites.includes(book.id) ? "從收藏移除" : "加入收藏"}
+                      >
+                        <Heart 
+                          className={`w-6 h-6 ${
+                            favorites.includes(book.id) 
+                              ? "text-[#E8652B] fill-[#E8652B]" 
+                              : "text-[#E8652B]"
+                          }`} 
+                        />
+                      </motion.button>
+                    </div>
                   </div>
+
+                  {/* Book Info */}
+                  <motion.div 
+                    className="space-y-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {/* Category and Age Range */}
+                    <div className="flex gap-2">
+                      <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
+                        {book.category}
+                      </span>
+                      <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#FEF5EE] text-[#B4371A]">
+                        {book.ageRange}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-xl text-[#2F726D] hover:text-[#E8652B] transition-colors duration-300 cursor-pointer">
+                      {book.title}
+                    </h3>
+
+                    {/* Author & Publisher */}
+                    <div className="flex text-sm text-gray-700">
+                      <span className="mr-2">{book.author}</span>
+                      <span>{book.publisher}</span>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-end">
+                      <motion.span 
+                        className="text-xl text-[#E8652B] "
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        ${book.price}
+                      </motion.span>
+                      <span className="ml-2 text-sm text-gray-700 line-through">原價 NT${book.originalPrice}</span>
+                    </div>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
+              </SwiperSlide>
             ))}
-          </div>
+          </Swiper>
 
           {/* Right Arrow */}
           <motion.button 
@@ -514,43 +614,15 @@ export default function PopularBooks() {
             initial={{ scale: 1 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              // 切換到下一個時段
-              const times = Object.keys(timeSlotData);
-              const currentIndex = times.indexOf(activeTimeSlot);
-              const nextIndex = (currentIndex + 1) % times.length;
-              setActiveTimeSlot(times[nextIndex]);
-            }}
+            onClick={handleNextClick}
             aria-label="下一頁"
             transition={{ type: "spring", stiffness: 300 }}
           >
             <ChevronRight className="w-10 h-10 text-white" />
           </motion.button>
-
-          {/* Time Slot Indicators */}
-          <div className="flex justify-center mt-8 gap-3">
-            {Object.keys(timeSlotData).map((time) => (
-              <motion.button
-                key={time}
-                className={`w-4 h-4 rounded-full ${
-                  activeTimeSlot === time 
-                    ? "bg-[#E8652B]" 
-                    : "bg-gray-300 hover:bg-gray-400"
-                } transition-colors duration-300`}
-                onClick={() => setActiveTimeSlot(time)}
-                aria-label={`切換至 ${time} 時段`}
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.95 }}
-                animate={{ 
-                  scale: activeTimeSlot === time ? 1.1 : 1
-                }}
-              />
-            ))}
-          </div>
         </div>
       </div>
       </div>
-      
     </section>
   )
 }
