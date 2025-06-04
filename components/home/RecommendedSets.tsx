@@ -3,10 +3,11 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { getHomeBundleRecommendations, Bundle } from "@/lib/api/homebundle"
+import { getHomeBundleRecommendations } from "@/lib/api/homebundle"
+import { Book } from "@/lib/types/book"
 
 export default function RecommendedSets() {
-  const [bundles, setBundles] = useState<Bundle[]>([])
+  const [bundles, setBundles] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -20,18 +21,23 @@ export default function RecommendedSets() {
   const fetchBundles = async () => {
     try {
       setIsLoading(true)
-      const response = await getHomeBundleRecommendations()
+      console.log('開始獲取套裝推薦資料...')
       
-      if (response.status && response.data?.bundles) {
+      const bundleBooks = await getHomeBundleRecommendations()
+      console.log('RecommendedSets 收到的資料:', bundleBooks)
+      
+      if (bundleBooks && Array.isArray(bundleBooks) && bundleBooks.length > 0) {
         // 從所有套裝中隨機選擇2筆
-        const randomBundles = getRandomItems(response.data.bundles, 2)
+        const randomBundles = getRandomItems(bundleBooks, 2)
+        console.log('選擇的隨機書籍:', randomBundles)
         setBundles(randomBundles)
       } else {
-        setError(response.message || "獲取套裝推薦資料失敗")
+        console.error('無有效的書籍資料:', bundleBooks)
+        setError("獲取套裝推薦資料失敗: 無有效資料")
       }
     } catch (err) {
-      setError("發生錯誤，請稍後再試")
       console.error("獲取套裝推薦資料時發生錯誤:", err)
+      setError("發生錯誤，請稍後再試")
     } finally {
       setIsLoading(false)
     }
@@ -44,6 +50,17 @@ export default function RecommendedSets() {
     
     const shuffled = [...items].sort(() => 0.5 - Math.random())
     return shuffled.slice(0, count)
+  }
+
+  // 檢查陣列是否符合 Book 類型
+  const isBookArray = (arr: any[]): arr is Book[] => {
+    return arr.every(item => 
+      typeof item === 'object' && 
+      item !== null &&
+      'id' in item && 
+      'title' in item && 
+      'imageUrl' in item
+    );
   }
 
   useEffect(() => {

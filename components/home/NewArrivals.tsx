@@ -4,92 +4,51 @@ import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { getHomeLatestProducts, Book } from "@/lib/api/homeNew"
+import { getHomeLatestProducts } from "@/lib/api/homeNew"
+import { Book } from "@/lib/types/book"
 // Swiper 相關導入
 import { Swiper, SwiperSlide } from "swiper/react"
 import type { Swiper as SwiperType } from "swiper"
-import { Pagination, Navigation, Autoplay } from "swiper/modules"
+import { Pagination, Autoplay } from "swiper/modules"
 // Swiper 樣式
 import "swiper/css"
 import "swiper/css/pagination"
 import "swiper/css/navigation"
 
-interface BookTag {
-  label: string
-  color: string
-  bg: string
-}
-
-interface FeaturedBookItem {
-  id: number
-  title: string
-  author: string
-  publisher: string
-  ageRange: string
-  description: string
-  image: string
-  tags: BookTag[]
-}
-
-// 將 API 書籍資料轉換為前端需要的格式
-const mapApiBookToFeaturedBook = (book: Book): FeaturedBookItem => {
-  console.log('處理書籍:', book); // 調試輸出
-  
-  return {
-    id: book.id,
-    title: book.title,
-    author: book.author,
-    publisher: book.publisher,
-    ageRange: book.ageRangeName,
-    description: book.introductionHtml || "此書的詳細描述將在書籍詳情頁面顯示。",
-    image: book.imageUrl || "/images/book_05.png", // 使用預設圖片作為備用
-    tags: [
-      { 
-        label: book.categoryName, 
-        color: "text-[#295C58]", 
-        bg: "bg-[#F3FAF8]" 
-      },
-      { 
-        label: book.ageRangeName, 
-        color: "text-[#B4371A]", 
-        bg: "bg-[#FEF5EE]" 
-      },
-    ],
-  }
-}
-
 // 靜態資料作為備用
-const staticBooks: FeaturedBookItem[] = [
+const staticBooks: Book[] = [
   {
     id: 401,
     title: "音樂森林的秘密",
     author: "林依琴",
     publisher: "藝術之聲出版",
-    ageRange: "3-5歲",
-    description: "一位熱愛音樂的女孩進入神秘森林，發現這裡住著來自世界各地的音樂家，他們用不同樂器交流，最後攜手創造最美的樂章。",
-    image: "/images/book_05.png",
-    tags: [
-      { label: "音樂賞析", color: "text-[#295C58]", bg: "bg-[#F3FAF8]" },
-      { label: "3-5歲", color: "text-[#B4371A]", bg: "bg-[#FEF5EE]" },
-    ],
+    imageUrl: "/images/book_05.png",
+    categoryName: "音樂賞析",
+    ageRangeName: "3-5歲",
+    price: 350,
+    discountPrice: null,
+    isNewArrival: true,
+    isBestseller: false,
+    introductionHtml: "一位熱愛音樂的女孩進入神秘森林，發現這裡住著來自世界各地的音樂家，他們用不同樂器交流，最後攜手創造最美的樂章。"
   },
   {
     id: 402,
     title: "星星掉下來了",
     author: "王小明",
     publisher: "童話王國",
-    ageRange: "0-2歲",
-    description: "這是一個關於小熊幫助落下的星星回家的溫馨故事，適合睡前閱讀給小寶寶聽。",
-    image: "/images/book_05.png",
-    tags: [
-      { label: "睡前故事", color: "text-[#295C58]", bg: "bg-[#F3FAF8]" },
-      { label: "0-2歲", color: "text-[#B4371A]", bg: "bg-[#FEF5EE]" },
-    ],
+    imageUrl: "/images/book_05.png",
+    categoryName: "睡前故事",
+    ageRangeName: "0-2歲",
+    price: 280,
+    discountPrice: null,
+    isNewArrival: true,
+    isBestseller: false,
+    introductionHtml: "這是一個關於小熊幫助落下的星星回家的溫馨故事，適合睡前閱讀給小寶寶聽。"
   }
 ];
 
 export default function NewArrivals() {
-  const [books, setBooks] = useState<FeaturedBookItem[]>([])
+  const [books, setBooks] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [sectionTitle, setSectionTitle] = useState("本月亮點新書")
   const [error, setError] = useState<string | null>(null)
@@ -106,28 +65,13 @@ export default function NewArrivals() {
         const response = await getHomeLatestProducts()
         console.log('API 回應結果:', response)
         
-        if (response.status && response.data && response.data.books && response.data.books.length > 0) {
-          console.log('獲取到書籍數據:', response.data.books.length, '筆')
-          // 將 API 書籍資料轉換為前端需要的格式
-          try {
-            const apiBooks = response.data.books.map(mapApiBookToFeaturedBook)
-            console.log('轉換後的書籍數據:', apiBooks.length, '筆')
-            
-            setBooks(apiBooks)
-            setSectionTitle(response.data.title || "本月亮點新書")
-          } catch (mapError) {
-            console.error('數據轉換錯誤:', mapError)
-            setError('數據格式異常')
-            // 使用靜態資料作為備用
-            setBooks(staticBooks)
-          }
+        if (response && response.books && response.books.length > 0) {
+          console.log('獲取到書籍數據:', response.books.length, '筆')
+          setBooks(response.books)
+          setSectionTitle(response.title || "本月亮點新書")
         } else {
           console.warn('API 回應無有效數據或數據為空')
-          if (!response.status) {
-            setError(response.message || '獲取資料失敗')
-          } else {
-            setError('無可用的書籍資料')
-          }
+          setError('無可用的書籍資料')
           // 使用靜態資料作為備用
           setBooks(staticBooks)
         }
@@ -245,7 +189,7 @@ export default function NewArrivals() {
                 <div className="flex items-center justify-center basis-[50%] min-w-[220px] p-6 mb-6 md:p-10 translate-x-2 md:translate-x-4">
                   <div className="relative w-48 h-48 md:w-96 md:h-96">
                     <Image
-                      src={book.image}
+                      src={book.imageUrl || "/images/book_05.png"}
                       alt={book.title}
                       fill
                       className="object-cover rounded-2xl"
@@ -265,23 +209,21 @@ export default function NewArrivals() {
                     <span>{book.publisher}</span>
                   </div>
                   <div className="flex gap-2">
-                    {book.tags.map((tag, i) => (
-                      <span
-                        key={tag.label + i}
-                        className={`px-3 py-1 rounded-full text-xs md:text-sm font-semibold ${tag.bg} ${tag.color}`}
-                      >
-                        {tag.label}
-                      </span>
-                    ))}
+                    <span className="px-3 py-1 rounded-full text-xs md:text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
+                      {book.categoryName}
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-xs md:text-sm font-semibold bg-[#FEF5EE] text-[#B4371A]">
+                      {book.ageRangeName}
+                    </span>
                   </div>
-                  {book.description.includes('<') ? (
+                  {book.introductionHtml.includes('<') ? (
                     <div 
                       className="text-base md:text-lg h-[120px] text-[#121212] mb-2 md:mb-4 leading-relaxed overflow-y-auto font-noto-sans-tc"
-                      dangerouslySetInnerHTML={{ __html: book.description }}
+                      dangerouslySetInnerHTML={{ __html: book.introductionHtml }}
                     />
                   ) : (
                     <p className="text-base md:text-lg h-[120px] text-[#121212] mb-2 md:mb-4 leading-relaxed overflow-y-auto font-noto-sans-tc">
-                      {book.description}
+                      {book.introductionHtml}
                     </p>
                   )}
                   <div className="flex gap-3 md:gap-4 mt-2">

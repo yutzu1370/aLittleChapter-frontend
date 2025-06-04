@@ -1,49 +1,20 @@
 import apiClient, { ApiResponse } from '@/lib/apiClient';
-
-// 定義 API 響應類型
-export type PopularProductsResponse = {
-  status: boolean;
-  data: {
-    title: string;
-    books: Array<{
-      id: number;
-      title: string;
-      author: string;
-      publisher: string;
-      price: number;
-      imageUrl: string;
-      categoryName: string;
-      ageRangeName: string;
-      isNewArrival: boolean;
-      isBestseller: boolean;
-      isDiscount: boolean;
-      discountPrice: number | null;
-    }>;
-  };
-};
+import { BooksResponse } from '@/lib/types/book';
 
 /**
  * 獲取首頁熱門商品
  * @returns Promise<PopularProductsResponse['data']> 熱門商品數據
  */
-export async function fetchPopularProducts(): Promise<PopularProductsResponse['data']> {
+export async function fetchPopularProducts(): Promise<BooksResponse['data']> {
   try {
     console.log('正在獲取首頁熱門商品數據...');
-    
-    // 設置 API 請求超時控制
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超時
-    
+  
     // 使用 apiClient 呼叫 API
     // apiClient 的攔截器已經處理了回傳 response.data
-    const response: ApiResponse<PopularProductsResponse['data']> = await apiClient.get(
-      '/api/homepage?sectionName=popularProducts',
-      { signal: controller.signal }
+    const response: ApiResponse<BooksResponse['data']> = await apiClient.get(
+      '/api/homepage?sectionName=popularProducts'
     );
-    
-    // 清除超時計時器
-    clearTimeout(timeoutId);
-    
+
     console.log('熱門商品 API 回應:', response);
     
     if (!response.status || !response.data) {

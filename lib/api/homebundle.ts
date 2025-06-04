@@ -1,39 +1,35 @@
-import apiClient, { ApiResponse } from '@/lib/apiClient';
-
-// 定義套裝推薦資料介面
-export interface Bundle {
-  id: string;
-  title: string;
-  imageUrl: string;
-  introductionHtml: string;
-}
-
-// 定義首頁套裝推薦資料介面
-export interface HomeBundleRecommendations {
-  title: string;
-  bundles: Bundle[];
-}
+import apiClient from '@/lib/apiClient';
+import { Book, BundleBooksResponse } from '@/lib/types/book';
 
 /**
  * 獲取首頁套裝推薦資料
- * @returns Promise<ApiResponse<HomeBundleRecommendations>> 首頁套裝推薦資料
+ * @returns Promise<Book[]> 首頁套裝推薦資料
  */
-export const getHomeBundleRecommendations = async (): Promise<ApiResponse<HomeBundleRecommendations>> => {
+export const getHomeBundleRecommendations = async (): Promise<Book[]> => {
   try {
-    // apiClient 的回應攔截器已經處理了 response.data，所以這裡直接使用回傳值
-    const response = await apiClient.get<never, ApiResponse<HomeBundleRecommendations>>('/api/homepage', {
-      params: {
-        sectionName: 'bundleRecommendations'
-      }
-    });
+    console.log('正在獲取首頁套裝推薦資料...');
     
-    return response;
+    // 使用 apiClient 呼叫 API
+    const response = await apiClient.get(
+      '/api/homepage', 
+      {
+        params: {
+          sectionName: 'bundleRecommendations'
+        }
+      }
+    );
+    
+    // 使用 as any 類型斷言處理資料
+    const anyResponse = response as any;
+    
+    // 確認資料結構為 data.bundles
+    if (anyResponse.data && Array.isArray(anyResponse.data.bundles)) {
+      return anyResponse.data.bundles as Book[];
+    }
+    
+    throw new Error('獲取套裝推薦失敗: 未找到有效的書籍資料');
   } catch (error) {
     console.error('獲取首頁套裝推薦資料失敗:', error);
-    return {
-      status: false,
-      message: '獲取資料失敗',
-      data: undefined
-    };
+    throw new Error('無法載入套裝推薦資料');
   }
 };

@@ -24,7 +24,7 @@ export default function ClientChat() {
           alt="Chatbot"
           width={60}
           height={60}
-          style={{ height: 'auto', width: '60px' }}
+          style={{ width: "auto", height: "auto" }}
           className="rounded-full"
         />
       </button>

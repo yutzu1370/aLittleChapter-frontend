@@ -9,8 +9,9 @@ import { Navigation } from 'swiper/modules'
 import type { SwiperRef } from 'swiper/react'
 import { toast } from "sonner"
 import Link from "next/link"
-import { fetchPopularProducts, PopularProductsResponse } from '@/lib/api/homePopular'
-
+import { fetchPopularProducts } from '@/lib/api/homePopular'
+import { Book } from '@/lib/types/book'
+/*
 // 定義書籍類型
 type Book = {
   id: number
@@ -28,12 +29,13 @@ type Book = {
   isDiscount?: boolean
   discountPrice?: number | null
   imageUrl?: string
+  introductionHtml?: string
 }
-
+*/
 // 定義時段數據類型
 type TimeSlotData = {
   [key: string]: {
-    books: Book[]
+   
     label: string
   }
 }
@@ -95,21 +97,14 @@ export default function PopularBooks() {
           title: book.title,
           author: book.author,
           publisher: book.publisher,
-          price: book.price,
-          originalPrice: book.price,
-          image: book.imageUrl,
           imageUrl: book.imageUrl,
-          category: book.categoryName,
-          ageRange: book.ageRangeName,
-          tags: [
-            { text: "精選", type: "primary" },
-            ...(book.isBestseller ? [{ text: "熱銷", type: "accent" }] : []),
-            ...(book.isNewArrival ? [{ text: "新書", type: "accent" }] : [])
-          ],
-          isNew: book.isNewArrival,
-          isHot: book.isBestseller,
-          isDiscount: book.isDiscount,
-          discountPrice: book.discountPrice
+          categoryName: book.categoryName,
+          ageRangeName: book.ageRangeName,
+          price: book.price,
+          isNewArrival: book.isNewArrival,
+          isBestseller: book.isBestseller,
+          discountPrice: book.discountPrice,
+          introductionHtml: book.introductionHtml
         }))
         
         setPopularBooks(mappedBooks)
@@ -127,15 +122,15 @@ export default function PopularBooks() {
   // 時段資料定義 - 只用於顯示按鈕，不再連動卡片
   const timeSlotData: TimeSlotData = {
     "12:00": {
-      books: [],
+      
       label: "現正瘋搶",
     },
     "08:00": {
-      books: [],
+      
       label: "明天開搶",
     },
     "18:00": {
-      books: [],
+     
       label: "明天開搶",
     },
   }
@@ -381,7 +376,7 @@ export default function PopularBooks() {
                       </Link>
 
                       {/* Corner Tag */}
-                      {book.isNew && (
+                      {book.isNewArrival && (
                         <motion.div 
                           className="absolute top-0 right-0 w-24 h-24 overflow-hidden"
                           initial={{ opacity: 0, scale: 0.8 }}
@@ -394,7 +389,7 @@ export default function PopularBooks() {
                         </motion.div>
                       )}
 
-                      {book.isHot && (
+                      {book.isBestseller && (
                         <motion.div 
                           className="absolute top-0 right-0 w-24 h-24 overflow-hidden"
                           initial={{ opacity: 0, scale: 0.8 }}
@@ -464,10 +459,10 @@ export default function PopularBooks() {
                       {/* Category and Age Range */}
                       <div className="flex gap-2 mb-1">
                         <span className="px-4 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
-                          {book.category}
+                          {book.categoryName}
                         </span>
                         <span className="px-4 py-1 rounded-full text-sm font-semibold bg-[#FEF5EE] text-[#B4371A]">
-                          {book.ageRange}
+                          {book.ageRangeName}
                         </span>
                       </div>
 
@@ -491,7 +486,7 @@ export default function PopularBooks() {
                           whileHover={{ scale: 1.1 }}
                           transition={{ duration: 0.2 }}
                         >
-                          ${book.discountPrice || book.price}
+                          ${book.discountPrice ? book.discountPrice : book.price}
                         </motion.span>
                         {book.discountPrice && (
                           <span className="ml-2 text-sm text-gray-700 line-through">原價 NT${book.price}</span>

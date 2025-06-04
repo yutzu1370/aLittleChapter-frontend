@@ -100,7 +100,7 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                   alt="Chatbot"
                   width={32}
                   height={32}
-                  style={{ height: 'auto', width: '32px' }}
+                  style={{ width: "auto", height: "auto" }}
                   className="rounded-full"
                 />
               </div>

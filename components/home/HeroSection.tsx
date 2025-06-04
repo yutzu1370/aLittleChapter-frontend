@@ -83,7 +83,7 @@ export default function Hero() {
         initial={{ opacity: 0, y: -30, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-        className="absolute top-[10%] left-0 right-0 mx-auto w-[70%] sm:w-[60%] md:w-[50%] lg:w-[40%] aspect-[3/1] animate-slide-down delay-500"
+        className="absolute top-[15%] left-0 right-0 mx-auto w-[70%] sm:w-[60%] md:w-[50%] lg:w-[40%] aspect-[3/1] animate-slide-down delay-500"
       >
         <Image
           src={titleImage}
@@ -100,7 +100,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.8 }}
-        className="absolute top-[28%] left-0 right-0 mx-auto w-[60%] sm:w-[50%] md:w-[40%] lg:w-[30%] aspect-[3/1] animate-fade-in delay-800"
+        className="absolute top-[33%] left-0 right-0 mx-auto w-[60%] sm:w-[50%] md:w-[40%] lg:w-[30%] aspect-[3/1] animate-fade-in delay-800"
       >
         <Image
           src={subtitleImage}
