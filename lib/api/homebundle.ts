@@ -1,5 +1,5 @@
 import apiClient from '@/lib/apiClient';
-import { Book, BundleBooksResponse } from '@/lib/types/book';
+import { Book} from '@/lib/types/book';
 
 /**
  * 獲取首頁套裝推薦資料
