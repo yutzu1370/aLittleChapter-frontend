@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-orange-50">
+      <main className="min-h-screen bg-white">
         <Hero />
         <AnnouncementBanner />
         <PopularBooks />

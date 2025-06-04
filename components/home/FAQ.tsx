@@ -60,7 +60,7 @@ export default function FAQ() {
               height={48}
             />
           </div>
-          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest font-['jf-openhuninn-2.0']">常見問題</h2>
+          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest ">常見問題</h2>
         </div>
 
         {/* FAQ Container */}

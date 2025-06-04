@@ -1,27 +1,80 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { getHomeBundleRecommendations, Bundle } from "@/lib/api/homebundle"
 
 export default function RecommendedSets() {
-  const collections = [
-    {
-      id: 1,
-      title: "魔法學院入學指南(共3冊)",
-      description:
-        "這是一本以魔法學校為背景的奇幻小說，描述了一群少年如何在學院中學習魔法，並面對各種挑戰。他們必須通過各種考驗，才能成為真正的魔法師。這本書充滿刺激的情節與創意的魔法設定，適合喜歡哈利波特風格的讀者。",
-      image: "/images/home/sec03_book.png",
-      animalImage: "/images/home/sec03_Bear.png",
-      animalPosition: "right",
-    },
-    {
-      id: 2,
-      title: "追夢少年(共2冊)",
-      description:
-        "故事講述了一個普通的男孩如何通過不斷努力，最終實現了成為畫家的夢想。他經歷了許多挫折，但從未放棄，最終贏得了屬於自己的成功。這本書能夠激勵孩子勇敢追夢，並讓他們理解努力與堅持的重要性，是一本非常正能量的書籍。",
-      image: "/images/home/sec03_book2.png",
-      animalImage: "/images/home/sec03_Rabbit.png",
-      animalPosition: "left",
-    },
+  const [bundles, setBundles] = useState<Bundle[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // 動物圖片對應表
+  const animalImages = [
+    { image: "/images/home/sec03_Bear.png", position: "right" },
+    { image: "/images/home/sec03_Rabbit.png", position: "left" },
   ]
+
+  // 獲取套裝推薦資料
+  const fetchBundles = async () => {
+    try {
+      setIsLoading(true)
+      const response = await getHomeBundleRecommendations()
+      
+      if (response.status && response.data?.bundles) {
+        // 從所有套裝中隨機選擇2筆
+        const randomBundles = getRandomItems(response.data.bundles, 2)
+        setBundles(randomBundles)
+      } else {
+        setError(response.message || "獲取套裝推薦資料失敗")
+      }
+    } catch (err) {
+      setError("發生錯誤，請稍後再試")
+      console.error("獲取套裝推薦資料時發生錯誤:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // 從陣列中隨機選擇指定數量的項目
+  const getRandomItems = <T,>(items: T[], count: number): T[] => {
+    if (!items || items.length === 0) return []
+    if (items.length <= count) return [...items]
+    
+    const shuffled = [...items].sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, count)
+  }
+
+  useEffect(() => {
+    fetchBundles()
+  }, [])
+
+  // 載入中狀態
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center">
+            <p className="text-xl text-gray-500">載入中...</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // 錯誤狀態
+  if (error) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center">
+            <p className="text-xl text-red-500">{error}</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16 bg-white">
@@ -39,35 +92,38 @@ export default function RecommendedSets() {
         </div>
 
         <div className="space-y-6">
-          {collections.map((collection, index) => (
+          {bundles.map((bundle, index) => (
             <div
-              key={collection.id}
+              key={bundle.id}
               className="bg-white rounded-[48px] border-[6px] border-[#F8D0B0] p-3 relative mb-6"
             >
               <div className={`flex ${index % 2 === 0 ? "flex-row" : "flex-row-reverse"}`}>
                 {/* Book Image */}
-                <div className="w-[600px] h-[400px] relative flex-shrink-0">
+                <div className="w-[600px] h-[400px] relative flex-shrink-0 rounded-[48px]">
                   <Image
-                    src={collection.image || "/placeholder.svg"}
-                    alt={collection.title}
+                    src={bundle.imageUrl || "/placeholder.svg"}
+                    alt={bundle.title}
                     fill
-                    className="object-contain"
+                    className="object-contain p-6 rounded-[48px]"
                   />
                 </div>
 
                 {/* Text Content */}
                 <div className="w-[606px] flex flex-col justify-center px-12">
-                  <h3 className="text-3xl text-[#2F726D] mb-4">{collection.title}</h3>
-                  <p className="text-xl text-gray-900 mb-6 font-noto-sans-tc text-justify" >{collection.description}</p>
+                  <h3 className="text-3xl text-[#2F726D] mb-4">{bundle.title}</h3>
+                  <div 
+                    className="text-xl text-gray-900 mb-6 font-noto-sans-tc text-justify"
+                    dangerouslySetInnerHTML={{ __html: bundle.introductionHtml }}
+                  />
                   <div className="flex space-x-3">
                     <Link
-                      href={`/collections/${collection.id}`}
+                      href={`/products/${bundle.id}`}
                       className="px-6 py-3 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A]"
                     >
                       立即購買
                     </Link>
                     <Link
-                      href={`/collections/${collection.id}/details`}
+                      href={`/products/${bundle.id}`}
                       className="px-6 py-3 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A]"
                     >
                       了解更多
@@ -79,21 +135,18 @@ export default function RecommendedSets() {
               {/* Animal Character */}
               <div
                 className={`absolute w-[200px] h-[200px] ${
-                  collection.animalPosition === "right"
+                  animalImages[index % animalImages.length].position === "right"
                     ? "right-[-100px] bottom-[-20px]"
                     : "left-[-100px] bottom-[-20px]"
                 }`}
               >
                 <Image
-                  src={collection.animalImage || "/placeholder.svg"}
+                  src={animalImages[index % animalImages.length].image || "/placeholder.svg"}
                   alt="Character"
                   fill
                   className="object-contain"
                 />
               </div>
-
-              {/* Decorative Bow */}
-             
 
               {/* Decorative Ribbon */}
               <div
@@ -102,18 +155,12 @@ export default function RecommendedSets() {
                 }`}
               >
                 <Image
-                  src= {index % 2 === 0 ? "/images/left_top_ribbon.png" : "/images/right_top_rabbit.png"}
+                  src={index % 2 === 0 ? "/images/left_top_ribbon.png" : "/images/right_top_rabbit.png"}
                   alt="Decorative ribbon"
                   fill
                   className="object-contain"
                 />
               </div>
-              
-
-              
-
-          
-              
             </div>
           ))}
         </div>

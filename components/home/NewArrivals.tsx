@@ -167,7 +167,7 @@ export default function NewArrivals() {
   // 無資料或錯誤時顯示
   if (books.length === 0) {
     return (
-      <section className="bg-[#F3FAF8] px-2 md:px-8 py-8 md:py-12 flex flex-col items-center gap-10 md:gap-14 relative overflow-hidden min-h-[540px]">
+      <section className="bg-[#F3FAF8] px-2 md:px-8 py-8 md:py-12 flex flex-col items-center gap-10 md:gap-14 relative overflow-hidden min-h-[540px] rounded-[64px]">
         <div className="flex items-center gap-4 mb-2 md:mb-4">
           <Image
             src="/images/icon/icon_book.png"
@@ -193,7 +193,7 @@ export default function NewArrivals() {
   };
 
   return (
-    <section className="bg-[#F3FAF8] px-2 md:px-8 py-8 md:py-12 flex flex-col items-center gap-10 md:gap-14 relative overflow-hidden">
+    <section className="bg-[#F3FAF8] px-2 md:px-8 py-8 md:py-12 flex flex-col items-center gap-10 md:gap-14 relative overflow-hidden rounded-[64px]">
       {/* 標題區 */}
       <div className="flex items-center gap-4 mb-2 md:mb-4">
         <Image

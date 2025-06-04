@@ -46,7 +46,7 @@ export default function WebsiteFeatures() {
               height={48}
             />
           </div>
-          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest font-['jf-openhuninn-2.0']">小篇章特色</h2>
+          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest ">小篇章特色</h2>
         </div>
 
         {/* Features Container */}
