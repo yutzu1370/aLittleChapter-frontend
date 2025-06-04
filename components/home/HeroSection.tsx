@@ -128,7 +128,7 @@ export default function Hero() {
       </motion.div>
 
       {/* 年齡選項容器 */}
-      <div className="absolute bottom-[7%] left-0 right-0 flex flex-wrap justify-center gap-3 px-4">
+      <div className="absolute bottom-[7%] left-0 right-0 flex flex-wrap justify-center gap-3 px-4 font-['Coiny'] text-lg tracking-wide [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]">
         {/* 年齡類別按鈕 */}
         {[
           { id: 1, name: "0-3歲", href: "/age/0-3" },
