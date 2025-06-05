@@ -5,11 +5,15 @@ import Link from "next/link";
 import { Product, ProductDetail } from "@/lib/types/product";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import { fetchProductsByAgeRange } from "@/lib/api/products";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import type { SwiperRef } from 'swiper/react';
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
+import { toast } from "sonner";
+import { useCartStore } from "@/lib/store/useCartStore";
 
 // 自定義 Swiper 樣式
 const swiperStyles = `
@@ -44,11 +48,14 @@ interface RelatedProductsProps {
 }
 
 export default function RelatedProducts({ currentProduct }: RelatedProductsProps) {
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const swiperRef = useRef<SwiperRef | null>(null);
+  
+  const { isAuthenticated } = useAuthStore();
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const { addItem } = useCartStore();
 
   // 動態添加自定義樣式
   useEffect(() => {
@@ -100,18 +107,39 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
     loadRelatedProducts();
   }, [currentProduct]);
 
-  const toggleFavorite = (productId: string) => {
-    if (favorites.includes(productId)) {
-      setFavorites(favorites.filter(id => id !== productId));
-      console.log("已從收藏移除");
-    } else {
-      setFavorites([...favorites, productId]);
-      console.log("已加入收藏");
+  const handleToggleFavorite = (productId: number) => {
+    if (!isAuthenticated) {
+      // 訪客使用者：只顯示提醒訊息
+      toast.info("請先登入", {
+        description: "登入後才能使用收藏功能",
+        duration: 3000,
+      });
+      return;
     }
+
+    // 已登入使用者：切換收藏狀態
+    const newFavoriteState = toggleFavorite(productId);
+    
+    // 顯示收藏狀態提示
+    const product = products.find(p => parseInt(p.id) === productId);
+    toast.success(newFavoriteState ? `《${product?.name}》已加入收藏` : `《${product?.name}》已從收藏移除`, {
+      duration: 3000,
+    });
   };
 
   const handleAddToCart = (product: Product) => {
-    console.log(`已將《${product.name}》加入購物車！`);
+    try {
+      addItem(product, 1);
+      toast.success(`已將《${product.name}》加入購物車！`, {
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("加入購物車失敗:", error);
+      toast.error("加入購物車失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    }
   };
 
   // 獲取當前螢幕的每頁顯示數量
@@ -234,7 +262,7 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
             {products.map((item) => (
               <SwiperSlide key={item.id}>
                 <motion.div 
-                  className="relative"
+                  className="relative group"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
@@ -255,6 +283,47 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
                           />
                         </div>
                       </motion.div>
+
+                      {/* Hover Action Buttons */}
+                      <div 
+                        className="absolute bottom-0 left-0 right-0 h-24 flex items-end justify-center gap-2 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      >
+                        <motion.button 
+                          whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex-1 h-10 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] transition-colors duration-100"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAddToCart(item);
+                          }}
+                        >
+                          加入購物車
+                        </motion.button>
+                        <motion.button 
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`w-10 h-10 bg-white border-2 ${
+                            isAuthenticated && isFavorite(parseInt(item.id)) 
+                              ? "border-[#E8652B] bg-[#FEF5EE]" 
+                              : "border-[#E8652B]"
+                          } rounded-full flex items-center justify-center shadow-[4px_6px_0px_#74281A]`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleToggleFavorite(parseInt(item.id));
+                          }}
+                          aria-label={isAuthenticated && isFavorite(parseInt(item.id)) ? "從收藏移除" : "加入收藏"}
+                        >
+                          <Heart 
+                            className={`w-5 h-5 ${
+                              isAuthenticated && isFavorite(parseInt(item.id)) 
+                                ? "text-[#E8652B] fill-[#E8652B]" 
+                                : "text-[#E8652B]"
+                            }`} 
+                          />
+                        </motion.button>
+                      </div>
                     </div>
 
                     {/* 書名 */}

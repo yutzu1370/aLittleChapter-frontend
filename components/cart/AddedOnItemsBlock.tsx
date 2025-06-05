@@ -6,6 +6,8 @@ import { useCartStore } from "@/lib/store/useCartStore";
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
 import { useAuthStore } from "@/lib/store/useAuthStore";
 import { toast } from "sonner";
+import { useState } from "react";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 interface AddedOnItemsBlockProps {
   isVisible: boolean;
@@ -16,6 +18,7 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
   const { addedOnItems, updateAddOnQuantity, removeAddOnItem, getAddOnSubtotal } = useCartStore();
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const { isAuthenticated } = useAuthStore();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   if (!isVisible || addedOnItems.length === 0) {
     return null;
@@ -32,17 +35,18 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
   };
 
   const handleToggleFavorite = (productId: number) => {
-    const newFavoriteState = toggleFavorite(productId);
-    
     if (!isAuthenticated) {
-      // 訪客使用者：顯示登入提示
-      toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
-        description: "登入後可永久保存收藏",
-        duration: 4000,
+      // 訪客使用者：只顯示提醒訊息，不顯示登入視窗
+      toast.info("請先登入", {
+        description: "登入後才能使用收藏功能",
+        duration: 3000,
       });
       return;
     }
 
+    // 已登入使用者：切換收藏狀態
+    const newFavoriteState = toggleFavorite(productId);
+    
     // TODO: 已登入使用者的收藏功能 - 同步到後端
     toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
       duration: 3000,
@@ -96,18 +100,18 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
                 <button 
                   onClick={() => handleToggleFavorite(item.productId)}
                   className={`inline-flex items-center text-xs transition-colors ${
-                    isFavoriteProduct 
+                    isAuthenticated && isFavoriteProduct 
                       ? 'text-red-500 hover:text-red-600' 
                       : 'text-amber-600 hover:text-amber-700'
                   }`}
-                  aria-label={isFavoriteProduct ? "從收藏移除" : "加入收藏"}
+                  aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
                 >
                   <Heart 
                     className={`w-4 h-4 mr-1 ${
-                      isFavoriteProduct ? 'fill-current' : ''
+                      isAuthenticated && isFavoriteProduct ? 'fill-current' : ''
                     }`} 
                   />
-                  {isFavoriteProduct ? '已收藏' : '收藏'}
+                  {isAuthenticated && isFavoriteProduct ? '已收藏' : '收藏'}
                 </button>
                 <button 
                   onClick={() => removeAddOnItem(item.productId)}
@@ -122,6 +126,12 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
           );
         })}
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+      />
     </div>
   );
 };

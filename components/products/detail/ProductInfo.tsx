@@ -124,17 +124,18 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
   };
 
   const handleToggleFavorite = () => {
-    const newFavoriteState = toggleFavorite(productId);
-    
     if (!isAuthenticated) {
-      // 訪客使用者：顯示登入提示
-      toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
-        description: "登入後可永久保存收藏",
-        duration: 4000,
+      // 訪客使用者：只顯示提醒訊息，不顯示登入視窗
+      toast.info("請先登入", {
+        description: "登入後才能使用收藏功能",
+        duration: 3000,
       });
       return;
     }
 
+    // 已登入使用者：切換收藏狀態
+    const newFavoriteState = toggleFavorite(productId);
+    
     // TODO: 已登入使用者的收藏功能 - 同步到後端
     toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
       duration: 3000,
@@ -168,16 +169,16 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         <div className="flex gap-2 ml-4">
           <button 
             className={`p-3 rounded-full border-2 bg-white shadow-md transition-all ${
-              isFavoriteProduct 
+              isAuthenticated && isFavoriteProduct 
                 ? 'border-red-500 bg-red-50 hover:bg-red-100' 
                 : 'border-orange-500 hover:bg-orange-50'
             }`}
             onClick={handleToggleFavorite}
-            aria-label={isFavoriteProduct ? "從收藏移除" : "加入收藏"}
+            aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
           >
             <Heart 
               className={`h-6 w-6 ${
-                isFavoriteProduct 
+                isAuthenticated && isFavoriteProduct 
                   ? 'text-red-500 fill-current' 
                   : 'text-orange-500'
               }`} 

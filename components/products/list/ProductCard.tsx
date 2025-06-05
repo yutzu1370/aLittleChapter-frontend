@@ -6,16 +6,43 @@ import { Product } from "@/lib/types/product";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
 import { useState } from "react";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
+import { toast } from "sonner";
+import { AuthModal } from "@/components/auth/AuthModal";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { isAuthenticated } = useAuthStore();
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
   
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
+  const productId = parseInt(product.id);
+  const isFavoriteProduct = isFavorite(productId);
+  
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      // 訪客使用者：只顯示提醒訊息，不顯示登入視窗
+      toast.info("請先登入", {
+        description: "登入後才能使用收藏功能",
+        duration: 3000,
+      });
+      return;
+    }
+
+    // 已登入使用者：切換收藏狀態
+    const newFavoriteState = toggleFavorite(productId);
+    
+    // TODO: 已登入使用者的收藏功能 - 同步到後端
+    toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
+      duration: 3000,
+    });
   };
 
   return (
@@ -84,16 +111,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className={`w-12 h-12 bg-white border-2 ${
-              isFavorite 
+              isAuthenticated && isFavoriteProduct 
                 ? "border-[#E8652B] bg-[#FEF5EE]" 
                 : "border-[#E8652B]"
             } rounded-full flex items-center justify-center shadow-[4px_6px_0px_#74281A]`}
-            onClick={toggleFavorite}
-            aria-label={isFavorite ? "從收藏移除" : "加入收藏"}
+            onClick={handleToggleFavorite}
+            aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
           >
             <Heart 
               className={`w-6 h-6 ${
-                isFavorite 
+                isAuthenticated && isFavoriteProduct 
                   ? "text-[#E8652B] fill-[#E8652B]" 
                   : "text-[#E8652B]"
               }`} 
@@ -115,6 +142,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className="text-sm text-gray-500 line-through">原價 NT${product.originalPrice}</span>
         </div>
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+      />
     </motion.div>
   );
 } 

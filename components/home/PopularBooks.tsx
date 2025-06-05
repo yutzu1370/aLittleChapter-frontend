@@ -11,6 +11,8 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { fetchPopularProducts } from '@/lib/api/homePopular'
 import { Book } from '@/lib/types/book'
+import { useAuthStore } from "@/lib/store/useAuthStore"
+import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
 /*
 // 定義書籍類型
 type Book = {
@@ -75,11 +77,13 @@ export default function PopularBooks() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTimeSlot, setActiveTimeSlot] = useState("12:00")
-  const [favorites, setFavorites] = useState<number[]>([])
   const [hours, setHours] = useState(1)
   const [minutes, setMinutes] = useState(59)
   const [seconds, setSeconds] = useState(36)
   const swiperRef = useRef<SwiperRef | null>(null)
+  
+  const { isAuthenticated } = useAuthStore();
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
 
   // 獲取熱門產品數據
   useEffect(() => {
@@ -174,13 +178,26 @@ export default function PopularBooks() {
   }, [hours, minutes, seconds])
 
   // 收藏功能
-  const toggleFavorite = (bookId: number) => {
-    if (favorites.includes(bookId)) {
-      setFavorites(favorites.filter((id) => id !== bookId))
-    } else {
-      setFavorites([...favorites, bookId])
+  const handleToggleFavorite = (bookId: number) => {
+    if (!isAuthenticated) {
+      // 訪客使用者：只顯示提醒訊息
+      toast.info("請先登入", {
+        description: "登入後才能使用收藏功能",
+        duration: 3000,
+      });
+      return;
     }
-  }
+
+    // 已登入使用者：切換收藏狀態
+    const newFavoriteState = toggleFavorite(bookId);
+    
+    // 顯示收藏狀態提示
+    const book = popularBooks.find(b => b.id === bookId);
+    toast.success(newFavoriteState ? `《${book?.title}》已加入收藏` : `《${book?.title}》已從收藏移除`, {
+      position: "top-center",
+      duration: 2000,
+    });
+  };
 
   // 獲取當前螢幕的每頁顯示數量
   const getSlidesPerView = () => {
@@ -423,24 +440,16 @@ export default function PopularBooks() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className={`w-12 h-12 bg-white border-2 ${
-                            favorites.includes(book.id) 
+                            isAuthenticated && isFavorite(book.id) 
                               ? "border-[#E8652B] bg-[#FEF5EE]" 
                               : "border-[#E8652B]"
                           } rounded-full flex items-center justify-center shadow-[4px_6px_0px_#74281A]`}
-                          onClick={() => {
-                            const isCurrentlyFavorite = favorites.includes(book.id);
-                            toggleFavorite(book.id);
-                            toast.success(isCurrentlyFavorite ? `《${book.title}》 已從收藏移除` : `《${book.title}》已加入收藏`, {
-                            
-                              position: "top-center",
-                              duration: 2000,
-                            });
-                          }}
-                          aria-label={favorites.includes(book.id) ? "從收藏移除" : "加入收藏"}
+                          onClick={() => handleToggleFavorite(book.id)}
+                          aria-label={isAuthenticated && isFavorite(book.id) ? "從收藏移除" : "加入收藏"}
                         >
                           <Heart 
                             className={`w-6 h-6 ${
-                              favorites.includes(book.id) 
+                              isAuthenticated && isFavorite(book.id) 
                                 ? "text-[#E8652B] fill-[#E8652B]" 
                                 : "text-[#E8652B]"
                             }`} 
