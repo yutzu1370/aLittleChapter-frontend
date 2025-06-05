@@ -44,7 +44,8 @@ function getCurrentTime() {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
-    hour12: false
+    hour12: false,
+    timeZone: 'Asia/Taipei'
   })
 }
 
@@ -129,7 +130,7 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
             查看訂單詳情
           </Link>
           <Link 
-            href="/" 
+            href="/products" 
             className="w-full text-center py-3 px-4 rounded-full border-2 border-[#F8D0B0] text-gray-700 font-semibold hover:bg-orange-50 transition duration-200"
           >
             繼續購物
