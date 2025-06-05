@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import CartCleaner from '@/components/cart/CartCleaner';
 
 interface OrderSuccessProps {
   params: {
@@ -50,8 +51,8 @@ function getCurrentTime() {
 }
 
 export default async function OrderSuccessPage({ params, searchParams }: OrderSuccessProps) {
-  const { orderId } = params;
-  const { orderNum, serialNum, price, type } = searchParams;
+  const { orderId } = await params;
+  const { orderNum, serialNum, price, type } = await searchParams;
   
   // 訂單ID無效時導向首頁
   if (!orderId) {
@@ -65,6 +66,9 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center py-8 px-4">
+      {/* 引入客戶端組件來清空購物車 */}
+      <CartCleaner />
+      
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 animate-spring-up">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
