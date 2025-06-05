@@ -7,7 +7,6 @@ import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-
 import ProfileButton from "@/components/ui/ProfileButton"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -20,6 +19,7 @@ import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import axios from "axios"
 import { getUserProfile, updateUserProfile, uploadAvatar, UpdateProfileData } from "@/lib/api/profile"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
 // 添加一個緩存鍵
 const CITY_DATA_CACHE_KEY = "little-chapter-city-data";
@@ -102,6 +102,7 @@ export default function ProfileClient() {
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [selectedCity, setSelectedCity] = useState("")
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [userProfile, setUserProfile] = useState<DisplayProfile>({
     name: "",
     gender: "",
@@ -508,7 +509,8 @@ export default function ProfileClient() {
         gender: values.gender === "女" ? "female" : "male",
         phone: values.phone,
         birthDate: values.birthdate ? format(values.birthdate, "yyyy-MM-dd") : "",
-        address: `${values.address.city}${values.address.district}${values.address.detail}`
+        address: `${values.address.city}${values.address.district}${values.address.detail}`,
+        avatar: values.avatar || "",
       };
       
       // 使用新的 API 模組更新用戶資料
@@ -586,9 +588,16 @@ export default function ProfileClient() {
       description: "期待您的再次訪問"
     });
     
+    setShowLogoutConfirm(false);
+    
     setTimeout(() => {
       router.push("/");
     }, 1000);
+  };
+
+  // 打開登出確認對話框
+  const openLogoutConfirm = () => {
+    setShowLogoutConfirm(true);
   };
 
   if (isInitialLoading) {
@@ -603,6 +612,34 @@ export default function ProfileClient() {
     <div className="flex flex-col md:flex-row gap-12 font-noto-sans-tc content-fit w-full">
       {/* 全局樣式 */}
       <style jsx global>{globalStyles}</style>
+      
+      {/* 登出確認對話框 */}
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-[400px] w-[50%] p-6 bg-white rounded-3xl border-none">
+          <DialogTitle className="sr-only">確定要登出嗎？</DialogTitle>
+          <div className="flex flex-col items-center">
+            <h2 className="text-xl font-bold mb-2">確定要登出嗎？</h2>
+            <p className="text-gray-500 text-center mb-6">你可以隨時再回來和我們一起翻閱下一章節 👋</p>
+            
+            <div className="flex gap-4 w-full">
+              <ProfileButton 
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1"
+                variant="tertiary"
+              >
+                取消
+              </ProfileButton>
+              <ProfileButton 
+                onClick={handleLogout}
+                className="flex-1"
+                variant="secondary"
+              >
+                登出
+              </ProfileButton>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       {/* 左側：使用者資訊卡 */}
       <div className="w-full md:w-64 content-fit flex-shrink-0">
@@ -658,7 +695,7 @@ export default function ProfileClient() {
               className="w-full"
               variant="primary"
               leftIcon={<LogOut className="w-4 h-4" />}
-              onClick={handleLogout}
+              onClick={openLogoutConfirm}
             >
               登出
             </ProfileButton>
@@ -821,7 +858,7 @@ export default function ProfileClient() {
               <div className="w-[22%]">
                 <select
                   {...register("address.city")}
-                  className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                  className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none  bg-no-repeat bg-right-center  pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
                     !isEditing ? "bg-white text-gray-500" : ""
                   }`}
                   disabled={!isEditing}
@@ -842,7 +879,7 @@ export default function ProfileClient() {
               <div className="w-[22%]">
                 <select
                   {...register("address.district")}
-                  className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none bg-[url('/images/icon/arrow-down.svg')] bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
+                  className={`w-full px-4 py-3 rounded-full border border-[#E5E5E5] appearance-none  bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none ${
                     !isEditing ? "bg-white text-gray-500" : ""
                   }`}
                   disabled={!isEditing || !selectedCity}

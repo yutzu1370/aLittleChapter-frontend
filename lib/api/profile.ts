@@ -12,6 +12,7 @@ export interface UpdateProfileData {
   phone: string;
   birthDate: string;
   address: string;
+  avatar: string;
 }
 
 export async function updateUserProfile(data: UpdateProfileData): Promise<ApiResponse> {

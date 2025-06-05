@@ -75,7 +75,7 @@ export default function AccountLayout({
             ))}
           </div>
 
-          <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0] relative -mt-1 shadow-sm min-h-[calc(100vh-280px)]">
+          <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0] relative -mt-1 shadow-sm ">
             {children}
           </div>
         </div>

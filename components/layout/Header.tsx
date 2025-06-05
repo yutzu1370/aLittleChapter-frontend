@@ -172,7 +172,7 @@ export default function Header() {
                 <div className="relative flex-shrink-0">
                   <Link href="/account/profile" className="hover:bg-gray-100 rounded-full inline-block">
                     <Image
-                      src="/images/user_icon/user_icon_3.png"
+                      src="/images/user_icon/user.png"
                       alt="User Icon"
                       width={48}
                       height={48}

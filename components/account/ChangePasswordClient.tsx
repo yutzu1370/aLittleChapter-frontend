@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -43,6 +44,7 @@ const changePasswordSchema = z.object({
 type PasswordFormValues = z.infer<typeof changePasswordSchema>;
 
 export default function ChangePasswordClient() {
+  const router = useRouter()
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -219,7 +221,10 @@ export default function ChangePasswordClient() {
               variant="outline"
               type="button"
               disabled={isSubmitting}
-              onClick={() => reset()}
+              onClick={() => {
+                reset()
+                router.push("/account/profile")
+              }}
               className="px-6 py-3 border-[#E8652B] text-[#E8652B] rounded-full hover:bg-[#FCE9D8] shadow-[4px_4px_0px_#902d1c] hover:translate-y-[2px] hover:translate-x-[2px] hover:shadow-none transition-all"
             >
               取消
