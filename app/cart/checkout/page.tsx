@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import { useCartStore, useCartHydration } from "@/lib/store/useCartStore"
 import { useDiscountStore } from "@/lib/store/useDiscountStore"
+import { useAuthStore } from "@/lib/store/useAuthStore"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -29,7 +30,10 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { getSubtotal, getAddOnSubtotal } = useCartStore()
   const { appliedDiscount } = useDiscountStore()
+  const { isAuthenticated } = useAuthStore()
   const isHydrated = useCartHydration()
+  const [isClient, setIsClient] = useState(false)
+  const [isAuthHydrated, setIsAuthHydrated] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("")
   const [deviceType, setDeviceType] = useState("")
   const [phoneError, setPhoneError] = useState("")
@@ -47,6 +51,35 @@ export default function CheckoutPage() {
   const [selectedCity, setSelectedCity] = useState("")
   const [districts, setDistricts] = useState<{ name: string }[]>([])
   const [selectedDistrict, setSelectedDistrict] = useState("")
+  
+  // 處理 Zustand store 水合問題
+  useEffect(() => {
+    // 等待下一個執行週期，確保 Zustand store 已水合
+    const timeout = setTimeout(() => {
+      setIsAuthHydrated(true)
+    }, 100)
+    
+    return () => clearTimeout(timeout)
+  }, [])
+  
+  // 標記客戶端渲染完成
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+  
+  // 確保在客戶端渲染和水合後再進行認證檢查
+  useEffect(() => {
+    if (!isClient || !isAuthHydrated) return
+    
+    // 驗證使用者是否已登入，未登入則立即重定向到首頁
+    if (!isAuthenticated) {
+      toast.error('請先登入', {
+        description: '您需要先登入才能進行結帳',
+        duration: 3000
+      })
+      router.replace("/")
+    }
+  }, [isAuthenticated, isClient, isAuthHydrated, router])
   
   // 載入地址資料
   useEffect(() => {
@@ -285,6 +318,15 @@ export default function CheckoutPage() {
     const addOnSubtotal = getAddOnSubtotal()
     const discount = appliedDiscount?.discountAmount || 0
     return subtotal + addOnSubtotal + shippingFee - discount
+  }
+
+  // 未完成客戶端渲染或水合，或未登入時顯示載入中
+  if (!isClient || !isAuthHydrated || !isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
   }
 
   return (

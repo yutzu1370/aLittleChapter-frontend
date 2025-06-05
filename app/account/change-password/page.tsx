@@ -1,3 +1,5 @@
+"use client"
+
 import ChangePasswordClient from "@/components/account/ChangePasswordClient"
 
 export default function ChangePasswordPage() {

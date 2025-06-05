@@ -1,14 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { LogOut, User, Heart, Package, Tag, Bell, KeyRound } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
-import { useRouter } from "next/navigation"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 
@@ -19,7 +18,34 @@ export default function AccountLayout({
 }) {
   const pathname = usePathname()
   const router = useRouter()
-  const { logout } = useAuthStore()
+  const { logout, isAuthenticated } = useAuthStore()
+  const [isClient, setIsClient] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  // 處理 Zustand store 水合問題
+  useEffect(() => {
+    // 等待下一個執行週期，確保 Zustand store 已水合
+    const timeout = setTimeout(() => {
+      setIsHydrated(true)
+    }, 100)
+    
+    return () => clearTimeout(timeout)
+  }, [])
+  
+  // 標記客戶端渲染完成
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+  
+  // 確保在客戶端渲染和水合後再進行認證檢查
+  useEffect(() => {
+    if (!isClient || !isHydrated) return
+    
+    // 驗證使用者是否已登入，未登入則立即重定向到首頁
+    if (!isAuthenticated) {
+      router.replace("/")
+    }
+  }, [isAuthenticated, isClient, isHydrated, router])
 
   const handleLogout = () => {
     logout()
@@ -52,6 +78,15 @@ export default function AccountLayout({
       count: 8,
     },
   ]
+
+  // 未完成客戶端渲染或水合，或未登入時顯示載入中
+  if (!isClient || !isHydrated || !isAuthenticated) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
+  }
 
   return (
     <>

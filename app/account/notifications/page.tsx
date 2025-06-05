@@ -1,5 +1,7 @@
-import NotificationsClient from "@/components/account/NotificationsClient";
+"use client"
+
+import NotificationsClient from "@/components/account/NotificationsClient"
 
 export default function NotificationsPage() {
-  return <NotificationsClient />;
+  return <NotificationsClient />
 } 
