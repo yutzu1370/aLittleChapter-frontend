@@ -24,7 +24,7 @@ export default function RecommendedSets() {
       console.log('開始獲取套裝推薦資料...')
       
       const bundleBooks = await getHomeBundleRecommendations()
-      console.log('RecommendedSets 收到的資料:', bundleBooks)
+   
       
       if (bundleBooks && Array.isArray(bundleBooks) && bundleBooks.length > 0) {
         // 從所有套裝中隨機選擇2筆

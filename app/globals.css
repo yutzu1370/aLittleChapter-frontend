@@ -8,6 +8,62 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+/* 全域滾動條樣式 */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #f8d0b0 transparent;
+}
+
+html::-webkit-scrollbar {
+  width: 10px;
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: #f8d0b0;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  min-height: 40px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
+/* 全域可滾動元素的滾動條樣式 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #f8d0b0 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #f8d0b0;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  min-height: 40px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-button {
+  display: none;
+  height: 0;
+  width: 0;
+}
+
 /* 優化字體載入 */
 @font-face {
   font-family: 'NumberFont';
@@ -20,7 +76,7 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  font-family: var(--font-jf-openhuninn), NumberFont, sans-serif;
+  font-family: var(--font-noto-sans-tc), NumberFont, sans-serif;
 }
 
 body {
@@ -31,25 +87,34 @@ body {
 
 /* 確保所有文字元素使用同一字體 */
 h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select, a {
-  font-family: var(--font-jf-openhuninn), sans-serif;
+  font-family: var(--font-noto-sans-tc), sans-serif;
 }
 
-/* 確保數字使用 Coiny 字體 */
+/* 字體使用工具類 */
+.font-jf {
+  font-family: var(--font-jf-openhuninn), sans-serif !important;
+}
+
+.font-noto {
+  font-family: var(--font-noto-sans-tc), sans-serif !important;
+}
+
+/* 確保數字使用 Noto Sans TC 字體 */
 .digit, .number, .price, .count, .quantity, .amount, .numeric {
-  font-family: var(--font-coiny), cursive !important;
+  font-family: var(--font-noto-sans-tc), sans-serif !important;
 }
 
 /* 自動檢測並處理數字 */
 [data-numeric], [class*="price"], [class*="count"], [class*="number"], [class*="amount"], [class*="qty"] {
-  font-family: var(--font-coiny), cursive;
+  font-family: var(--font-noto-sans-tc), sans-serif;
 }
 
-/* 數字使用 Coiny 字體 */
+/* 數字使用 Noto Sans TC 字體 */
 .font-numeric {
-  font-family: var(--font-coiny), cursive;
+  font-family: var(--font-noto-sans-tc), sans-serif;
 }
 
-/* 為所有數字應用 Coiny 字體 */
+/* 為所有數字應用 Noto Sans TC 字體 */
 @layer base {
   :where(.has-numbers), 
   :where([class*="price"]), 
@@ -71,16 +136,59 @@ h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select, a {
   }
   
   .price, .count, .quantity, .amount, .total, .number, .rating {
-    font-family: var(--font-coiny), cursive;
+    font-family: var(--font-noto-sans-tc), sans-serif;
   }
 }
 
-/* 數字自動使用 Coiny 字體，但不影響周圍的文字 */
+/* 數字自動使用 Noto Sans TC 字體，但不影響周圍的文字 */
 @layer utilities {
+  /* 字體選擇工具類 */
+  .text-jf {
+    font-family: var(--font-jf-openhuninn), sans-serif !important;
+  }
+  
+  .text-noto {
+    font-family: var(--font-noto-sans-tc), sans-serif !important;
+  }
+  
+  .text-coiny {
+    font-family: var(--font-coiny), cursive !important;
+  }
+  
   .auto-numeric {
     unicode-range: U+0030-0039;
-    font-family: var(--font-coiny), cursive;
+    font-family: var(--font-noto-sans-tc), sans-serif;
   }
+
+  /* 滾動條樣式 */
+  /* 1. 極簡細長風格 */
+  .scrollbar-simple::-webkit-scrollbar {
+    width: 10px;
+    background: transparent;
+  }
+  
+  .scrollbar-simple::-webkit-scrollbar-thumb {
+    background: #f8d0b0;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    min-height: 40px;
+  }
+  
+  .scrollbar-simple::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-simple::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+  }
+  
+  .scrollbar-simple {
+    scrollbar-width: thin;
+    scrollbar-color: #f8d0b0 transparent;
+  }
+  
 }
 
 /* 優化動畫效果 - 使用 will-change 提升效能 */

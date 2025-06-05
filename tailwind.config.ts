@@ -78,7 +78,7 @@ const config: Config = {
       fontFamily: {
         "jf-openhuninn": ["var(--font-jf-openhuninn)", "sans-serif"],
         "coiny": ["var(--font-coiny)", "cursive"],
-        "noto-sans-tc": ["Noto Sans TC", "sans-serif"],
+        "noto-sans-tc": ["var(--font-noto-sans-tc)", "sans-serif"],
       },
     },
   },

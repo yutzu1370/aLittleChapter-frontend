@@ -48,7 +48,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-TW" className={`${jfOpenHuninn.variable} ${coiny.variable} ${notoSansTC.variable}`}>
-      <body className="font-jf-openhuninn" suppressHydrationWarning>
+      <body className="font-noto-sans-tc" suppressHydrationWarning>
         {children}
         <FloatingButtons />
         <ClientChat />
