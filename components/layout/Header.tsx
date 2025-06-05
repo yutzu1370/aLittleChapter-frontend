@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, ShoppingCart, Heart, Bell, ChevronDown } from "lucide-react"
+import { Search, ShoppingCart, Heart, Bell } from "lucide-react"
 import { AuthModal } from "@/components/auth/AuthModal"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import { useCartStore } from "@/lib/store/useCartStore"

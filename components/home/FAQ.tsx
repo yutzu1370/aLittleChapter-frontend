@@ -41,7 +41,7 @@ export default function FAQ() {
     },
   ]
 
-  const [openFaq, setOpenFaq] = useState<number | null>(4)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   const toggleFaq = (id: number) => {
     setOpenFaq(openFaq === id ? null : id)

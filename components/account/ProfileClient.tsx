@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import FancyButton from "@/components/ui/FancyButton"
+
 import ProfileButton from "@/components/ui/ProfileButton"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -20,6 +20,28 @@ import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import axios from "axios"
 import { getUserProfile, updateUserProfile, uploadAvatar, UpdateProfileData } from "@/lib/api/profile"
+
+// 添加一個緩存鍵
+const CITY_DATA_CACHE_KEY = "little-chapter-city-data";
+const USER_PROFILE_CACHE_KEY = "little-chapter-user-profile";
+
+// 添加全局樣式覆蓋瀏覽器自動填充樣式
+const globalStyles = `
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: inherit !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  
+  /* 確保所有容器適應內容高度 */
+  .content-fit {
+    min-height: fit-content;
+    height: auto !important;
+  }
+`;
 
 // 城市資料結構
 interface CityData {
@@ -131,53 +153,120 @@ export default function ProfileClient() {
   const addressDetail = watch("address.detail")
   const avatar = watch("avatar")
   
+  // 最佳化：使用useMemo減少不必要的狀態更新
+  const userProfileData = useMemo(() => ({
+    name: name || "",
+    gender: gender || "",
+    birthdate: birthdate ? format(birthdate, "yyyy-MM-dd") : "",
+    phone: phone || "",
+    email: email || "",
+    address: {
+      city: addressCity || "",
+      district: addressDistrict || "",
+      detail: addressDetail || "",
+    },
+    avatar: avatar || "",
+  }), [name, gender, birthdate, phone, email, addressCity, addressDistrict, addressDetail, avatar]);
+  
   useEffect(() => {
-    // 將表單值轉換為顯示值
-    setUserProfile({
-      name: name || "",
-      gender: gender || "",
-      birthdate: birthdate ? format(birthdate, "yyyy-MM-dd") : "",
-      phone: phone || "",
-      email: email || "",
-      address: {
-        city: addressCity || "",
-        district: addressDistrict || "",
-        detail: addressDetail || "",
-      },
-      avatar: avatar || "",
-    })
-  }, [name, gender, birthdate, phone, email, addressCity, addressDistrict, addressDetail, avatar])
+    setUserProfile(userProfileData);
+  }, [userProfileData]);
 
-  // 獲取城市和區域資料
+  // 解析地址函數 - 移至組件外部以減少重新創建
+  const parseAddress = useCallback((address: string, cityDataObj: CityData | null) => {
+    if (!address || !cityDataObj || !cityDataObj.children) {
+      return { city: "", district: "", detail: address };
+    }
+    
+    // 遍歷所有城市
+    for (const cityObj of cityDataObj.children) {
+      // 檢查地址是否以該城市開頭
+      const cityName = cityObj.name;
+      
+      if (address.indexOf(cityName) === 0) {
+        // 找到城市，繼續檢查區域
+        const addressWithoutCity = address.substring(cityName.length);
+        
+        // 確保城市有區域資料
+        if (cityObj.children && cityObj.children.length > 0) {
+          // 遍歷該城市的所有區域
+          for (const districtObj of cityObj.children) {
+            const districtName = districtObj.name;
+            
+            // 檢查剩餘地址是否以該區域開頭
+            if (addressWithoutCity.indexOf(districtName) === 0) {
+              // 找到區域，剩餘部分為詳細地址
+              const detailAddress = addressWithoutCity.substring(districtName.length);
+              
+              return {
+                city: cityName,
+                district: districtName,
+                detail: detailAddress
+              };
+            }
+          }
+        }
+        
+        // 如果找到城市但沒找到區域，則剩餘全部為詳細地址
+        return {
+          city: cityName,
+          district: "",
+          detail: addressWithoutCity
+        };
+      }
+    }
+    
+    // 如果沒找到任何匹配，返回原始地址作為詳細地址
+    return { city: "", district: "", detail: address };
+  }, []);
+
+  // 獲取城市和區域資料 - 優化使用本地存儲緩存
   useEffect(() => {
     const fetchCityData = async () => {
       try {
+        // 嘗試從本地存儲獲取城市資料
+        const cachedData = localStorage.getItem(CITY_DATA_CACHE_KEY);
+        if (cachedData) {
+          const data: CityData = JSON.parse(cachedData);
+          processCityData(data);
+          return;
+        }
+        
+        // 如果沒有緩存，才從網路獲取
         const response = await axios.get('/data/city.json')
         const data: CityData = response.data
-        setCityData(data)
         
-        // 構建城市選項
-        const cityOptions = data.children.map(city => ({
-          value: city.name,
-          label: city.name
-        }))
-        setCities(cityOptions)
-        
-        // 構建區域選項
-        const districtMap: Record<string, { value: string; label: string }[]> = {}
-        data.children.forEach(city => {
-          if (city.children) {
-            districtMap[city.name] = city.children.map(district => ({
-              value: district.name,
-              label: district.name
-            }))
-          }
-        })
-        setDistricts(districtMap)
+        // 處理和緩存城市資料
+        processCityData(data);
+        localStorage.setItem(CITY_DATA_CACHE_KEY, JSON.stringify(data));
       } catch (error) {
         console.error('獲取城市資料失敗:', error)
         toast.error('無法載入城市資料')
       }
+    }
+    
+    // 處理城市資料的函數
+    const processCityData = (data: CityData) => {
+      setCityData(data);
+      
+      // 構建城市選項
+      const cityOptions = data.children.map(city => ({
+        value: city.name,
+        label: city.name
+      }))
+      setCities(cityOptions)
+      
+      // 構建區域選項
+      const districtMap: Record<string, { value: string; label: string }[]> = {}
+      data.children.forEach(city => {
+        if (city.children) {
+          districtMap[city.name] = city.children.map(district => ({
+            value: district.name,
+            label: district.name
+          }))
+        }
+      })
+      setDistricts(districtMap)
     }
     
     fetchCityData()
@@ -191,7 +280,7 @@ export default function ProfileClient() {
     }
   }, [addressCity, selectedCity, setValue])
 
-  // 獲取用戶資料，但要等cityData載入後才執行
+  // 獲取用戶資料 - 優化使用本地存儲預載
   useEffect(() => {
     if (!cityData) return
 
@@ -199,6 +288,24 @@ export default function ProfileClient() {
       try {
         setIsInitialLoading(true)
         
+        // 嘗試從本地存儲獲取用戶資料進行預載
+        const cachedProfile = localStorage.getItem(USER_PROFILE_CACHE_KEY);
+        let hasPreloadedData = false;
+        
+        if (cachedProfile) {
+          try {
+            const cachedData = JSON.parse(cachedProfile);
+            if (cachedData && cachedData.user) {
+              loadUserDataToForm(cachedData.user);
+              hasPreloadedData = true;
+            }
+          } catch (e) {
+            console.error("預載用戶資料失敗:", e);
+            // 繼續從 API 加載
+          }
+        }
+        
+        // 無論是否已預載資料，都從 API 獲取最新資料
         const response = await getUserProfile();
         
         if (!response || !response.status) {
@@ -210,103 +317,13 @@ export default function ProfileClient() {
         
         const data = response.data;
         
+        // 儲存到本地緩存
+        if (data) {
+          localStorage.setItem(USER_PROFILE_CACHE_KEY, JSON.stringify(data));
+        }
+        
         if (data && data.user) {
-          const userData = data.user;
-          
-          // 從地址字串中分解城市、區域和詳細地址
-          let city = "";
-          let district = "";
-          let detail = userData.address || "";
-          
-          // 創建一個函數來解析地址
-          const parseAddress = (address: string) => {
-            if (!address || !cityData || !cityData.children) {
-              return { city: "", district: "", detail: address };
-            }
-            
-            // 遍歷所有城市
-            for (const cityObj of cityData.children) {
-              // 檢查地址是否以該城市開頭
-              const cityName = cityObj.name;
-              
-              if (address.indexOf(cityName) === 0) {
-                // 找到城市，繼續檢查區域
-                const addressWithoutCity = address.substring(cityName.length);
-                
-                // 確保城市有區域資料
-                if (cityObj.children && cityObj.children.length > 0) {
-                  // 遍歷該城市的所有區域
-                  for (const districtObj of cityObj.children) {
-                    const districtName = districtObj.name;
-                    
-                    // 檢查剩餘地址是否以該區域開頭
-                    if (addressWithoutCity.indexOf(districtName) === 0) {
-                      // 找到區域，剩餘部分為詳細地址
-                      const detailAddress = addressWithoutCity.substring(districtName.length);
-                      
-                      return {
-                        city: cityName,
-                        district: districtName,
-                        detail: detailAddress
-                      };
-                    }
-                  }
-                }
-                
-                // 如果找到城市但沒找到區域，則剩餘全部為詳細地址
-                return {
-                  city: cityName,
-                  district: "",
-                  detail: addressWithoutCity
-                };
-              }
-            }
-            
-            // 如果沒找到任何匹配，返回原始地址作為詳細地址
-            return { city: "", district: "", detail: address };
-          };
-          
-          // 執行解析
-          if (detail) {
-            const parsedAddress = parseAddress(detail);
-            city = parsedAddress.city;
-            district = parsedAddress.district;
-            detail = parsedAddress.detail;
-          }
-          
-          // 更新表單
-          reset({
-            name: userData.name || "",
-            gender: userData.gender === "female" ? "女" : "男",
-            birthdate: userData.birthDate ? new Date(userData.birthDate) : undefined,
-            phone: userData.phone || "",
-            email: userData.email || "",
-            address: {
-              city: city,
-              district: district,
-              detail: detail,
-            },
-            avatar: userData.avatar || "",
-          })
-          
-          // 更新顯示資料
-          setUserProfile({
-            name: userData.name || "",
-            gender: userData.gender === "female" ? "女" : "男",
-            birthdate: userData.birthDate || "",
-            phone: userData.phone || "",
-            email: userData.email || "",
-            address: {
-              city: city,
-              district: district,
-              detail: detail,
-            },
-            avatar: userData.avatar || "",
-          })
-          
-          if (city) {
-            setSelectedCity(city)
-          }
+          loadUserDataToForm(data.user);
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "獲取資料失敗"
@@ -316,15 +333,65 @@ export default function ProfileClient() {
         setIsInitialLoading(false)
       }
     }
+    
+    // 從用戶資料載入到表單的函數
+    const loadUserDataToForm = (userData: any) => {
+      // 從地址字串中分解城市、區域和詳細地址
+      let city = "";
+      let district = "";
+      let detail = userData.address || "";
+      
+      // 執行解析
+      if (detail) {
+        const parsedAddress = parseAddress(detail, cityData);
+        city = parsedAddress.city;
+        district = parsedAddress.district;
+        detail = parsedAddress.detail;
+      }
+      
+      // 更新表單
+      reset({
+        name: userData.name || "",
+        gender: userData.gender === "female" ? "女" : "男",
+        birthdate: userData.birthDate ? new Date(userData.birthDate) : undefined,
+        phone: userData.phone || "",
+        email: userData.email || "",
+        address: {
+          city: city,
+          district: district,
+          detail: detail,
+        },
+        avatar: userData.avatar || "",
+      })
+      
+      // 如果有城市，設定選中的城市
+      if (city) {
+        setSelectedCity(city)
+      }
+    }
 
     fetchUserProfile()
-  }, [cityData, reset])
+  }, [cityData, reset, parseAddress])
+
+  // 優化頭像上傳 - 預先載入頭像
+  useEffect(() => {
+    // 預載用戶頭像
+    if (userProfile.avatar) {
+      const img = new Image();
+      img.src = userProfile.avatar;
+    }
+  }, [userProfile.avatar]);
 
   // 處理頭像上傳
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       setSelectedFile(file)
+      
+      // 確保清理任何之前的預覽 URL
+      if (userProfile.avatar && userProfile.avatar.startsWith('blob:')) {
+        URL.revokeObjectURL(userProfile.avatar);
+      }
       
       // 建立預覽 URL
       const fileUrl = URL.createObjectURL(file)
@@ -339,7 +406,13 @@ export default function ProfileClient() {
 
   const handleAvatarUpload = async (file: File, fileUrl: string) => {
     try {
+      // 顯示上傳中的提示
+      toast.loading("正在上傳頭像...");
+      
       const response = await uploadAvatar(file);
+      
+      // 清除上傳中的提示
+      toast.dismiss();
       
       if (!response || !response.status) {
         // 檢查是否為 Google Cloud 認證錯誤
@@ -363,14 +436,44 @@ export default function ProfileClient() {
       // 成功上傳，使用後端回傳的頭像URL
       const newAvatarUrl = response.data?.avatar;
       if (newAvatarUrl) {
-        setValue("avatar", newAvatarUrl);
-        setUserProfile(prev => ({
-          ...prev,
-          avatar: newAvatarUrl
-        }));
+        // 預先加載新頭像圖片，確保在設置前已加載
+        const img = new Image();
+        img.onload = () => {
+          // 圖片載入完成後再更新 UI
+          setValue("avatar", newAvatarUrl);
+          setUserProfile(prev => ({
+            ...prev,
+            avatar: newAvatarUrl
+          }));
+          
+          // 更新本地用戶資料緩存
+          const cachedProfile = localStorage.getItem(USER_PROFILE_CACHE_KEY);
+          if (cachedProfile) {
+            try {
+              const profileData = JSON.parse(cachedProfile);
+              if (profileData && profileData.user) {
+                profileData.user.avatar = newAvatarUrl;
+                localStorage.setItem(USER_PROFILE_CACHE_KEY, JSON.stringify(profileData));
+              }
+            } catch (e) {
+              console.error("更新緩存頭像失敗:", e);
+            }
+          }
+          
+          toast.success("頭像已更新");
+        };
+        
+        img.onerror = () => {
+          // 如果新頭像加載失敗，恢復原頭像
+          toast.error("頭像圖片載入失敗");
+          setValue("avatar", userProfile.avatar || "/images/user_icon/user.png");
+        };
+        
+        // 開始加載圖片
+        img.src = newAvatarUrl;
+      } else {
+        toast.success("頭像已更新");
       }
-      
-      toast.success("頭像已更新");
       
       // 清理舊的預覽 URL 物件
       URL.revokeObjectURL(fileUrl);
@@ -394,7 +497,7 @@ export default function ProfileClient() {
     }
   }
 
-  // 提交處理
+  // 提交處理 - 更新後同時更新本地緩存
   const onSubmit = async (values: ProfileFormValues) => {
     try {
       setIsLoading(true)
@@ -419,6 +522,26 @@ export default function ProfileClient() {
       }
       
       const data = response.data;
+      
+      // 更新本地用戶資料緩存
+      const cachedProfile = localStorage.getItem(USER_PROFILE_CACHE_KEY);
+      if (cachedProfile) {
+        try {
+          const profileData = JSON.parse(cachedProfile);
+          if (profileData && profileData.user) {
+            // 更新緩存中的用戶資料
+            profileData.user.name = data.name || values.name;
+            profileData.user.gender = values.gender === "女" ? "female" : "male";
+            profileData.user.birthDate = values.birthdate ? format(values.birthdate, "yyyy-MM-dd") : "";
+            profileData.user.phone = data.phone || values.phone;
+            profileData.user.address = `${values.address.city}${values.address.district}${values.address.detail}`;
+            
+            localStorage.setItem(USER_PROFILE_CACHE_KEY, JSON.stringify(profileData));
+          }
+        } catch (e) {
+          console.error("更新緩存用戶資料失敗:", e);
+        }
+      }
       
       // 更新左側顯示資料
       setUserProfile({
@@ -452,8 +575,11 @@ export default function ProfileClient() {
     setIsEditing(false)
   }
 
-  // 處理登出
+  // 處理登出 - 清除緩存
   const handleLogout = () => {
+    // 清除用戶資料緩存
+    localStorage.removeItem(USER_PROFILE_CACHE_KEY);
+    
     logout();
     
     toast.success("已成功登出", {
@@ -467,19 +593,35 @@ export default function ProfileClient() {
 
   if (isInitialLoading) {
     return (
-      <div className="flex justify-center items-center h-60 font-noto-sans-tc">
+      <div className="flex justify-center items-center py-16 font-noto-sans-tc">
         <div className="animate-pulse text-lg text-gray-500">載入中...</div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col md:flex-row gap-12 font-noto-sans-tc">
+    <div className="flex flex-col md:flex-row gap-12 font-noto-sans-tc content-fit w-full">
+      {/* 全局樣式 */}
+      <style jsx global>{globalStyles}</style>
+      
       {/* 左側：使用者資訊卡 */}
-      <div className="w-full md:w-64">
-        <div className="flex flex-col items-center">
+      <div className="w-full md:w-64 content-fit flex-shrink-0">
+        <div className="flex flex-col items-center content-fit">
           <Avatar className="w-32 h-32 mb-3">
-            <AvatarImage src={userProfile.avatar || "/images/user_icon/user.png"} />
+            <AvatarImage 
+              src={userProfile.avatar || "/images/user_icon/user.png"} 
+              className="transition-opacity duration-300"
+              style={{
+                opacity: 1,
+                objectFit: "cover"
+              }}
+              onLoadingStatusChange={(status) => {
+                // 處理圖片載入狀態
+                if (status === "error") {
+                  console.error("頭像圖片載入失敗");
+                }
+              }}
+            />
             <AvatarFallback className="bg-blue-500 font-noto-sans-tc">
               {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}
             </AvatarFallback>
@@ -525,8 +667,8 @@ export default function ProfileClient() {
       </div>
 
       {/* 右側：表單區域 */}
-      <div className="flex-1">
-        <div className="flex justify-end mb-4 ">
+      <div className="flex-1 content-fit w-full">
+        <div className="flex justify-end mb-4">
           {!isEditing && (
             <ProfileButton
               type="button"
@@ -538,7 +680,7 @@ export default function ProfileClient() {
             </ProfileButton>
           )}
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 content-fit">
           {/* 姓名欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
             <Label htmlFor="name" className="col-span-2 font-noto-sans-tc text-base">姓名</Label>
@@ -550,6 +692,7 @@ export default function ProfileClient() {
                   !isEditing ? "bg-white text-gray-500" : ""
                 }`}
                 disabled={!isEditing}
+                autoComplete="off"
               />
               {errors.name && (
                 <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.name.message}</p>
@@ -662,6 +805,7 @@ export default function ProfileClient() {
                 maxLength={10}
                 inputMode="numeric"
                 pattern="[0-9]*"
+                autoComplete="off"
               />
               {errors.phone && (
                 <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.phone.message}</p>
@@ -726,6 +870,7 @@ export default function ProfileClient() {
                   }`}
                   placeholder="詳細地址"
                   disabled={!isEditing}
+                  autoComplete="off"
                 />
                 {errors.address?.detail && (
                   <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.detail.message}</p>
@@ -743,6 +888,7 @@ export default function ProfileClient() {
                 id="email"
                 className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-white text-gray-500 font-noto-sans-tc"
                 disabled
+                autoComplete="off"
               />
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.email.message}</p>
