@@ -14,7 +14,7 @@ export default function Header() {
   const [isHydrated, setIsHydrated] = useState(false)
   const [showProductsDropdown, setShowProductsDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, user } = useAuthStore()
   const { items } = useCartStore()
   const { getFavoriteCount } = useFavoritesStore()
   
@@ -57,6 +57,9 @@ export default function Header() {
   const handleProductsMouseLeave = () => {
     setShowProductsDropdown(false)
   }
+
+  // 獲取用戶頭像 URL
+  const userAvatar = user?.avatar || "/images/user_icon/user.png"
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 py-4">
@@ -172,11 +175,16 @@ export default function Header() {
                 <div className="relative flex-shrink-0">
                   <Link href="/account/profile" className="hover:bg-gray-100 rounded-full inline-block">
                     <Image
-                      src="/images/user_icon/user.png"
+                      src={userAvatar}
                       alt="User Icon"
                       width={48}
                       height={48}
-                      className="rounded-full"
+                      className="rounded-full object-cover"
+                      onError={(e) => {
+                        // 如果頭像載入失敗，使用預設頭像
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/images/user_icon/user.png";
+                      }}
                     />
                   </Link>
                 </div>

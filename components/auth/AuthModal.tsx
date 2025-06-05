@@ -99,6 +99,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             id: responseData.data.user.id,
             email: responseData.data.user.email,
             name: responseData.data.user.name || '',
+            avatar: responseData.data.user.avatar || '',
             token: responseData.data.token
           };
 

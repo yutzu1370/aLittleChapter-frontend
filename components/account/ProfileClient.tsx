@@ -98,6 +98,7 @@ interface DisplayProfile {
 export default function ProfileClient() {
   const router = useRouter()
   const { logout } = useAuthStore()
+  const updateUser = useAuthStore((state) => state.updateUser)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -461,6 +462,9 @@ export default function ProfileClient() {
             }
           }
           
+          // 更新 AuthStore 中的用戶頭像
+          updateUser({ avatar: newAvatarUrl });
+          
           toast.success("頭像已更新");
         };
         
@@ -537,6 +541,7 @@ export default function ProfileClient() {
             profileData.user.birthDate = values.birthdate ? format(values.birthdate, "yyyy-MM-dd") : "";
             profileData.user.phone = data.phone || values.phone;
             profileData.user.address = `${values.address.city}${values.address.district}${values.address.detail}`;
+            profileData.user.avatar = data.avatar || values.avatar;
             
             localStorage.setItem(USER_PROFILE_CACHE_KEY, JSON.stringify(profileData));
           }
@@ -544,6 +549,12 @@ export default function ProfileClient() {
           console.error("更新緩存用戶資料失敗:", e);
         }
       }
+      
+      // 更新 AuthStore 中的用戶資料
+      updateUser({
+        name: data.name || values.name,
+        avatar: data.avatar || values.avatar
+      });
       
       // 更新左側顯示資料
       setUserProfile({

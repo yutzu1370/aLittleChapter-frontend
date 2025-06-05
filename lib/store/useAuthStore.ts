@@ -7,6 +7,7 @@ export interface User {
   id: string;
   email: string;
   name?: string;
+  avatar?: string;
   token: string;
 }
 
@@ -90,9 +91,22 @@ export const useAuthStore = create<AuthState>()(
           token: null,
         });
       },
-      updateUser: (userData) => set((state) => ({
-        user: state.user ? { ...state.user, ...userData } : null,
-      })),
+      updateUser: (userData) => {
+        console.log('正在更新使用者資訊:', userData);
+        set((state) => {
+          // 確保用戶存在
+          if (!state.user) return state;
+          
+          // 更新用戶資訊
+          const updatedUser = { ...state.user, ...userData };
+          
+          return {
+            user: updatedUser,
+            isAuthenticated: true,
+            token: updatedUser.token || state.token,
+          };
+        });
+      },
     }),
     {
       name: 'auth-storage', // localStorage 的金鑰名稱
