@@ -76,4 +76,30 @@ export async function addItemToBackendApi(item: CartItemRequest): Promise<ApiRes
       message: '加入商品到後端購物車失敗',
     };
   }
+}
+
+// 從後端購物車刪除單一商品
+export async function removeItemFromBackendApi(productId: number): Promise<ApiResponse> {
+  try {
+    return await apiClient.delete(`/api/cart/${productId}`);
+  } catch (error) {
+    console.error('從後端購物車刪除商品失敗:', error);
+    return {
+      status: false,
+      message: '從後端購物車刪除商品失敗',
+    };
+  }
+}
+
+// 更新後端購物車商品數量
+export async function updateCartItemQuantityApi(productId: number, quantity: number): Promise<ApiResponse> {
+  try {
+    return await apiClient.put(`/api/cart/${productId}`, { quantity });
+  } catch (error) {
+    console.error('更新後端購物車商品數量失敗:', error);
+    return {
+      status: false,
+      message: '更新後端購物車商品數量失敗',
+    };
+  }
 } 

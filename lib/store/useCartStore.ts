@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { Product } from '../types/product';
-import { syncCartToBackendApi, CartItemRequest } from '../api/cart';
+import { syncCartToBackendApi, CartItemRequest, removeItemFromBackendApi } from '../api/cart';
 import { fetchAddOnItems, getRandomAddOnItems } from '../api/addOnItem';
 import { useState, useEffect } from 'react';
 
@@ -35,7 +35,7 @@ interface CartStore {
   
   // 商品相關操作
   addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: number) => void;
+  removeItem: (productId: number, isAuthenticated?: boolean) => Promise<void>;
   updateQuantity: (productId: number, quantity: number) => void;
   toggleSelect: (productId: number) => void;
   toggleSelectAll: (selected: boolean) => void;
@@ -116,7 +116,7 @@ export const useCartStore = create<CartStore>()(
               imageUrl: product.image,
               quantity,
               isSelected: true,
-              stockQuantity: product.stockQuantity
+              stockQuantity: product.stockQuantity ?? 0 // 確保 stockQuantity 有值，沒有值時設為 0
             };
             
             const newState = {
@@ -129,8 +129,22 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
-      removeItem: (productId) => {
+      removeItem: async (productId, isAuthenticated = false) => {
         console.log('從購物車移除商品:', productId);
+        
+        // 如果使用者已登入，先呼叫後端 API
+        if (isAuthenticated) {
+          try {
+            const response = await removeItemFromBackendApi(productId);
+            console.log('後端刪除商品結果:', response);
+            // 不管後端是否成功，都繼續執行本地刪除
+          } catch (error) {
+            console.error('後端刪除商品失敗:', error);
+            // 即使後端失敗，仍然執行本地刪除
+          }
+        }
+        
+        // 執行本地刪除
         set((state) => ({
           ...state,
           items: state.items.filter(item => item.productId !== productId)
@@ -150,16 +164,32 @@ export const useCartStore = create<CartStore>()(
       toggleSelect: (productId) => {
         set((state) => ({
           ...state,
-          items: state.items.map(item => 
-            item.productId === productId ? { ...item, isSelected: !item.isSelected } : item
-          )
+          items: state.items.map(item => {
+            if (item.productId === productId) {
+              // 缺貨商品不能被選中，確保 stockQuantity 有值
+              const stockQuantity = item.stockQuantity ?? 0;
+              if (stockQuantity === 0) {
+                return { ...item, isSelected: false };
+              }
+              return { ...item, isSelected: !item.isSelected };
+            }
+            return item;
+          })
         }));
       },
 
       toggleSelectAll: (selected) => {
         set((state) => ({
           ...state,
-          items: state.items.map(item => ({ ...item, isSelected: selected }))
+          items: state.items.map(item => {
+            // 確保 stockQuantity 有值
+            const stockQuantity = item.stockQuantity ?? 0;
+            return {
+              ...item,
+              // 缺貨商品不能被選中
+              isSelected: stockQuantity > 0 ? selected : false
+            };
+          })
         }));
       },
 
@@ -282,7 +312,10 @@ export const useCartStore = create<CartStore>()(
       getSubtotal: () => {
         const { items } = get();
         return items
-          .filter(item => item.isSelected)
+          .filter(item => {
+            const stockQuantity = item.stockQuantity ?? 0;
+            return item.isSelected && stockQuantity > 0; // 排除缺貨商品
+          })
           .reduce((total, item) => total + (item.discountPrice * item.quantity), 0);
       },
 

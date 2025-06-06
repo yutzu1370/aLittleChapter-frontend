@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useDebounce } from "@/hooks/use-debounce";
+import { updateCartItemQuantityApi } from "@/lib/api/cart";
 
 // 簡化的購物車項目類型 - 與 useCartStore 中的類型保持一致
 interface SimpleCartItem {
@@ -31,21 +32,42 @@ const CartItem = ({ item }: CartItemProps) => {
   const { toggleSelect, updateQuantity, removeItem } = useCartStore();
   const { toggleFavorite, isFavorite } = useFavoritesStore();
   const { isAuthenticated } = useAuthStore();
-  const { productId, name, discountPrice, price, imageUrl, quantity, isSelected, stockQuantity } = item;
+  const { productId, name, discountPrice, price, imageUrl, quantity, isSelected, stockQuantity: rawStockQuantity } = item;
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const isFavoriteProduct = isFavorite(productId);
+  // 確保 stockQuantity 有值，沒有值時設為 0
+  const stockQuantity = rawStockQuantity ?? 0;
+  const isOutOfStock = stockQuantity === 0;
 
   // 原始處理函數
-  const handleDecreaseOriginal = () => {
+  const handleDecreaseOriginal = async () => {
+    // 缺貨商品不允許操作
+    if (isOutOfStock) return;
+    
     if (quantity > 1) {
-      updateQuantity(productId, quantity - 1);
+      const newQuantity = quantity - 1;
+      updateQuantity(productId, newQuantity);
+      
+      // 如果使用者已登入，同步到後端
+      if (isAuthenticated) {
+        await updateCartItemQuantityApi(productId, newQuantity);
+      }
     }
   };
 
-  const handleIncreaseOriginal = () => {
+  const handleIncreaseOriginal = async () => {
+    // 缺貨商品不允許操作
+    if (isOutOfStock) return;
+    
     if (quantity < stockQuantity) {
-      updateQuantity(productId, quantity + 1);
+      const newQuantity = quantity + 1;
+      updateQuantity(productId, newQuantity);
+      
+      // 如果使用者已登入，同步到後端
+      if (isAuthenticated) {
+        await updateCartItemQuantityApi(productId, newQuantity);
+      }
     } else {
       toast.warning("庫存不足", {
         description: `目前庫存僅剩 ${stockQuantity} 件`,
@@ -73,8 +95,8 @@ const CartItem = ({ item }: CartItemProps) => {
     });
   };
 
-  const handleRemoveItemOriginal = () => {
-    removeItem(productId);
+  const handleRemoveItemOriginal = async () => {
+    await removeItem(productId, isAuthenticated);
   };
 
   // 使用 debounce 包裝的處理函數
@@ -83,17 +105,30 @@ const CartItem = ({ item }: CartItemProps) => {
   const handleToggleFavorite = useDebounce(handleToggleFavoriteOriginal, 500);
   const handleRemoveItem = useDebounce(handleRemoveItemOriginal, 500);
 
-  const handleQuantityChangeOriginal = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQuantityChangeOriginal = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 缺貨商品不允許操作
+    if (isOutOfStock) return;
+    
     const newQuantity = parseInt(e.target.value);
     if (!isNaN(newQuantity) && newQuantity > 0) {
       if (newQuantity <= stockQuantity) {
         updateQuantity(productId, newQuantity);
+        
+        // 如果使用者已登入，同步到後端
+        if (isAuthenticated) {
+          await updateCartItemQuantityApi(productId, newQuantity);
+        }
       } else {
         toast.warning("庫存不足", {
           description: `目前庫存僅剩 ${stockQuantity} 件`,
           duration: 3000,
         });
         updateQuantity(productId, stockQuantity);
+        
+        // 如果使用者已登入，同步到後端
+        if (isAuthenticated) {
+          await updateCartItemQuantityApi(productId, stockQuantity);
+        }
       }
     }
   };
@@ -101,42 +136,81 @@ const CartItem = ({ item }: CartItemProps) => {
   // 為數量輸入框添加 debounce
   const handleQuantityChange = useDebounce(handleQuantityChangeOriginal, 500);
 
-  const handleQuantityBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleQuantityBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    // 缺貨商品不允許操作
+    if (isOutOfStock) return;
+    
     const newQuantity = parseInt(e.target.value);
     if (isNaN(newQuantity) || newQuantity < 1) {
       updateQuantity(productId, 1);
+      
+      // 如果使用者已登入，同步到後端
+      if (isAuthenticated) {
+        await updateCartItemQuantityApi(productId, 1);
+      }
     } else if (newQuantity > stockQuantity) {
       updateQuantity(productId, stockQuantity);
+      
+      // 如果使用者已登入，同步到後端
+      if (isAuthenticated) {
+        await updateCartItemQuantityApi(productId, stockQuantity);
+      }
     }
   };
 
   return (
-    <div className="flex items-center py-6 border-b border-gray-200">
+    <div className={`flex items-center py-6 border-b border-gray-200 relative ${
+      isOutOfStock ? 'bg-gray-200' : ''
+    }`}>
+      {/* 缺貨遮罩 */}
+      {isOutOfStock && (
+        <div className="absolute inset-0 bg-white bg-opacity-30 pointer-events-none z-10"></div>
+      )}
       {/* 勾選框 */}
       <div className="w-[40px] ">
         <Checkbox 
           checked={isSelected}
           onCheckedChange={() => toggleSelect(productId)}
-          className="h-5 w-5 border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white"
+          disabled={isOutOfStock}
+          className={`h-5 w-5 ${
+            isOutOfStock 
+              ? 'border-gray-300 opacity-50 cursor-not-allowed' 
+              : 'border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white'
+          }`}
         />
       </div>
 
       {/* 商品資訊 */}
       <div className="flex flex-1 items-center gap-4">
-        <div className="aspect-square relative w-[168px] rounded-xl overflow-hidden border-4 border-gray-300 bg-gray-50 mr-4 flex items-center justify-center">
+        <div className={`aspect-square relative w-[168px] rounded-xl overflow-hidden border-4 bg-gray-50 mr-4 flex items-center justify-center ${
+          isOutOfStock ? 'border-gray-200' : 'border-gray-300'
+        }`}>
           <div className="w-[88%] h-[88%] relative">
             <Image
               src={imageUrl || "/images/books/placeholder.jpg"}
               alt={name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 120px"
-              className="object-cover rounded-lg"
+              className={`object-cover rounded-lg ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
             />
+            {isOutOfStock && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
+                <span className="text-white font-bold text-sm bg-red-600 px-2 py-1 rounded">
+                  缺貨
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col">
-          <h3 className="text-base font-medium">{name}</h3>
-          <div className="text-sm text-green-800">
+          <h3 className={`text-base font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
+            {name}
+          </h3>
+          <div className={`text-sm ${
+            stockQuantity === 0 
+              ? 'text-red-600 font-medium' 
+              : 'text-green-800'
+          }`}>
             {stockQuantity > 0 ? `僅剩 ${stockQuantity} 本` : "缺貨中"}
           </div>
         </div>
@@ -145,11 +219,11 @@ const CartItem = ({ item }: CartItemProps) => {
       {/* 價格 */}
       <div className="w-[110px]">
         <div className="flex flex-col">
-          <span className="text-base font-medium">
+          <span className={`text-base font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
             <span className="font-jf-openhuninn">${discountPrice.toLocaleString('zh-TW')}</span>
           </span>
           {price !== discountPrice && (
-            <span className="text-xs line-through text-gray-500">
+            <span className={`text-xs line-through ${isOutOfStock ? 'text-gray-300' : 'text-gray-500'}`}>
               <span className="font-jf-openhuninn">${price.toLocaleString('zh-TW')}</span>
             </span>
           )}
@@ -159,10 +233,19 @@ const CartItem = ({ item }: CartItemProps) => {
       {/* 數量控制 */}
       <div className="w-[120px]">
         <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center border-4 border-[#F8D0B0] rounded-full p-1 bg-white">
+          <div className={`flex items-center border-4 rounded-full p-1 bg-white ${
+            isOutOfStock 
+              ? 'border-gray-300 opacity-50' 
+              : 'border-[#F8D0B0]'
+          }`}>
             <button 
               onClick={handleDecrease}
-              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
+              disabled={isOutOfStock}
+              className={`w-8 h-8 flex items-center justify-center ${
+                isOutOfStock 
+                  ? 'text-gray-300 cursor-not-allowed' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               <Minus className="w-4 h-4" />
             </button>
@@ -173,11 +256,22 @@ const CartItem = ({ item }: CartItemProps) => {
               onBlur={handleQuantityBlur}
               min="1"
               max={stockQuantity}
-              className="w-10 text-center font-medium bg-transparent border-none outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              disabled={isOutOfStock}
+              readOnly={isOutOfStock}
+              className={`w-10 text-center font-medium bg-transparent border-none outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                isOutOfStock 
+                  ? 'text-gray-400 cursor-not-allowed' 
+                  : ''
+              }`}
             />
             <button 
               onClick={handleIncrease}
-              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-700"
+              disabled={isOutOfStock}
+              className={`w-8 h-8 flex items-center justify-center ${
+                isOutOfStock 
+                  ? 'text-gray-300 cursor-not-allowed' 
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -186,7 +280,7 @@ const CartItem = ({ item }: CartItemProps) => {
           <div className="flex gap-2">
             <button 
               onClick={handleToggleFavorite}
-              className={`inline-flex items-center text-xs transition-colors ${
+              className={`inline-flex items-center text-xs transition-colors relative z-20 ${
                 isAuthenticated && isFavoriteProduct 
                   ? 'text-red-500 hover:text-red-600' 
                   : 'text-amber-600 hover:text-amber-700'
@@ -202,7 +296,7 @@ const CartItem = ({ item }: CartItemProps) => {
             </button>
             <button 
               onClick={handleRemoveItem}
-              className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700"
+              className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700 relative z-20"
             >
               <Trash2 className="w-4 h-4 mr-1" />
               移除
@@ -213,7 +307,7 @@ const CartItem = ({ item }: CartItemProps) => {
 
       {/* 小計 */}
       <div className="w-[100px] text-right">
-        <span className="text-lg font-medium">
+        <span className={`text-lg font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
           <span className="font-jf-openhuninn">${(discountPrice * quantity).toLocaleString('zh-TW')}</span>
         </span>
       </div>
