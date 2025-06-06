@@ -8,6 +8,8 @@ import { useCartStore } from "@/lib/store/useCartStore";
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
 import { Heart } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { useDebounce } from "@/hooks/use-debounce";
+import { addItemToBackendApi } from "@/lib/api/cart";
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -76,7 +78,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
     });
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCartOriginal = async () => {
     if (product.stockQuantity === 0) {
       toast.error("商品缺貨", {
         description: "此商品目前缺貨中",
@@ -101,8 +103,24 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         publisherName: product.publisher,
       };
       
-      // 訪客使用者：使用 Zustand store（會自動持久化到 localStorage）
+      // 加入到本地購物車（localStorage）
       addItem(productForCart, quantity);
+      
+      // 如果使用者已登入，同時加入到後端購物車
+      if (isAuthenticated) {
+        const cartItem = {
+          productId: product.productId,
+          quantity: quantity
+        };
+        
+        const backendResult = await addItemToBackendApi(cartItem);
+        
+        if (!backendResult.status) {
+          console.warn('後端購物車同步失敗:', backendResult.message);
+          // 即使後端失敗，本地購物車已經成功，所以仍然顯示成功訊息
+          // 但可以在控制台記錄警告
+        }
+      }
       
       toast.success("已加入購物車", {
         description: `${product.name} x ${quantity} 已加入購物車`,
@@ -122,6 +140,9 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       setIsAddingToCart(false);
     }
   };
+
+  // 使用 debounce 包裝的處理函數，防止連續點擊
+  const handleAddToCart = useDebounce(handleAddToCartOriginal, 500);
 
   const handleToggleFavorite = () => {
     if (!isAuthenticated) {

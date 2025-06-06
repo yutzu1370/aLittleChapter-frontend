@@ -130,7 +130,7 @@ export default function Header() {
             {/* Search */}
             <div className="relative w-32 sm:w-auto">
               <div className="flex items-center border-4 border-[#F8D0B0] rounded-full pl-2 pr-1 py-1.5">
-                <Search className="h-4 w-4 sm:h-5 sm:w-5 text-gray-900 flex-shrink-0" />
+                <Search className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900 flex-shrink-0" />
                 <input type="text" placeholder="搜尋" className="pl-1 pr-1 w-full focus:outline-none text-xs sm:text-sm" />
               </div>
             </div>
@@ -140,9 +140,9 @@ export default function Header() {
                 {/* My Favorites */}
                 <div className="relative flex-shrink-0">
                   <Link href="/account/favorites" className="p-2 hover:bg-[#FEF5EE] rounded-full inline-block">
-                    <Heart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
+                    <Heart className="h-7 w-7 sm:h-7 sm:w-7 text-gray-900" />
                     {favoriteCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full">
                         {favoriteCount > 99 ? '99+' : favoriteCount}
                       </span>
                     )}
@@ -152,9 +152,9 @@ export default function Header() {
                 {/* Cart */}
                 <div className="relative flex-shrink-0">
                   <Link href="/cart" className="p-2 hover:bg-[#FEF5EE] rounded-full inline-block">
-                    <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
+                    <ShoppingCart className="h-7 w-7 sm:h-7 sm:w-7 text-gray-900" />
                     {cartItemCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full">
                         {cartItemCount > 99 ? '99+' : cartItemCount}
                       </span>
                     )}
@@ -164,8 +164,8 @@ export default function Header() {
                 {/* Notifications */}
                 <div className="relative flex-shrink-0">
                   <Link href="/account/notifications" className="p-2 hover:bg-[#FEF5EE] rounded-full inline-block">
-                    <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                    <Bell className="h-7 w-7 sm:h-7 sm:w-7 text-gray-900" />
+                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full">
                       8
                     </span>
                   </Link>
@@ -194,9 +194,9 @@ export default function Header() {
                 {/* Cart for guests */}
                 <div className="relative flex-shrink-0">
                   <Link href="/cart" className="p-2 hover:bg-gray-100 rounded-full inline-block">
-                    <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-gray-900" />
+                    <ShoppingCart className="h-7 w-7 sm:h-7 sm:w-7 text-gray-900" />
                     {cartItemCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
+                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full">
                         {cartItemCount > 99 ? '99+' : cartItemCount}
                       </span>
                     )}

@@ -63,4 +63,17 @@ export async function getCartFromBackendApi(): Promise<ApiResponse> {
 // 清空後端購物車
 export async function clearCartInBackendApi(): Promise<ApiResponse> {
   return apiClient.delete('/api/cart');
+}
+
+// 單獨加入商品到後端購物車
+export async function addItemToBackendApi(item: CartItemRequest): Promise<ApiResponse> {
+  try {
+    return await apiClient.post('/api/cart', item);
+  } catch (error) {
+    console.error('加入商品到後端購物車失敗:', error);
+    return {
+      status: false,
+      message: '加入商品到後端購物車失敗',
+    };
+  }
 } 

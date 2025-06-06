@@ -13,7 +13,9 @@ import { fetchPopularProducts } from '@/lib/api/homePopular'
 import { Book } from '@/lib/types/book'
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
+import { useCartStore } from "@/lib/store/useCartStore"
 import { useDebounce } from "@/hooks/use-debounce"
+import { addItemToBackendApi } from "@/lib/api/cart"
 /*
 // 定義書籍類型
 type Book = {
@@ -85,6 +87,7 @@ export default function PopularBooks() {
   
   const { isAuthenticated } = useAuthStore();
   const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const { addItem } = useCartStore();
 
   // 獲取熱門產品數據
   useEffect(() => {
@@ -200,11 +203,51 @@ export default function PopularBooks() {
     });
   };
 
-  const handleAddToCartOriginal = (book: Book) => {
-    toast.success(`已將《${book.title}》加入購物車！`, {
-      position: "top-center",
-      duration: 2000,
-    });
+  const handleAddToCartOriginal = async (book: Book) => {
+    try {
+      // 將 Book 類型轉換為 Product 類型以符合 addItem 的要求
+      const productForCart = {
+        id: book.id.toString(),
+        name: book.title,
+        description: book.introductionHtml || '',
+        price: book.discountPrice || book.price,
+        originalPrice: book.price,
+        image: book.imageUrl || '',
+        stockQuantity: 999, // 預設庫存數量，實際應該從API獲取
+        authorName: book.author,
+        publisherName: book.publisher,
+      };
+      
+      // 加入到本地購物車（localStorage）
+      addItem(productForCart, 1);
+      
+      // 如果使用者已登入，同時加入到後端購物車
+      if (isAuthenticated) {
+        const cartItem = {
+          productId: book.id,
+          quantity: 1
+        };
+        
+        const backendResult = await addItemToBackendApi(cartItem);
+        
+        if (!backendResult.status) {
+          console.warn('後端購物車同步失敗:', backendResult.message);
+          // 即使後端失敗，本地購物車已經成功，所以仍然顯示成功訊息
+          // 但可以在控制台記錄警告
+        }
+      }
+      
+      toast.success(`已將《${book.title}》加入購物車！`, {
+        position: "top-center",
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error("加入購物車失敗:", error);
+      toast.error("加入購物車失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    }
   };
 
   // 使用 debounce 包裝的處理函數

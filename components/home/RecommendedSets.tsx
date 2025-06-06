@@ -3,13 +3,23 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import { getHomeBundleRecommendations } from "@/lib/api/homebundle"
 import { Book } from "@/lib/types/book"
+import { useAuthStore } from "@/lib/store/useAuthStore"
+import { useCartStore } from "@/lib/store/useCartStore"
+import { addItemToBackendApi } from "@/lib/api/cart"
 
 export default function RecommendedSets() {
   const [bundles, setBundles] = useState<Book[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
+  const [isAddingToCart, setIsAddingToCart] = useState<number | null>(null)
+  
+  const router = useRouter()
+  const { isAuthenticated } = useAuthStore()
+  const { addItem } = useCartStore()
 
   // 動物圖片對應表
   const animalImages = [
@@ -62,6 +72,61 @@ export default function RecommendedSets() {
       'imageUrl' in item
     );
   }
+
+  // 處理立即購買
+  const handleBuyNow = async (bundle: Book) => {
+    setIsAddingToCart(bundle.id)
+    
+    try {
+      // 將 Book 類型轉換為 Product 類型以符合 addItem 的要求
+      const productForCart = {
+        id: bundle.id.toString(),
+        name: bundle.title,
+        description: bundle.introductionHtml || '',
+        price: bundle.discountPrice || bundle.price,
+        originalPrice: bundle.price,
+        image: bundle.imageUrl || '',
+        stockQuantity: 999, // 預設庫存數量，實際應該從API獲取
+        authorName: bundle.author,
+        publisherName: bundle.publisher,
+      };
+      
+      // 加入到本地購物車（localStorage）
+      addItem(productForCart, 1);
+      
+      // 如果使用者已登入，同時加入到後端購物車
+      if (isAuthenticated) {
+        const cartItem = {
+          productId: bundle.id,
+          quantity: 1
+        };
+        
+        const backendResult = await addItemToBackendApi(cartItem);
+        
+        if (!backendResult.status) {
+          console.warn('後端購物車同步失敗:', backendResult.message);
+          // 即使後端失敗，本地購物車已經成功，所以仍然顯示成功訊息
+          // 但可以在控制台記錄警告
+        }
+      }
+      
+      toast.success(`已將《${bundle.title}》加入購物車！`, {
+        duration: 2000,
+      });
+      
+      // 跳轉到購物車頁面
+      router.push('/cart');
+      
+    } catch (error) {
+      console.error("加入購物車失敗:", error);
+      toast.error("加入購物車失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    } finally {
+      setIsAddingToCart(null);
+    }
+  };
 
   useEffect(() => {
     fetchBundles()
@@ -133,15 +198,27 @@ export default function RecommendedSets() {
                     dangerouslySetInnerHTML={{ __html: bundle.introductionHtml }}
                   />
                   <div className="flex space-x-3">
-                    <Link
-                      href={`/products/${bundle.id}`}
-                      className="px-6 py-3 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A]"
+                    <button
+                      onClick={() => handleBuyNow(bundle)}
+                      disabled={isAddingToCart === bundle.id}
+                      className={`px-6 py-3 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] transition-all ${
+                        isAddingToCart === bundle.id 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'hover:bg-[#FEF5EE]'
+                      }`}
                     >
-                      立即購買
-                    </Link>
+                      {isAddingToCart === bundle.id ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-[#E8652B] border-t-transparent rounded-full animate-spin" />
+                          加入中...
+                        </div>
+                      ) : (
+                        '立即購買'
+                      )}
+                    </button>
                     <Link
                       href={`/products/${bundle.id}`}
-                      className="px-6 py-3 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A]"
+                      className="px-6 py-3 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] hover:bg-[#FEF5EE] transition-all"
                     >
                       了解更多
                     </Link>

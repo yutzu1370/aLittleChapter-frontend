@@ -3,9 +3,14 @@
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { toast } from "sonner"
 import { getHomeLatestProducts } from "@/lib/api/homeNew"
 import { Book } from "@/lib/types/book"
+import { useAuthStore } from "@/lib/store/useAuthStore"
+import { useCartStore } from "@/lib/store/useCartStore"
+import { addItemToBackendApi } from "@/lib/api/cart"
 // Swiper 相關導入
 import { Swiper, SwiperSlide } from "swiper/react"
 import type { Swiper as SwiperType } from "swiper"
@@ -52,7 +57,12 @@ export default function NewArrivals() {
   const [isLoading, setIsLoading] = useState(true)
   const [sectionTitle, setSectionTitle] = useState("本月亮點新書")
   const [error, setError] = useState<string | null>(null)
+  const [isAddingToCart, setIsAddingToCart] = useState<number | null>(null)
   const swiperRef = useRef<SwiperType | null>(null)
+  
+  const router = useRouter()
+  const { isAuthenticated } = useAuthStore()
+  const { addItem } = useCartStore()
 
   // 從 API 獲取資料
   useEffect(() => {
@@ -87,6 +97,61 @@ export default function NewArrivals() {
 
     fetchBooks()
   }, [])
+
+  // 處理立即購買
+  const handleBuyNow = async (book: Book) => {
+    setIsAddingToCart(book.id)
+    
+    try {
+      // 將 Book 類型轉換為 Product 類型以符合 addItem 的要求
+      const productForCart = {
+        id: book.id.toString(),
+        name: book.title,
+        description: book.introductionHtml || '',
+        price: book.discountPrice || book.price,
+        originalPrice: book.price,
+        image: book.imageUrl || '',
+        stockQuantity: 999, // 預設庫存數量，實際應該從API獲取
+        authorName: book.author,
+        publisherName: book.publisher,
+      };
+      
+      // 加入到本地購物車（localStorage）
+      addItem(productForCart, 1);
+      
+      // 如果使用者已登入，同時加入到後端購物車
+      if (isAuthenticated) {
+        const cartItem = {
+          productId: book.id,
+          quantity: 1
+        };
+        
+        const backendResult = await addItemToBackendApi(cartItem);
+        
+        if (!backendResult.status) {
+          console.warn('後端購物車同步失敗:', backendResult.message);
+          // 即使後端失敗，本地購物車已經成功，所以仍然顯示成功訊息
+          // 但可以在控制台記錄警告
+        }
+      }
+      
+      toast.success(`已將《${book.title}》加入購物車！`, {
+        duration: 2000,
+      });
+      
+      // 跳轉到購物車頁面
+      router.push('/cart');
+      
+    } catch (error) {
+      console.error("加入購物車失敗:", error);
+      toast.error("加入購物車失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    } finally {
+      setIsAddingToCart(null);
+    }
+  };
 
   // 加載中顯示
   if (isLoading) {
@@ -227,12 +292,24 @@ export default function NewArrivals() {
                     </p>
                   )}
                   <div className="flex gap-3 md:gap-4 mt-2">
-                    <Link
-                      href={`/products/${book.id}`}
-                      className="bg-white border-2 border-[#E8652B] text-[#E8652B] font-semibold rounded-full px-5 py-2 md:px-6 md:py-3 shadow-[4px_6px_0px_#74281A] hover:bg-[#FEF5EE] transition text-sm md:text-base"
+                    <button
+                      onClick={() => handleBuyNow(book)}
+                      disabled={isAddingToCart === book.id}
+                      className={`bg-white border-2 border-[#E8652B] text-[#E8652B] font-semibold rounded-full px-5 py-2 md:px-6 md:py-3 shadow-[4px_6px_0px_#74281A] transition text-sm md:text-base ${
+                        isAddingToCart === book.id 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : 'hover:bg-[#FEF5EE]'
+                      }`}
                     >
-                      立即購買
-                    </Link>
+                      {isAddingToCart === book.id ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-[#E8652B] border-t-transparent rounded-full animate-spin" />
+                          加入中...
+                        </div>
+                      ) : (
+                        '立即購買'
+                      )}
+                    </button>
                     <Link
                       href={`/products/${book.id}`}
                       className="bg-white border-2 border-[#E8652B] text-[#E8652B] font-semibold rounded-full px-5 py-2 md:px-6 md:py-3 shadow-[4px_6px_0px_#74281A] hover:bg-[#FEF5EE] transition text-sm md:text-base"

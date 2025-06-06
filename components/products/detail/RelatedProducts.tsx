@@ -14,6 +14,8 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
 import { toast } from "sonner";
 import { useCartStore } from "@/lib/store/useCartStore";
+import { useDebounce } from "@/hooks/use-debounce";
+import { addItemToBackendApi } from "@/lib/api/cart";
 
 // 自定義 Swiper 樣式
 const swiperStyles = `
@@ -107,7 +109,7 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
     loadRelatedProducts();
   }, [currentProduct]);
 
-  const handleToggleFavorite = (productId: number) => {
+  const handleToggleFavoriteOriginal = (productId: number) => {
     if (!isAuthenticated) {
       // 訪客使用者：只顯示提醒訊息
       toast.info("請先登入", {
@@ -127,9 +129,27 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
     });
   };
 
-  const handleAddToCart = (product: Product) => {
+  const handleAddToCartOriginal = async (product: Product) => {
     try {
+      // 加入到本地購物車（localStorage）
       addItem(product, 1);
+      
+      // 如果使用者已登入，同時加入到後端購物車
+      if (isAuthenticated) {
+        const cartItem = {
+          productId: parseInt(product.id),
+          quantity: 1
+        };
+        
+        const backendResult = await addItemToBackendApi(cartItem);
+        
+        if (!backendResult.status) {
+          console.warn('後端購物車同步失敗:', backendResult.message);
+          // 即使後端失敗，本地購物車已經成功，所以仍然顯示成功訊息
+          // 但可以在控制台記錄警告
+        }
+      }
+      
       toast.success(`已將《${product.name}》加入購物車！`, {
         duration: 2000,
       });
@@ -141,6 +161,10 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
       });
     }
   };
+
+  // 使用 debounce 包裝的處理函數，防止連續點擊
+  const handleToggleFavorite = useDebounce(handleToggleFavoriteOriginal, 500);
+  const handleAddToCart = useDebounce(handleAddToCartOriginal, 500);
 
   // 獲取當前螢幕的每頁顯示數量
   const getSlidesPerView = () => {
@@ -271,15 +295,20 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
                   <Link href={`/products/${item.id}`} className="block bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="relative mb-2">
                       <motion.div 
-                        className="border-[5px] border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm"
+                        className="aspect-square relative w-full rounded-xl overflow-hidden border-4 border-gray-200 bg-gray-50 mb-3 flex items-center justify-center"
+                        whileHover={{ 
+                          borderColor: "#E8652B",
+                          boxShadow: "0 10px 15px -3px rgba(232, 101, 43, 0.3)",
+                          transition: { duration: 0.3 }
+                        }}
                       >
-                        <div className="aspect-square relative p-2">
+                        <div className="w-[88%] h-[88%] relative">
                           <Image 
                             src={item.image || "/images/books/placeholder.jpg"} 
                             alt={item.name}
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                            className="object-contain transition-transform duration-500"
+                            className="object-contain rounded-lg transition-transform duration-500"
                           />
                         </div>
                       </motion.div>
