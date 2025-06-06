@@ -9,6 +9,7 @@ import { Heart, Trash2, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { useDebounce } from "@/hooks/use-debounce";
 
 // 簡化的購物車項目類型 - 與 useCartStore 中的類型保持一致
 interface SimpleCartItem {
@@ -35,13 +36,14 @@ const CartItem = ({ item }: CartItemProps) => {
 
   const isFavoriteProduct = isFavorite(productId);
 
-  const handleDecrease = () => {
+  // 原始處理函數
+  const handleDecreaseOriginal = () => {
     if (quantity > 1) {
       updateQuantity(productId, quantity - 1);
     }
   };
 
-  const handleIncrease = () => {
+  const handleIncreaseOriginal = () => {
     if (quantity < stockQuantity) {
       updateQuantity(productId, quantity + 1);
     } else {
@@ -52,31 +54,7 @@ const CartItem = ({ item }: CartItemProps) => {
     }
   };
 
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuantity = parseInt(e.target.value);
-    if (!isNaN(newQuantity) && newQuantity > 0) {
-      if (newQuantity <= stockQuantity) {
-        updateQuantity(productId, newQuantity);
-      } else {
-        toast.warning("庫存不足", {
-          description: `目前庫存僅剩 ${stockQuantity} 件`,
-          duration: 3000,
-        });
-        updateQuantity(productId, stockQuantity);
-      }
-    }
-  };
-
-  const handleQuantityBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const newQuantity = parseInt(e.target.value);
-    if (isNaN(newQuantity) || newQuantity < 1) {
-      updateQuantity(productId, 1);
-    } else if (newQuantity > stockQuantity) {
-      updateQuantity(productId, stockQuantity);
-    }
-  };
-
-  const handleToggleFavorite = () => {
+  const handleToggleFavoriteOriginal = () => {
     if (!isAuthenticated) {
       // 訪客使用者：只顯示提醒訊息，不顯示登入視窗
       toast.info("請先登入", {
@@ -93,6 +71,43 @@ const CartItem = ({ item }: CartItemProps) => {
     toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
       duration: 3000,
     });
+  };
+
+  const handleRemoveItemOriginal = () => {
+    removeItem(productId);
+  };
+
+  // 使用 debounce 包裝的處理函數
+  const handleDecrease = useDebounce(handleDecreaseOriginal, 300);
+  const handleIncrease = useDebounce(handleIncreaseOriginal, 300);
+  const handleToggleFavorite = useDebounce(handleToggleFavoriteOriginal, 500);
+  const handleRemoveItem = useDebounce(handleRemoveItemOriginal, 500);
+
+  const handleQuantityChangeOriginal = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = parseInt(e.target.value);
+    if (!isNaN(newQuantity) && newQuantity > 0) {
+      if (newQuantity <= stockQuantity) {
+        updateQuantity(productId, newQuantity);
+      } else {
+        toast.warning("庫存不足", {
+          description: `目前庫存僅剩 ${stockQuantity} 件`,
+          duration: 3000,
+        });
+        updateQuantity(productId, stockQuantity);
+      }
+    }
+  };
+
+  // 為數量輸入框添加 debounce
+  const handleQuantityChange = useDebounce(handleQuantityChangeOriginal, 500);
+
+  const handleQuantityBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const newQuantity = parseInt(e.target.value);
+    if (isNaN(newQuantity) || newQuantity < 1) {
+      updateQuantity(productId, 1);
+    } else if (newQuantity > stockQuantity) {
+      updateQuantity(productId, stockQuantity);
+    }
   };
 
   return (
@@ -186,7 +201,7 @@ const CartItem = ({ item }: CartItemProps) => {
               {isAuthenticated && isFavoriteProduct ? '已收藏' : '收藏'}
             </button>
             <button 
-              onClick={() => removeItem(productId)}
+              onClick={handleRemoveItem}
               className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700"
             >
               <Trash2 className="w-4 h-4 mr-1" />

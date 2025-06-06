@@ -13,6 +13,7 @@ import { fetchPopularProducts } from '@/lib/api/homePopular'
 import { Book } from '@/lib/types/book'
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
+import { useDebounce } from "@/hooks/use-debounce"
 /*
 // 定義書籍類型
 type Book = {
@@ -177,8 +178,8 @@ export default function PopularBooks() {
     return () => clearInterval(timer)
   }, [hours, minutes, seconds])
 
-  // 收藏功能
-  const handleToggleFavorite = (bookId: number) => {
+  // 原始處理函數
+  const handleToggleFavoriteOriginal = (bookId: number) => {
     if (!isAuthenticated) {
       // 訪客使用者：只顯示提醒訊息
       toast.info("請先登入", {
@@ -198,6 +199,17 @@ export default function PopularBooks() {
       duration: 2000,
     });
   };
+
+  const handleAddToCartOriginal = (book: Book) => {
+    toast.success(`已將《${book.title}》加入購物車！`, {
+      position: "top-center",
+      duration: 2000,
+    });
+  };
+
+  // 使用 debounce 包裝的處理函數
+  const handleToggleFavorite = useDebounce(handleToggleFavoriteOriginal, 500);
+  const handleAddToCart = useDebounce(handleAddToCartOriginal, 500);
 
   // 獲取當前螢幕的每頁顯示數量
   const getSlidesPerView = () => {
@@ -427,12 +439,7 @@ export default function PopularBooks() {
                           whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
                           whileTap={{ scale: 0.95 }}
                           className="flex-1 h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] transition-colors duration-100"
-                          onClick={() => {
-                            toast.success(`已將《${book.title}》加入購物車！`, {
-                              position: "top-center",
-                              duration: 2000,
-                            })
-                          }}
+                          onClick={() => handleAddToCart(book)}
                         >
                           加入購物車
                         </motion.button>
