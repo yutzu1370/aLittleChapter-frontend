@@ -11,6 +11,8 @@ export type Book = {
     isNewArrival: boolean;
     isBestseller: boolean;
     introductionHtml: string;
+    quantity: number;
+    stockQuantity: number;
   };
 
   export type BooksResponse = {

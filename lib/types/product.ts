@@ -114,6 +114,8 @@ export interface ProductListItem {
   isNewArrival: boolean;
   isBestseller: boolean;
   isDiscount: boolean;
+  quantity: number;
+  stockQuantity: number;
 }
 
 // API回應格式 - 商品列表

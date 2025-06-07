@@ -109,6 +109,7 @@ export async function fetchRelatedProducts(productId: string): Promise<Product[]
       price: item.discountPrice || item.price,
       originalPrice: item.price,
       image: item.imageUrl || "/images/books/placeholder.jpg",
+      stockQuantity: item.stockQuantity, // 使用 API 回應的庫存數量
       isNew: item.isNewArrival || false,
       isHot: item.isBestseller || false,
       authorName: item.author,
@@ -175,6 +176,7 @@ export async function fetchProductsByAgeRange(ageRangeId: number): Promise<Produ
       price: item.discountPrice || item.price,
       originalPrice: item.price,
       image: item.imageUrl || "/images/books/placeholder.jpg",
+      stockQuantity: item.stockQuantity, // 使用 API 回應的庫存數量
       isNew: item.isNewArrival || false,
       isHot: item.isBestseller || false,
       authorName: item.author,

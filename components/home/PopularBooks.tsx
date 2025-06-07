@@ -112,7 +112,9 @@ export default function PopularBooks() {
           isNewArrival: book.isNewArrival,
           isBestseller: book.isBestseller,
           discountPrice: book.discountPrice,
-          introductionHtml: book.introductionHtml
+          introductionHtml: book.introductionHtml,
+          quantity: book.quantity,
+          stockQuantity: book.stockQuantity
         }))
         
         setPopularBooks(mappedBooks)
@@ -213,7 +215,7 @@ export default function PopularBooks() {
         price: book.discountPrice || book.price,
         originalPrice: book.price,
         image: book.imageUrl || '',
-        stockQuantity: 999, // 預設庫存數量，實際應該從API獲取
+        stockQuantity: book.stockQuantity, // 使用 API 回應的庫存數量
         authorName: book.author,
         publisherName: book.publisher,
       };

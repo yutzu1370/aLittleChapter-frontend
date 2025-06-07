@@ -19,6 +19,27 @@ export async function updateUserProfile(data: UpdateProfileData): Promise<ApiRes
   return apiClient.put('/api/users/profile', data);
 }
 
+// Email 修改相關 API
+
+// 第一步：發送 email 修改請求
+export interface EmailChangeRequest {
+  newEmail: string;
+}
+
+export async function requestEmailChange(data: EmailChangeRequest): Promise<ApiResponse> {
+  return apiClient.post('/api/users/email-change', data);
+}
+
+// 第二步：驗證 email 修改
+export interface EmailChangeVerification {
+  newEmail: string;
+  newEmailCode: string;
+}
+
+export async function verifyEmailChange(data: EmailChangeVerification): Promise<ApiResponse> {
+  return apiClient.post('/api/users/email-change/verify', data);
+}
+
 // 上傳頭像回應資料類型
 export interface UploadAvatarResponse {
   avatar: string;

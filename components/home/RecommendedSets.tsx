@@ -86,7 +86,7 @@ export default function RecommendedSets() {
         price: bundle.discountPrice || bundle.price,
         originalPrice: bundle.price,
         image: bundle.imageUrl || '',
-        stockQuantity: 999, // 預設庫存數量，實際應該從API獲取
+        stockQuantity: bundle.stockQuantity, // 使用 API 回應的庫存數量
         authorName: bundle.author,
         publisherName: bundle.publisher,
       };

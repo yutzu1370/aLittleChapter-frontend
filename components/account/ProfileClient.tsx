@@ -18,7 +18,7 @@ import { zhTW } from "date-fns/locale"
 import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import axios from "axios"
-import { getUserProfile, updateUserProfile, uploadAvatar, UpdateProfileData } from "@/lib/api/profile"
+import { getUserProfile, updateUserProfile, uploadAvatar, UpdateProfileData, requestEmailChange, verifyEmailChange } from "@/lib/api/profile"
 import { Dialog, DialogContent, DialogTitle, DialogHeader } from "@/components/ui/dialog"
 
 // 添加一個緩存鍵
@@ -635,16 +635,19 @@ export default function ProfileClient() {
       
       setIsEmailLoading(true)
       try {
-        // 這裡應該調用發送驗證碼的API
-        // await sendEmailVerificationCode(newEmail)
+        // 調用第一步 API：發送驗證碼
+        const response = await requestEmailChange({ newEmail })
         
-        // 模擬API調用
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        if (!response.status) {
+          throw new Error(response.message || '發送驗證碼失敗')
+        }
         
         setEmailStep('verify')
         toast.success('驗證碼已發送到您的新郵箱')
       } catch (error) {
-        toast.error('發送驗證碼失敗，請稍後再試')
+        console.error('發送驗證碼失敗:', error)
+        const errorMessage = error instanceof Error ? error.message : '發送驗證碼失敗，請稍後再試'
+        toast.error(errorMessage)
       } finally {
         setIsEmailLoading(false)
       }
@@ -656,14 +659,24 @@ export default function ProfileClient() {
       
       setIsEmailLoading(true)
       try {
-        // 這裡應該調用驗證碼驗證的API
-        // await verifyEmailCode(newEmail, verificationCode)
+        // 調用第二步 API：驗證並修改 email
+        const response = await verifyEmailChange({ 
+          newEmail, 
+          newEmailCode: verificationCode 
+        })
         
-        // 模擬API調用
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        if (!response.status) {
+          throw new Error(response.message || '驗證碼錯誤')
+        }
         
         // 更新表單中的email值
         setValue("email", newEmail)
+        
+        // 更新左側顯示的 email
+        setUserProfile(prev => ({
+          ...prev,
+          email: newEmail
+        }))
         
         setEmailStep('success')
         toast.success('電子郵件修改成功')
@@ -673,7 +686,9 @@ export default function ProfileClient() {
           setShowEmailModal(false)
         }, 3000)
       } catch (error) {
-        toast.error('驗證碼錯誤，請重新輸入')
+        console.error('驗證 email 修改失敗:', error)
+        const errorMessage = error instanceof Error ? error.message : '驗證碼錯誤，請重新輸入'
+        toast.error(errorMessage)
       } finally {
         setIsEmailLoading(false)
       }
@@ -1109,7 +1124,7 @@ export default function ProfileClient() {
                 <input
                   type="text"
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6))}
                   placeholder="請輸入驗證碼"
                   className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none text-center text-lg tracking-widest"
                   maxLength={6}

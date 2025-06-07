@@ -34,7 +34,9 @@ const staticBooks: Book[] = [
     discountPrice: null,
     isNewArrival: true,
     isBestseller: false,
-    introductionHtml: "一位熱愛音樂的女孩進入神秘森林，發現這裡住著來自世界各地的音樂家，他們用不同樂器交流，最後攜手創造最美的樂章。"
+    introductionHtml: "一位熱愛音樂的女孩進入神秘森林，發現這裡住著來自世界各地的音樂家，他們用不同樂器交流，最後攜手創造最美的樂章。",
+    quantity: 1,
+    stockQuantity: 50
   },
   {
     id: 402,
@@ -48,7 +50,9 @@ const staticBooks: Book[] = [
     discountPrice: null,
     isNewArrival: true,
     isBestseller: false,
-    introductionHtml: "這是一個關於小熊幫助落下的星星回家的溫馨故事，適合睡前閱讀給小寶寶聽。"
+    introductionHtml: "這是一個關於小熊幫助落下的星星回家的溫馨故事，適合睡前閱讀給小寶寶聽。",
+    quantity: 1,
+    stockQuantity: 30
   }
 ];
 
@@ -111,7 +115,7 @@ export default function NewArrivals() {
         price: book.discountPrice || book.price,
         originalPrice: book.price,
         image: book.imageUrl || '',
-        stockQuantity: 999, // 預設庫存數量，實際應該從API獲取
+        stockQuantity: book.stockQuantity, // 使用 API 回應的庫存數量
         authorName: book.author,
         publisherName: book.publisher,
       };
