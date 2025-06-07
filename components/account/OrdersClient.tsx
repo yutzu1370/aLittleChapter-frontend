@@ -1,166 +1,405 @@
 "use client"
 
 import { useState } from "react"
+import { ChevronDown, ChevronUp, Package, Calendar, CreditCard, Truck, ShoppingBag, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Package, ShoppingBag, Truck, CheckCircle } from "lucide-react"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import Image from "next/image"
 
-// 模擬訂單資料
-const orders = [
+interface OrderItem {
+  id: string
+  title: string
+  author: string
+  quantity: number
+  price: number
+  image: string
+}
+
+interface Order {
+  id: string
+  orderNumber: string
+  date: string
+  status: "待出貨" | "已出貨" | "已完成" | "已付款" | "尚未收貨" | "運送中" | "已送達"
+  totalItems: number
+  totalAmount: number
+  items: OrderItem[]
+  subtotal: number
+  discount: number
+  shipping: number
+  address: string
+}
+
+const mockOrders: Order[] = [
   {
-    id: "ORD-2023-001",
-    date: "2023-05-15",
-    total: 1250,
-    status: "completed",
-    items: [
-      { id: 1, name: "文學小說：春天的邂逅", price: 350, quantity: 1 },
-      { id: 2, name: "心理勵志：人生的抉擇", price: 450, quantity: 2 },
-    ],
+    id: "1",
+    orderNumber: "#ORD-2023-001",
+    date: "2023年5月15日",
+    status: "已完成",
+    totalItems: 2,
+    totalAmount: 1250,
+    subtotal: 1180,
+    discount: 0,
+    shipping: 70,
     address: "台北市中山區南京東路三段 219 號 5 樓",
+    items: [
+      {
+        id: "1",
+        title: "文學小說：春天的邂逅",
+        author: "李明華",
+        quantity: 1,
+        price: 350,
+        image: "/images/books/book1.jpg",
+      },
+      {
+        id: "2",
+        title: "心理勵志：人生的抉擇",
+        author: "王小明",
+        quantity: 2,
+        price: 450,
+        image: "/images/books/book2.jpg",
+      },
+    ],
   },
   {
-    id: "ORD-2023-002",
-    date: "2023-06-20",
-    total: 780,
-    status: "shipping",
-    items: [
-      { id: 3, name: "歷史記憶：二戰全紀錄", price: 580, quantity: 1 },
-      { id: 4, name: "手帳筆記本", price: 200, quantity: 1 },
-    ],
+    id: "2",
+    orderNumber: "#ORD-2023-002",
+    date: "2023年6月20日",
+    status: "運送中",
+    totalItems: 2,
+    totalAmount: 780,
+    subtotal: 710,
+    discount: 0,
+    shipping: 70,
     address: "台北市中山區南京東路三段 219 號 5 樓",
+    items: [
+      {
+        id: "3",
+        title: "歷史記憶：二戰全紀錄",
+        author: "張美麗",
+        quantity: 1,
+        price: 580,
+        image: "/images/books/book3.jpg",
+      },
+      {
+        id: "4",
+        title: "手帳筆記本",
+        author: "文具品牌",
+        quantity: 1,
+        price: 200,
+        image: "/images/books/book4.jpg",
+      },
+    ],
   },
   {
-    id: "ORD-2023-003",
-    date: "2023-07-05",
-    total: 1680,
-    status: "processing",
-    items: [
-      { id: 5, name: "科學探索：宇宙的奧秘", price: 680, quantity: 1 },
-      { id: 6, name: "藝術鑑賞：西方繪畫史", price: 780, quantity: 1 },
-      { id: 7, name: "鋼筆組合", price: 220, quantity: 1 },
-    ],
+    id: "3",
+    orderNumber: "#ORD-2023-003",
+    date: "2023年7月5日",
+    status: "待出貨",
+    totalItems: 3,
+    totalAmount: 1680,
+    subtotal: 1610,
+    discount: 0,
+    shipping: 70,
     address: "台北市中山區南京東路三段 219 號 5 樓",
+    items: [
+      {
+        id: "5",
+        title: "科學探索：宇宙的奧秘",
+        author: "科學家",
+        quantity: 1,
+        price: 680,
+        image: "/images/books/book5.jpg",
+      },
+      {
+        id: "6",
+        title: "藝術鑑賞：西方繪畫史",
+        author: "藝術評論家",
+        quantity: 1,
+        price: 780,
+        image: "/images/books/book6.jpg",
+      },
+      {
+        id: "7",
+        title: "鋼筆組合",
+        author: "文具品牌",
+        quantity: 1,
+        price: 220,
+        image: "/images/books/book7.jpg",
+      },
+    ],
   },
 ]
 
-// 狀態標籤元件
-const StatusBadge = ({ status }: { status: string }) => {
-  const statusMap: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
-    completed: { 
-      label: "已完成", 
-      className: "bg-green-100 text-green-800", 
-      icon: <CheckCircle className="w-4 h-4" /> 
-    },
-    shipping: { 
-      label: "運送中", 
-      className: "bg-blue-100 text-blue-800", 
-      icon: <Truck className="w-4 h-4" /> 
-    },
-    processing: { 
-      label: "處理中", 
-      className: "bg-amber-100 text-amber-800", 
-      icon: <Package className="w-4 h-4" /> 
-    },
-  }
-
-  const { label, className, icon } = statusMap[status] || {
-    label: "未知",
-    className: "bg-gray-100 text-gray-800",
-    icon: <ShoppingBag className="w-4 h-4" />,
-  }
-
-  return (
-    <div className={`px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 text-xs font-medium ${className}`}>
-      {icon}
-      {label}
-    </div>
-  )
+const statusConfig = {
+  待出貨: { color: "bg-orange-100 text-orange-800 border-orange-200", icon: Package },
+  已出貨: { color: "bg-blue-100 text-blue-800 border-blue-200", icon: Truck },
+  已完成: { color: "bg-green-100 text-green-800 border-green-200", icon: CheckCircle },
+  已付款: { color: "bg-purple-100 text-purple-800 border-purple-200", icon: CreditCard },
+  尚未收貨: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: Package },
+  運送中: { color: "bg-blue-100 text-blue-800 border-blue-200", icon: Truck },
+  已送達: { color: "bg-green-100 text-green-800 border-green-200", icon: CheckCircle },
 }
 
 export default function OrdersClient() {
-  const [activeTab, setActiveTab] = useState("all")
+  const [activeTab, setActiveTab] = useState("全部訂單")
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set())
+  const [searchTerm, setSearchTerm] = useState("")
 
-  // 根據狀態篩選訂單
-  const filteredOrders = activeTab === "all" 
-    ? orders 
-    : orders.filter(order => order.status === activeTab)
+  const tabs = ["全部訂單", "待出貨", "運送中", "已完成"]
+
+  const toggleOrderExpansion = (orderId: string) => {
+    const newExpanded = new Set(expandedOrders)
+    if (newExpanded.has(orderId)) {
+      newExpanded.delete(orderId)
+    } else {
+      newExpanded.add(orderId)
+    }
+    setExpandedOrders(newExpanded)
+  }
+
+  const filteredOrders = mockOrders.filter((order) => {
+    const matchesSearch = 
+      order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.items.some(
+        (item) =>
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.author.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    
+    const matchesTab = activeTab === "全部訂單" || 
+      (activeTab === "待出貨" && order.status === "待出貨") ||
+      (activeTab === "運送中" && (order.status === "運送中" || order.status === "已出貨")) ||
+      (activeTab === "已完成" && order.status === "已完成")
+    
+    return matchesSearch && matchesTab
+  })
+
+  const getStatusIcon = (status: Order["status"]) => {
+    const IconComponent = statusConfig[status]?.icon || Package
+    return <IconComponent className="w-4 h-4" />
+  }
 
   return (
-    <div>
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6">
-          <TabsTrigger value="all" className="min-w-24">全部訂單</TabsTrigger>
-          <TabsTrigger value="processing" className="min-w-24">處理中</TabsTrigger>
-          <TabsTrigger value="shipping" className="min-w-24">運送中</TabsTrigger>
-          <TabsTrigger value="completed" className="min-w-24">已完成</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value={activeTab} className="mt-0">
-          <div className="space-y-6">
-            {filteredOrders.length > 0 ? (
-              filteredOrders.map((order) => (
-                <Card key={order.id} className="overflow-hidden">
-                  <CardHeader className="bg-amber-50/50 pb-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                      <div className="mb-2 sm:mb-0">
-                        <CardTitle className="text-base font-medium">{order.id}</CardTitle>
-                        <CardDescription>訂購日期: {order.date}</CardDescription>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <StatusBadge status={order.status} />
-                        <span className="font-semibold text-lg text-amber-900">NT$ {order.total}</span>
-                      </div>
+    <div className="min-h-screen bg-white font-noto">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="搜尋訂單編號、商品名稱或作者..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-3 pl-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent font-noto"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2 p-1 bg-gray-50 rounded-xl border border-gray-200">
+            {tabs.map((tab) => (
+              <Button
+                key={tab}
+                variant={activeTab === tab ? "default" : "ghost"}
+                className={`px-4 py-2 rounded-xl transition-all font-noto ${
+                  activeTab === tab
+                    ? "bg-orange-500 text-white shadow-sm"
+                    : "text-gray-600 hover:text-orange-600 hover:bg-orange-50"
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Orders List */}
+        <div className="space-y-4">
+          {filteredOrders.map((order) => (
+            <Card
+              key={order.id}
+              className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white rounded-xl"
+            >
+              <CardHeader className="bg-amber-50/50 border-b border-gray-200 pb-3 rounded-t-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm text-gray-600 font-noto">訂單編號</span>
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <h4 className="mb-2 font-medium text-sm text-gray-600">訂購商品</h4>
-                    <div className="space-y-2">
+                    <span className="font-semibold text-gray-800 font-noto">{order.orderNumber}</span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Badge variant="outline" className={`${statusConfig[order.status]?.color} font-medium border font-noto rounded-full`}>
+                      <span className="flex items-center gap-1">
+                        {getStatusIcon(order.status)}
+                        {order.status}
+                      </span>
+                    </Badge>
+                    <span className="font-semibold text-lg text-amber-900 font-numeric">NT$ {order.totalAmount}</span>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500 font-noto">下單日期：</span>
+                      <span className="text-gray-800 font-noto">{order.date}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 font-noto">商品數量：</span>
+                      <span className="text-gray-800 font-numeric">共{order.totalItems}件</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500 font-noto">總金額：</span>
+                      <span className="font-semibold text-orange-600 font-numeric">NT${order.totalAmount}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      className="bg-orange-500 hover:bg-orange-600 text-white font-noto rounded-full"
+                    >
+                      詢問客服
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleOrderExpansion(order.id)}
+                      className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 border border-gray-200 font-noto rounded-full"
+                    >
+                      <span className="mr-1">訂單詳細</span>
+                      {expandedOrders.has(order.id) ? (
+                        <ChevronUp className="w-4 h-4" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Expanded Order Details */}
+                {expandedOrders.has(order.id) && (
+                  <div className="mt-6 pt-6 border-t border-gray-200 animate-slide-down">
+                    <div className="space-y-4">
+                      <h4 className="mb-2 font-medium text-sm text-gray-600 font-noto">訂購商品</h4>
                       {order.items.map((item) => (
-                        <div key={item.id} className="flex justify-between border-b border-dashed border-gray-200 pb-2">
-                          <div className="flex-1 truncate">{item.name}</div>
-                          <div className="flex items-center gap-2 text-sm text-gray-600 w-32 justify-end">
-                            <span>NT$ {item.price}</span>
-                            <span>x{item.quantity}</span>
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200"
+                        >
+                          <div className="flex-shrink-0">
+                            <Image
+                              src={item.image || "/placeholder.svg"}
+                              alt={item.title}
+                              width={60}
+                              height={80}
+                              className="rounded-xl border border-gray-200 bg-white object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-gray-800 mb-1 font-noto">{item.title}</h4>
+                            <p className="text-sm text-gray-600 mb-2 font-noto">作者：{item.author}</p>
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <span className="font-noto">數量：<span className="font-numeric">{item.quantity}</span></span>
+                                <span className="font-noto">價格：<span className="font-semibold text-orange-600 font-numeric">NT${item.price}</span></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-orange-500 text-orange-600 hover:bg-orange-50 font-noto rounded-full"
+                            >
+                              撰寫評價
+                            </Button>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 text-sm text-gray-600">
-                      <h4 className="mb-1 font-medium">配送地址</h4>
-                      <p>{order.address}</p>
+
+                    <Separator className="my-4" />
+
+                    {/* Order Summary */}
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                        <div className="text-center">
+                          <div className="text-gray-500 mb-1 font-noto">小計</div>
+                          <div className="font-semibold font-numeric">NT${order.subtotal}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-gray-500 mb-1 font-noto">折扣</div>
+                          <div className="font-semibold font-numeric">NT${order.discount}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-gray-500 mb-1 font-noto">運費</div>
+                          <div className="font-semibold font-numeric">NT${order.shipping}</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-gray-500 mb-1 font-noto">總金額</div>
+                          <div className="font-bold text-orange-600 font-numeric">NT${order.totalAmount}</div>
+                        </div>
+                      </div>
                     </div>
-                  </CardContent>
-                  <CardFooter className="border-t bg-gray-50 flex justify-end">
-                    <Button variant="outline" size="sm" className="mr-2">
-                      再次購買
-                    </Button>
-                    <Button size="sm">
-                      訂單詳情
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-lg font-medium text-gray-900">尚無訂單</h3>
-                <p className="mt-1 text-gray-500">您目前還沒有符合此狀態的訂單。</p>
-                <div className="mt-6">
-                  <Button onClick={() => setActiveTab("all")}>查看全部訂單</Button>
-                </div>
-              </div>
-            )}
+
+                    {/* Shipping Address */}
+                    <div className="mt-4 text-sm text-gray-600">
+                      <h4 className="mb-1 font-medium font-noto">配送地址</h4>
+                      <p className="font-noto">{order.address}</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* No Results Message */}
+        {filteredOrders.length === 0 && (
+          <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+            <ShoppingBag className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-lg font-medium text-gray-900 font-noto">
+              {searchTerm ? '找不到符合條件的訂單' : '尚無訂單'}
+            </h3>
+            <p className="mt-1 text-gray-500 font-noto">
+              {searchTerm ? '請嘗試其他關鍵字或清除搜尋條件' : '您目前還沒有符合此狀態的訂單。'}
+            </p>
+            <div className="mt-6">
+              <Button 
+                onClick={() => {
+                  setSearchTerm("")
+                  setActiveTab("全部訂單")
+                }}
+                className="bg-orange-500 hover:bg-orange-600 text-white font-noto rounded-full"
+              >
+                {searchTerm ? '清除搜尋' : '查看全部訂單'}
+              </Button>
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
     </div>
   )
 }

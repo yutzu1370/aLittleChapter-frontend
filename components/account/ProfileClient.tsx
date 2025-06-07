@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import ProfileButton from "@/components/ui/ProfileButton"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { CalendarIcon, PencilIcon, SaveIcon, XIcon, LogOut } from "lucide-react"
+import { CalendarIcon, PencilIcon, SaveIcon, XIcon, LogOut, Mail, Check } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
@@ -19,7 +19,7 @@ import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import axios from "axios"
 import { getUserProfile, updateUserProfile, uploadAvatar, UpdateProfileData } from "@/lib/api/profile"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle, DialogHeader } from "@/components/ui/dialog"
 
 // 添加一個緩存鍵
 const CITY_DATA_CACHE_KEY = "little-chapter-city-data";
@@ -120,6 +120,13 @@ export default function ProfileClient() {
   const [districts, setDistricts] = useState<Record<string, { value: string; label: string }[]>>({})
   const [cityData, setCityData] = useState<CityData | null>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  
+  // Email修改相關狀態
+  const [showEmailModal, setShowEmailModal] = useState(false)
+  const [emailStep, setEmailStep] = useState<'input' | 'verify' | 'success'>('input')
+  const [newEmail, setNewEmail] = useState("")
+  const [verificationCode, setVerificationCode] = useState("")
+  const [isEmailLoading, setIsEmailLoading] = useState(false)
 
   // 初始化表單
   const {
@@ -611,6 +618,82 @@ export default function ProfileClient() {
     setShowLogoutConfirm(true);
   };
 
+  // Email修改相關函數
+  const handleEmailChange = () => {
+    setShowEmailModal(true)
+    setEmailStep('input')
+    setNewEmail("")
+    setVerificationCode("")
+  }
+
+  const handleEmailSubmit = async () => {
+    if (emailStep === 'input') {
+      if (!newEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+        toast.error('請輸入有效的電子郵件地址')
+        return
+      }
+      
+      setIsEmailLoading(true)
+      try {
+        // 這裡應該調用發送驗證碼的API
+        // await sendEmailVerificationCode(newEmail)
+        
+        // 模擬API調用
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        setEmailStep('verify')
+        toast.success('驗證碼已發送到您的新郵箱')
+      } catch (error) {
+        toast.error('發送驗證碼失敗，請稍後再試')
+      } finally {
+        setIsEmailLoading(false)
+      }
+    } else if (emailStep === 'verify') {
+      if (!verificationCode || verificationCode.length !== 6) {
+        toast.error('請輸入6位數驗證碼')
+        return
+      }
+      
+      setIsEmailLoading(true)
+      try {
+        // 這裡應該調用驗證碼驗證的API
+        // await verifyEmailCode(newEmail, verificationCode)
+        
+        // 模擬API調用
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+        // 更新表單中的email值
+        setValue("email", newEmail)
+        
+        setEmailStep('success')
+        toast.success('電子郵件修改成功')
+        
+        // 3秒後關閉modal
+        setTimeout(() => {
+          setShowEmailModal(false)
+        }, 3000)
+      } catch (error) {
+        toast.error('驗證碼錯誤，請重新輸入')
+      } finally {
+        setIsEmailLoading(false)
+      }
+    }
+  }
+
+  const handleEmailModalClose = () => {
+    setShowEmailModal(false)
+    setEmailStep('input')
+    setNewEmail("")
+    setVerificationCode("")
+  }
+
+  // 改進的日歷日期選擇處理
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setValue("birthdate", date)
+    }
+  }
+
   if (isInitialLoading) {
     return (
       <div className="flex justify-center items-center py-16 font-noto-sans-tc">
@@ -826,10 +909,13 @@ export default function ProfileClient() {
                   <Calendar
                     mode="single"
                     selected={birthdate}
-                    onSelect={(date) => setValue("birthdate", date!)}
+                    onSelect={handleDateSelect}
                     disabled={(date) => date > new Date()}
                     initialFocus
                     locale={zhTW}
+                    captionLayout="dropdown-buttons"
+                    fromYear={1900}
+                    toYear={new Date().getFullYear()}
                   />
                 </PopoverContent>
               </Popover>
@@ -930,14 +1016,24 @@ export default function ProfileClient() {
           {/* Email欄位 */}
           <div className="grid grid-cols-12 items-center gap-4">
             <Label htmlFor="email" className="col-span-2 font-noto-sans-tc text-base">E-mail</Label>
-            <div className="col-span-10">
+            <div className="col-span-10 flex gap-3 items-center">
               <input
                 {...register("email")}
                 id="email"
-                className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] bg-white text-gray-500 font-noto-sans-tc"
+                className="flex-1 px-4 py-3 rounded-full border border-[#E5E5E5] bg-white text-gray-500 font-noto-sans-tc"
                 disabled
                 autoComplete="off"
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleEmailChange}
+                className="px-4 py-2 rounded-full border-[#D94A1D] text-[#D94A1D] hover:bg-[#D94A1D] hover:text-white transition-colors"
+              >
+              
+                修改email
+              </Button>
               {errors.email && (
                 <p className="text-red-500 text-sm mt-1 ml-2 font-noto-sans-tc">{errors.email.message}</p>
               )}
@@ -974,6 +1070,100 @@ export default function ProfileClient() {
           </div>
         </form>
       </div>
+
+      {/* Email修改Modal */}
+      <Dialog open={showEmailModal} onOpenChange={handleEmailModalClose}>
+        <DialogContent className="max-w-[500px] w-[90%] p-6 bg-white rounded-3xl border-none">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-center font-noto-sans-tc">
+              {emailStep === 'input' && '修改電子郵件'}
+              {emailStep === 'verify' && '驗證新郵箱'}
+              {emailStep === 'success' && '修改成功'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            {emailStep === 'input' && (
+              <div className="space-y-4">
+                <p className="text-gray-600 text-center font-noto-sans-tc">
+                  請輸入您的新電子郵件地址
+                </p>
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="請輸入新的電子郵件"
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none"
+                />
+              </div>
+            )}
+            
+            {emailStep === 'verify' && (
+              <div className="space-y-4">
+                <p className="text-gray-600 text-center font-noto-sans-tc">
+                  我們已發送驗證碼到 <span className="font-semibold">{newEmail}</span>
+                </p>
+                <p className="text-sm text-gray-500 text-center font-noto-sans-tc">
+                  請輸入6位數驗證碼
+                </p>
+                <input
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="請輸入驗證碼"
+                  className="w-full px-4 py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none text-center text-lg tracking-widest"
+                  maxLength={6}
+                />
+              </div>
+            )}
+            
+            {emailStep === 'success' && (
+              <div className="space-y-4 text-center">
+                <div className="flex justify-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <Check className="w-8 h-8 text-green-600" />
+                  </div>
+                </div>
+                <p className="text-gray-600 font-noto-sans-tc">
+                  您的電子郵件已成功修改為
+                </p>
+                <p className="font-semibold text-[#D94A1D] font-noto-sans-tc">
+                  {newEmail}
+                </p>
+                <p className="text-sm text-gray-500 font-noto-sans-tc">
+                  此視窗將在3秒後自動關閉
+                </p>
+              </div>
+            )}
+            
+            {emailStep !== 'success' && (
+              <div className="flex gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleEmailModalClose}
+                  className="flex-1 py-3 rounded-full border-gray-300 text-gray-600 hover:bg-gray-50 font-noto-sans-tc"
+                  disabled={isEmailLoading}
+                >
+                  取消
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleEmailSubmit}
+                  className="flex-1 py-3 rounded-full bg-[#D94A1D] text-white hover:bg-[#B8391A] font-noto-sans-tc"
+                  disabled={isEmailLoading || (emailStep === 'input' && !newEmail) || (emailStep === 'verify' && verificationCode.length !== 6)}
+                >
+                  {isEmailLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    emailStep === 'input' ? '發送驗證碼' : '確認修改'
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
