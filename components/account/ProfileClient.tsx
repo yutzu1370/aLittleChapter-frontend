@@ -15,6 +15,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
 import { zhTW } from "date-fns/locale"
+import MuiDatePicker from "@/components/ui/MuiDatePicker"
+
 import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import axios from "axios"
@@ -639,7 +641,10 @@ export default function ProfileClient() {
         const response = await requestEmailChange({ newEmail })
         
         if (!response.status) {
-          throw new Error(response.message || '發送驗證碼失敗')
+          toast.error('發送驗證碼失敗', {
+            description: response.message || '發送驗證碼失敗，請稍後再試'
+          })
+          return
         }
         
         setEmailStep('verify')
@@ -647,7 +652,9 @@ export default function ProfileClient() {
       } catch (error) {
         console.error('發送驗證碼失敗:', error)
         const errorMessage = error instanceof Error ? error.message : '發送驗證碼失敗，請稍後再試'
-        toast.error(errorMessage)
+        toast.error('發送驗證碼失敗', {
+          description: errorMessage
+        })
       } finally {
         setIsEmailLoading(false)
       }
@@ -666,7 +673,10 @@ export default function ProfileClient() {
         })
         
         if (!response.status) {
-          throw new Error(response.message || '驗證碼錯誤')
+          toast.error('驗證失敗', {
+            description: response.message || '驗證碼錯誤，請重新輸入'
+          })
+          return
         }
         
         // 更新表單中的email值
@@ -688,7 +698,9 @@ export default function ProfileClient() {
       } catch (error) {
         console.error('驗證 email 修改失敗:', error)
         const errorMessage = error instanceof Error ? error.message : '驗證碼錯誤，請重新輸入'
-        toast.error(errorMessage)
+        toast.error('驗證失敗', {
+          description: errorMessage
+        })
       } finally {
         setIsEmailLoading(false)
       }
@@ -703,7 +715,7 @@ export default function ProfileClient() {
   }
 
   // 改進的日歷日期選擇處理
-  const handleDateSelect = (date: Date | undefined) => {
+  const handleDateSelect = (date: Date | null | undefined) => {
     if (date) {
       setValue("birthdate", date)
     }
@@ -921,16 +933,9 @@ export default function ProfileClient() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 rounded-2xl shadow-xl border-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={birthdate}
-                    onSelect={handleDateSelect}
-                    disabled={(date) => date > new Date()}
-                    initialFocus
-                    locale={zhTW}
-                    captionLayout="dropdown-buttons"
-                    fromYear={1900}
-                    toYear={new Date().getFullYear()}
+                  <MuiDatePicker
+                    value={birthdate}
+                    onChange={handleDateSelect}
                   />
                 </PopoverContent>
               </Popover>

@@ -93,7 +93,7 @@ export default function Header() {
               onMouseLeave={handleProductsMouseLeave}
             >
               <button 
-                className="flex items-center text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base"
+                className="flex items-center text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm lg:text-base pb-2"
                 aria-expanded={showProductsDropdown}
                 aria-haspopup="true"
                 onClick={() => setShowProductsDropdown(!showProductsDropdown)}
@@ -104,7 +104,7 @@ export default function Header() {
               
               {/* Dropdown Menu */}
               {showProductsDropdown && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-2 w-32 bg-white border-4 border-[#F8D0B0] rounded-3xl shadow-lg overflow-hidden z-[60] text-center">
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/5 mt-4 w-32 bg-white border-4 border-[#F8D0B0] rounded-3xl shadow-lg overflow-hidden z-[60] text-center">
                   <div className="py-2">
                     {productCategories.map((category, index) => (
                       <Link

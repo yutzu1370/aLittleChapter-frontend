@@ -16,6 +16,7 @@ import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
 import { useCartStore } from "@/lib/store/useCartStore"
 import { useDebounce } from "@/hooks/use-debounce"
 import { addItemToBackendApi } from "@/lib/api/cart"
+import { addToWishlistApi, removeFromWishlistApi } from "@/lib/api/wishlist"
 /*
 // 定義書籍類型
 type Book = {
@@ -184,7 +185,7 @@ export default function PopularBooks() {
   }, [hours, minutes, seconds])
 
   // 原始處理函數
-  const handleToggleFavoriteOriginal = (bookId: number) => {
+  const handleToggleFavoriteOriginal = async (bookId: number) => {
     if (!isAuthenticated) {
       // 訪客使用者：只顯示提醒訊息
       toast.info("請先登入", {
@@ -195,14 +196,48 @@ export default function PopularBooks() {
     }
 
     // 已登入使用者：切換收藏狀態
-    const newFavoriteState = toggleFavorite(bookId);
-    
-    // 顯示收藏狀態提示
+    const isCurrentlyFavorite = isFavorite(bookId);
     const book = popularBooks.find(b => b.id === bookId);
-    toast.success(newFavoriteState ? `《${book?.title}》已加入收藏` : `《${book?.title}》已從收藏移除`, {
-      position: "top-center",
-      duration: 2000,
-    });
+    
+    try {
+      if (isCurrentlyFavorite) {
+        // 刪除收藏
+        const response = await removeFromWishlistApi(bookId);
+        if (response.status) {
+          toggleFavorite(bookId);
+          toast.success(`《${book?.title}》已從收藏移除`, {
+            position: "top-center",
+            duration: 2000,
+          });
+        } else {
+          toast.error("移除收藏失敗", {
+            description: response.message || "請稍後再試",
+            duration: 3000,
+          });
+        }
+      } else {
+        // 新增收藏
+        const response = await addToWishlistApi(bookId);
+        if (response.status) {
+          toggleFavorite(bookId);
+          toast.success(`《${book?.title}》已加入收藏`, {
+            position: "top-center",
+            duration: 2000,
+          });
+        } else {
+          toast.error("加入收藏失敗", {
+            description: response.message || "請稍後再試",
+            duration: 3000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("收藏操作失敗:", error);
+      toast.error("收藏操作失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    }
   };
 
   const handleAddToCartOriginal = async (book: Book) => {

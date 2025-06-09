@@ -10,6 +10,7 @@ import { useAuthStore } from "@/lib/store/useAuthStore";
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore";
 import { toast } from "sonner";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { addToWishlistApi, removeFromWishlistApi } from "@/lib/api/wishlist";
 
 interface ProductCardProps {
   product: Product;
@@ -23,7 +24,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const productId = parseInt(product.id);
   const isFavoriteProduct = isFavorite(productId);
   
-  const handleToggleFavorite = (e: React.MouseEvent) => {
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -37,12 +38,45 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
 
     // 已登入使用者：切換收藏狀態
-    const newFavoriteState = toggleFavorite(productId);
+    const isCurrentlyFavorite = isFavorite(productId);
     
-    // TODO: 已登入使用者的收藏功能 - 同步到後端
-    toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
-      duration: 3000,
-    });
+    try {
+      if (isCurrentlyFavorite) {
+        // 刪除收藏
+        const response = await removeFromWishlistApi(productId);
+        if (response.status) {
+          toggleFavorite(productId);
+          toast.success("已從收藏移除", {
+            duration: 2000,
+          });
+        } else {
+          toast.error("移除收藏失敗", {
+            description: response.message || "請稍後再試",
+            duration: 3000,
+          });
+        }
+      } else {
+        // 新增收藏
+        const response = await addToWishlistApi(productId);
+        if (response.status) {
+          toggleFavorite(productId);
+          toast.success("已加入收藏", {
+            duration: 2000,
+          });
+        } else {
+          toast.error("加入收藏失敗", {
+            description: response.message || "請稍後再試",
+            duration: 3000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("收藏操作失敗:", error);
+      toast.error("收藏操作失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    }
   };
 
   return (

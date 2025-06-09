@@ -1,0 +1,162 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import apiClient from '@/lib/apiClient';
+import { GoogleCredentialResponse, GoogleAuthResponse } from './types';
+
+interface AuthWithGoogleButtonProps {
+  onAuthSuccess?: (user: any) => void;
+  buttonText?: string;
+  isSignup?: boolean;
+}
+
+export default function AuthWithGoogleButton({ 
+  onAuthSuccess, 
+  buttonText = "使用 Google 帳號登入",
+  isSignup = false 
+}: AuthWithGoogleButtonProps) {
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+  const isInitialized = useRef(false);
+
+  useEffect(() => {
+    // 確保只初始化一次
+    if (isInitialized.current) return;
+
+    const loadGoogleScript = () => {
+      // 檢查是否已經載入
+      if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+        initializeGoogle();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogle;
+      script.onerror = () => {
+        console.error('❌ [Google Auth] 無法載入 Google Identity Services');
+      };
+      document.head.appendChild(script);
+    };
+
+    const initializeGoogle = () => {
+      if (window.google?.accounts?.id && !isInitialized.current) {
+        try {
+          console.log('🚀 [Google Auth] 初始化 Google Identity Services');
+          
+          window.google.accounts.id.initialize({
+            client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+
+          // 渲染按鈕
+          if (googleButtonRef.current) {
+            window.google.accounts.id.renderButton(
+              googleButtonRef.current,
+              {
+                theme: 'outline',
+                size: 'large',
+                width: 300,
+                text: isSignup ? 'signup_with' : 'signin_with',
+                shape: 'rectangular',
+                logo_alignment: 'left'
+              }
+            );
+          }
+
+          isInitialized.current = true;
+          console.log('✅ [Google Auth] Google 登入按鈕初始化完成');
+        } catch (error) {
+          console.error('❌ [Google Auth] 初始化失敗:', error);
+        }
+      }
+    };
+
+    loadGoogleScript();
+
+    // 清理函數
+    return () => {
+      // 不需要特別清理，因為 Google 腳本是全域的
+    };
+  }, [isSignup]);
+
+  const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
+    const idToken = response.credential;
+    try {
+      console.log('🚀 [Google Auth] 開始 Google 登入/註冊流程');
+      
+      // 呼叫後端 Google 登入/註冊 API
+      const result: GoogleAuthResponse = await apiClient.post('/api/users/google-sign-in', { idToken });
+
+      console.log('📦 [Google Auth] API 回應:', result);
+
+      if (result.status && result.data?.token) {
+        console.log('✅ [Google Auth] Google 登入/註冊成功');
+        
+        // 儲存 token 到 localStorage
+        localStorage.setItem('token', result.data.token);
+        
+        // 更新 auth store
+        const authStorage = {
+          state: {
+            token: result.data.token,
+            user: result.data.user,
+            isAuthenticated: true
+          },
+          version: 0
+        };
+        localStorage.setItem('auth-storage', JSON.stringify(authStorage));
+        
+        // 呼叫成功回調
+        if (onAuthSuccess) {
+          onAuthSuccess(result.data.user);
+        }
+        
+        // 重新載入頁面以更新狀態
+        window.location.reload();
+      } else {
+        console.error('❌ [Google Auth] Google 登入/註冊失敗:', result.message);
+        alert(result.message || 'Google 登入失敗，請稍後再試');
+      }
+    } catch (error) {
+      console.error('💥 [Google Auth] Google 登入/註冊錯誤:', error);
+      alert('Google 登入失敗，請稍後再試');
+    }
+  };
+
+  return (
+    <div className="w-[98%] mx-auto">
+      {/* Google 按鈕容器 */}
+      <div 
+        ref={googleButtonRef}
+        className="flex justify-center"
+        style={{ minHeight: '44px' }}
+      />
+      
+      {/* 備用按鈕 - 如果 Google 按鈕載入失敗 */}
+      {!isInitialized.current && (
+        <motion.button
+          type="button"
+          className="w-full h-11 text-base font-bold rounded-full border-2 border-[#F8D0B0] bg-white text-gray-700 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors duration-200"
+          onClick={() => {
+            if (window.google?.accounts?.id) {
+              window.google.accounts.id.prompt();
+            } else {
+              alert('Google 登入服務載入中，請稍後再試');
+            }
+          }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Image src="/images/icon/google.svg" alt="Google" width={20} height={20} />
+          <span>{buttonText}</span>
+        </motion.button>
+      )}
+    </div>
+  );
+}

@@ -7,6 +7,7 @@ import { Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 import { SignupFormData } from "@/components/auth/types"
 import { UseFormReturn } from "react-hook-form"
+import AuthWithGoogleButton from "./AuthWithGoogleButton"
 
 interface SignupFormProps {
   form: UseFormReturn<SignupFormData>
@@ -163,16 +164,11 @@ export function SignupForm({
           <span className="flex-grow border-t-2 border-[#F8D0B0]"></span>
         </div>
 
-        <motion.button
-          type="button"
-          className="w-[98%] mx-auto h-10 text-base font-bold rounded-full border-2 border-[#F8D0B0] bg-white text-gray-700 flex items-center justify-center gap-3"
-          onClick={onGoogleAuth}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Image src="/images/icon/google.svg" alt="Google" width={20} height={20} />
-          <span>使用 Google 帳號註冊</span>
-        </motion.button>
+        <AuthWithGoogleButton 
+          onAuthSuccess={onGoogleAuth}
+          buttonText="使用 Google 帳號註冊"
+          isSignup={true}
+        />
       </form>
     </Form>
   )

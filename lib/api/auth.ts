@@ -13,6 +13,11 @@ export async function signupApi(data: SignupFormData): Promise<ApiResponse> {
   return apiClient.post('/api/users/sign-up', signupData);
 }
 
+// Google 第三方登入/註冊 API
+// export async function googleSignInApi(idToken: string): Promise<ApiResponse> {
+//   return apiClient.post('/api/users/google-sign-in', { idToken });
+// }
+
 export async function forgotPasswordApi(data: ForgotPasswordFormData): Promise<ApiResponse> {
   return apiClient.post('/api/users/forgot-password', { email: data.email });
 }

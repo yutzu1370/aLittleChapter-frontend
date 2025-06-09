@@ -10,6 +10,7 @@ import { Heart } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useDebounce } from "@/hooks/use-debounce";
 import { addItemToBackendApi } from "@/lib/api/cart";
+import { addToWishlistApi, removeFromWishlistApi } from "@/lib/api/wishlist";
 
 interface ProductInfoProps {
   product: ProductDetail;
@@ -144,7 +145,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
   // 使用 debounce 包裝的處理函數，防止連續點擊
   const handleAddToCart = useDebounce(handleAddToCartOriginal, 500);
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = async () => {
     if (!isAuthenticated) {
       // 訪客使用者：只顯示提醒訊息，不顯示登入視窗
       toast.info("請先登入", {
@@ -155,12 +156,45 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
     }
 
     // 已登入使用者：切換收藏狀態
-    const newFavoriteState = toggleFavorite(productId);
+    const isCurrentlyFavorite = isFavorite(productId);
     
-    // TODO: 已登入使用者的收藏功能 - 同步到後端
-    toast.success(newFavoriteState ? "已加入收藏" : "已從收藏移除", {
-      duration: 3000,
-    });
+    try {
+      if (isCurrentlyFavorite) {
+        // 刪除收藏
+        const response = await removeFromWishlistApi(productId);
+        if (response.status) {
+          toggleFavorite(productId);
+          toast.success("已從收藏移除", {
+            duration: 2000,
+          });
+        } else {
+          toast.error("移除收藏失敗", {
+            description: response.message || "請稍後再試",
+            duration: 3000,
+          });
+        }
+      } else {
+        // 新增收藏
+        const response = await addToWishlistApi(productId);
+        if (response.status) {
+          toggleFavorite(productId);
+          toast.success("已加入收藏", {
+            duration: 2000,
+          });
+        } else {
+          toast.error("加入收藏失敗", {
+            description: response.message || "請稍後再試",
+            duration: 3000,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("收藏操作失敗:", error);
+      toast.error("收藏操作失敗", {
+        description: "請稍後再試",
+        duration: 3000,
+      });
+    }
   };
 
   return (
