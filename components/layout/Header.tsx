@@ -8,11 +8,15 @@ import { AuthModal } from "@/components/auth/AuthModal"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 import { useCartStore } from "@/lib/store/useCartStore"
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
+import { getWishlistApi } from "@/lib/api/wishlist"
+import { getNotificationsApi } from "@/lib/api/notifications"
 
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const [showProductsDropdown, setShowProductsDropdown] = useState(false)
+  const [wishlistCount, setWishlistCount] = useState(0) // 新增：從API獲取的收藏數量
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0) // 新增：從API獲取的未讀通知數量
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { isAuthenticated, user } = useAuthStore()
   const { items } = useCartStore()
@@ -22,6 +26,97 @@ export default function Header() {
   useEffect(() => {
     setIsHydrated(true)
   }, [])
+
+  // 載入收藏數量的函數
+  const fetchWishlistCount = async () => {
+    if (isAuthenticated && isHydrated) {
+      try {
+        console.log('🚀 [Header] 開始載入收藏數量')
+        const result = await getWishlistApi()
+        
+        console.log('📦 [Header] 收藏清單 API 回應:', result)
+        
+        if (result.status && result.data) {
+          const count = result.data.length
+          setWishlistCount(count)
+          console.log('✅ [Header] 成功載入收藏數量:', count)
+        } else {
+          console.log('❌ [Header] 載入收藏數量失敗:', result.message)
+          setWishlistCount(0)
+        }
+      } catch (error) {
+        console.error('💥 [Header] 載入收藏數量錯誤:', error)
+        setWishlistCount(0)
+      }
+    } else {
+      // 未登入時重置收藏數量
+      setWishlistCount(0)
+    }
+  }
+
+  // 載入未讀通知數量的函數
+  const fetchUnreadNotificationCount = async () => {
+    if (isAuthenticated && isHydrated) {
+      try {
+        console.log('🚀 [Header] 開始載入未讀通知數量')
+        const result = await getNotificationsApi()
+        
+        console.log('📦 [Header] 通知列表 API 回應:', result)
+        
+        if (result.status && result.data) {
+          // 計算 isRead 為 false 的通知數量
+          const unreadCount = result.data.filter((notification: any) => !notification.isRead).length
+          setUnreadNotificationCount(unreadCount)
+          console.log('✅ [Header] 成功載入未讀通知數量:', unreadCount)
+        } else {
+          console.log('❌ [Header] 載入通知列表失敗')
+          setUnreadNotificationCount(0)
+        }
+      } catch (error) {
+        console.error('💥 [Header] 載入未讀通知數量錯誤:', error)
+        setUnreadNotificationCount(0)
+      }
+    } else {
+      // 未登入時重置通知數量
+      setUnreadNotificationCount(0)
+    }
+  }
+
+  // 當用戶登入時載入收藏數量和通知數量
+  useEffect(() => {
+    fetchWishlistCount()
+    fetchUnreadNotificationCount()
+  }, [isAuthenticated, isHydrated])
+
+  // 監聽收藏變更事件
+  useEffect(() => {
+    const handleWishlistChange = () => {
+      console.log('🔄 [Header] 收到收藏變更事件，重新載入數量')
+      fetchWishlistCount()
+    }
+
+    // 監聽自定義事件
+    window.addEventListener('wishlistChanged', handleWishlistChange)
+    
+    return () => {
+      window.removeEventListener('wishlistChanged', handleWishlistChange)
+    }
+  }, [isAuthenticated, isHydrated])
+
+  // 監聽通知變更事件
+  useEffect(() => {
+    const handleNotificationsChange = () => {
+      console.log('🔄 [Header] 收到通知變更事件，重新載入數量')
+      fetchUnreadNotificationCount()
+    }
+
+    // 監聽自定義事件
+    window.addEventListener('notificationsChanged', handleNotificationsChange)
+    
+    return () => {
+      window.removeEventListener('notificationsChanged', handleNotificationsChange)
+    }
+  }, [isAuthenticated, isHydrated])
 
   // 處理點擊外部關閉下拉選單
   useEffect(() => {
@@ -39,7 +134,8 @@ export default function Header() {
   
   // 計算購物車總數量
   const cartItemCount = isHydrated ? items.reduce((total, item) => total + item.quantity, 0) : 0
-  const favoriteCount = getFavoriteCount()
+  // 使用 API 獲取的收藏數量，而非本地 store
+  const favoriteCount = wishlistCount
 
   // 產品分類選項
   const productCategories = [
@@ -167,9 +263,11 @@ export default function Header() {
                 <div className="relative flex-shrink-0">
                   <Link href="/account/notifications" className="p-2 hover:bg-[#FEF5EE] rounded-full inline-block">
                     <Bell className="h-7 w-7 sm:h-7 sm:w-7 text-gray-900" />
-                    <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full">
-                      8
-                    </span>
+                    {unreadNotificationCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-[#D94A1D] text-white text-xs font-semibold w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full">
+                        {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                      </span>
+                    )}
                   </Link>
                 </div>
 

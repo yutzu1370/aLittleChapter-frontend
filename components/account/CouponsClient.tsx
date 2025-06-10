@@ -194,33 +194,7 @@ export default function CouponsClient() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-amber-800 mb-6">折扣碼</h2>
-
-      <div className="mb-8">
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 p-4 bg-amber-50 rounded-lg">
-          <div className="flex-1">
-            <Input
-              placeholder="輸入折扣碼"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              className="bg-white"
-            />
-          </div>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                處理中...
-              </>
-            ) : (
-              <>
-                <Zap className="w-4 h-4 mr-2" />
-                兌換折扣碼
-              </>
-            )}
-          </Button>
-        </form>
-      </div>
+  
 
       <div className="space-y-6">
         <div>
@@ -242,20 +216,6 @@ export default function CouponsClient() {
             </div>
           )}
         </div>
-
-        {expiredCoupons.length > 0 && (
-          <div>
-            <h3 className="text-lg font-medium mb-4 flex items-center">
-              <X className="w-5 h-5 mr-2 text-gray-500" />
-              已過期的折扣碼
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {expiredCoupons.map((coupon) => (
-                <CouponCard key={coupon.id} coupon={coupon} />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

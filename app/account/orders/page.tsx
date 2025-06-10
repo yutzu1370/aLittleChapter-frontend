@@ -52,6 +52,7 @@ export default function OrderCenter() {
   const [loadingDetails, setLoadingDetails] = useState<Set<string>>(new Set())
   const [searchTerm, setSearchTerm] = useState("")
   const [orders, setOrders] = useState<Order[]>([])
+  const [orderDetailsCache, setOrderDetailsCache] = useState<Map<string, Order>>(new Map()) // 新增：訂單詳細資料快取
   const [isLoading, setIsLoading] = useState(true)
   const [pagination, setPagination] = useState({
     page: 1,
@@ -111,46 +112,52 @@ export default function OrderCenter() {
 
   // 切換訂單展開狀態並獲取詳細資料
   const toggleOrderExpansion = async (orderId: string, orderNumber: string) => {
-    if (expandedOrders.has(orderId)) {
+    // 使用 orderNumber 作為備用 key，如果 orderId 不存在
+    const orderKey = orderId || orderNumber
+    console.log('🎯 [Order Toggle] 切換訂單展開狀態:', { orderId, orderNumber, orderKey, currentExpanded: expandedOrders.has(orderKey) })
+    
+    if (expandedOrders.has(orderKey)) {
       // 如果已展開，則收起
-      const newExpanded = new Set(expandedOrders)
-      newExpanded.delete(orderId)
-      setExpandedOrders(newExpanded)
+      setExpandedOrders(prev => {
+        const newExpanded = new Set(prev)
+        newExpanded.delete(orderKey)
+        console.log('🔽 [Order] 收起訂單詳情:', orderKey, '剩餘展開:', Array.from(newExpanded))
+        return newExpanded
+      })
     } else {
       // 如果未展開，則展開並獲取詳細資料
-      const newExpanded = new Set(expandedOrders)
-      newExpanded.add(orderId)
-      setExpandedOrders(newExpanded)
+      setExpandedOrders(prev => {
+        const newExpanded = new Set(prev)
+        newExpanded.add(orderKey)
+        console.log('🔼 [Order] 展開訂單詳情:', orderKey, '目前展開:', Array.from(newExpanded))
+        return newExpanded
+      })
       
-      // 檢查是否已有詳細資料
-      const currentOrder = orders.find(order => order.id === orderId)
-      if (!currentOrder?.items || currentOrder.items.length === 0) {
-        // 沒有詳細資料，需要從後端獲取
-        const newLoading = new Set(loadingDetails)
-        newLoading.add(orderId)
-        setLoadingDetails(newLoading)
+      // 檢查快取中是否已有詳細資料
+      const cachedOrderDetail = orderDetailsCache.get(orderKey)
+      if (!cachedOrderDetail) {
+        // 沒有快取的詳細資料，需要從後端獲取
+        setLoadingDetails(prev => {
+          const newLoading = new Set(prev)
+          newLoading.add(orderKey)
+          console.log('⏳ [Order] 開始載入詳細資料:', orderKey)
+          return newLoading
+        })
         
         try {
-          console.log('🔍 [Order Detail] 獲取訂單詳細資料:', orderNumber)
+          console.log('🔍 [Order Detail] 獲取訂單詳細資料:', { orderId, orderNumber })
           const response = await getOrderByNumber(orderNumber)
           
           if (response.status && response.data) {
             console.log('✅ [Order Detail] 成功獲取訂單詳細資料:', response.data)
-            // 更新特定訂單的資料
+            // 將詳細資料存入快取，以訂單ID為key
             const orderData = response.data
-            setOrders(prevOrders => 
-              prevOrders.map(order => 
-                order.id === orderId 
-                  ? { 
-                      ...order, 
-                      items: orderData.items || [],
-                      totalAmount: orderData.totalAmount || order.totalAmount,
-                      discountAmount: orderData.discountAmount || order.discountAmount,
-                      shippingFee: orderData.shippingFee || order.shippingFee
-                    }
-                  : order
-              )
-            )
+            setOrderDetailsCache(prevCache => {
+              const newCache = new Map(prevCache)
+              newCache.set(orderKey, orderData)
+              console.log('💾 [Order Cache] 快取訂單詳細資料:', orderKey, '快取大小:', newCache.size)
+              return newCache
+            })
           } else {
             throw new Error(response.message || '獲取訂單詳細資料失敗')
           }
@@ -160,14 +167,22 @@ export default function OrderCenter() {
             description: error instanceof Error ? error.message : '請稍後再試'
           })
           // 獲取失敗時收起展開狀態
-          const failedExpanded = new Set(expandedOrders)
-          failedExpanded.delete(orderId)
-          setExpandedOrders(failedExpanded)
+          setExpandedOrders(prev => {
+            const failedExpanded = new Set(prev)
+            failedExpanded.delete(orderKey)
+            console.log('❌ [Order] 獲取失敗，收起展開狀態:', orderKey)
+            return failedExpanded
+          })
         } finally {
-          const finalLoading = new Set(loadingDetails)
-          finalLoading.delete(orderId)
-          setLoadingDetails(finalLoading)
+          setLoadingDetails(prev => {
+            const finalLoading = new Set(prev)
+            finalLoading.delete(orderKey)
+            console.log('✅ [Order] 完成載入詳細資料:', orderKey)
+            return finalLoading
+          })
         }
+      } else {
+        console.log('📋 [Order Detail] 使用快取的訂單詳細資料:', orderKey, '快取內容:', cachedOrderDetail)
       }
     }
   }
@@ -331,9 +346,9 @@ export default function OrderCenter() {
         {/* Tabs */}
         <div className="mb-6">
           <div className="flex gap-8 border-b border-gray-200">
-            {tabs.map((tab, tabIndex) => (
+            {tabs.map((tab) => (
               <button
-                key={`tab-${tabIndex}-${tab}`}
+                key={tab}
                 className={`pb-3 px-1 text-sm font-medium transition-all font-noto-sans-tc relative ${
                   activeTab === tab
                     ? "text-orange-500 border-b-2 border-orange-500"
@@ -351,12 +366,24 @@ export default function OrderCenter() {
         <div className="space-y-4">
           {filteredOrders.map((order, orderIndex) => {
             const displayStatus = getDisplayStatus(order)
-            const isExpanded = expandedOrders.has(order.id)
-            const isLoadingDetail = loadingDetails.has(order.id)
+            const orderKey = order.id || order.orderNumber
+            const isExpanded = expandedOrders.has(orderKey)
+            const isLoadingDetail = loadingDetails.has(orderKey)
+            
+            // 調試日誌
+            console.log(`🔍 [Order Render] 訂單 ${orderKey} 渲染狀態:`, {
+              orderId: order.id,
+              orderNumber: order.orderNumber,
+              orderKey,
+              isExpanded,
+              isLoadingDetail,
+              expandedOrdersSize: expandedOrders.size,
+              expandedOrdersList: Array.from(expandedOrders)
+            })
             
             return (
               <Card
-                key={`order-${order.id}-${order.orderNumber}-${orderIndex}`}
+                key={order.id || `order-${order.orderNumber}-${orderIndex}`}
                 className="overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white rounded-xl"
               >
                 <CardHeader className="bg-[#F3FAF8] border-b border-gray-200 rounded-t-xl">
@@ -404,7 +431,7 @@ export default function OrderCenter() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => toggleOrderExpansion(order.id, order.orderNumber)}
+                        onClick={() => toggleOrderExpansion(order.id || order.orderNumber, order.orderNumber)}
                         disabled={isLoadingDetail}
                         className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 border border-gray-200 rounded-xl font-noto-sans-tc"
                       >
@@ -422,93 +449,99 @@ export default function OrderCenter() {
                     </div>
                   </div>
 
-                  {/* Expanded Order Details */}
-                  {isExpanded && order.items && order.items.length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-gray-200">
-                      <div className="space-y-4">
-                        {order.items.map((item, itemIndex) => (
-                          <div
-                            key={`order-${order.id}-item-${item.productId}-${itemIndex}`}
-                            className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100"
-                          >
-                            <div className="flex-shrink-0">
-                              <Image
-                                src={item.imageUrl || "/placeholder.svg"}
-                                alt={item.productTitle}
-                                width={60}
-                                height={80}
-                                className="rounded-xl bg-white border border-gray-200"
-                              />
+                                    {/* Expanded Order Details */}
+                  {isExpanded && (() => {
+                    // 優先使用快取的詳細資料，如果沒有則使用原本的 order.items
+                    const orderDetail = orderDetailsCache.get(orderKey) || order
+                    const items = orderDetail.items || []
+                    
+                    return items.length > 0 ? (
+                      <div className="mt-6 pt-6 border-t border-gray-200">
+                        <div className="space-y-4">
+                          {items.map((item, itemIndex) => (
+                            <div
+                              key={`${order.id || order.orderNumber}-item-${item.productId}-${itemIndex}`}
+                              className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100"
+                            >
+                              <div className="flex-shrink-0">
+                                <Image
+                                  src={item.imageUrl || "/placeholder.svg"}
+                                  alt={item.productTitle}
+                                  width={60}
+                                  height={80}
+                                  className="rounded-xl bg-white border border-gray-200"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-gray-800 mb-1 font-noto-sans-tc">{item.productTitle}</h4>
+                                <p className="text-sm text-gray-600 mb-2 font-noto-sans-tc">作者：{item.author}</p>
+                                <p className="text-sm text-gray-600 font-noto-sans-tc">數量：{item.quantity}</p>
+                                <p className="text-sm font-semibold text-orange-600 font-noto-sans-tc">價格：NT${item.itemAmount}</p>
+                              </div>
+                              <div className="flex-shrink-0">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleOpenReviewModal(item.productId, item.productTitle)}
+                                  className="border-orange-500 text-orange-600 hover:bg-orange-50 rounded-full font-noto-sans-tc"
+                                >
+                                  撰寫評價
+                                </Button>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-gray-800 mb-1 font-noto-sans-tc">{item.productTitle}</h4>
-                              <p className="text-sm text-gray-600 mb-2 font-noto-sans-tc">作者：{item.author}</p>
-                              <p className="text-sm text-gray-600 font-noto-sans-tc">數量：{item.quantity}</p>
-                              <p className="text-sm font-semibold text-orange-600 font-noto-sans-tc">價格：NT${item.itemAmount}</p>
-                            </div>
-                            <div className="flex-shrink-0">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleOpenReviewModal(item.productId, item.productTitle)}
-                                className="border-orange-500 text-orange-600 hover:bg-orange-50 rounded-full font-noto-sans-tc"
-                              >
-                                撰寫評價
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Separator className="my-4" />
-
-                      {/* Order Summary */}
-                      <div className="p-4 rounded-lg border-t border-gray-200">
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                          <div className="text-center">
-                            <div className="text-gray-500 mb-1 font-noto-sans-tc">訂單狀態</div>
-                            <div className="font-semibold font-noto-sans-tc">{statusMapping.orderStatus[order.orderStatus]}</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-gray-500 mb-1 font-noto-sans-tc">付款狀態</div>
-                            <div className="font-semibold font-noto-sans-tc">{statusMapping.paymentStatus[order.paymentStatus]}</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-gray-500 mb-1 font-noto-sans-tc">運送狀態</div>
-                            <div className="font-semibold font-noto-sans-tc">{statusMapping.shippingStatus[order.shippingStatus]}</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-gray-500 mb-1 font-noto-sans-tc">總金額</div>
-                            <div className="font-bold text-orange-600 font-noto-sans-tc">NT${order.finalAmount}</div>
-                          </div>
+                          ))}
                         </div>
-                        
-                        {/* 詳細金額資訊 */}
-                        {order.totalAmount && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                              <div className="text-center">
-                                <div className="text-gray-500 mb-1 font-noto-sans-tc">商品小計</div>
-                                <div className="font-semibold font-noto-sans-tc">NT${order.totalAmount}</div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-gray-500 mb-1 font-noto-sans-tc">折扣金額</div>
-                                <div className="font-semibold text-green-600 font-noto-sans-tc">-NT${order.discountAmount || 0}</div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-gray-500 mb-1 font-noto-sans-tc">運費</div>
-                                <div className="font-semibold font-noto-sans-tc">NT${order.shippingFee || 0}</div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-gray-500 mb-1 font-noto-sans-tc">最終金額</div>
-                                <div className="font-bold text-orange-600 font-noto-sans-tc">NT${order.finalAmount}</div>
-                              </div>
+
+                        <Separator className="my-4" />
+
+                        {/* Order Summary */}
+                        <div className="p-4 rounded-lg border-t border-gray-200">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                            <div className="text-center">
+                              <div className="text-gray-500 mb-1 font-noto-sans-tc">訂單狀態</div>
+                              <div className="font-semibold font-noto-sans-tc">{statusMapping.orderStatus[order.orderStatus]}</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-gray-500 mb-1 font-noto-sans-tc">付款狀態</div>
+                              <div className="font-semibold font-noto-sans-tc">{statusMapping.paymentStatus[order.paymentStatus]}</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-gray-500 mb-1 font-noto-sans-tc">運送狀態</div>
+                              <div className="font-semibold font-noto-sans-tc">{statusMapping.shippingStatus[order.shippingStatus]}</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-gray-500 mb-1 font-noto-sans-tc">總金額</div>
+                              <div className="font-bold text-orange-600 font-noto-sans-tc">NT${order.finalAmount}</div>
                             </div>
                           </div>
-                        )}
+                          
+                          {/* 詳細金額資訊 */}
+                          {orderDetail.totalAmount && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                                <div className="text-center">
+                                  <div className="text-gray-500 mb-1 font-noto-sans-tc">商品小計</div>
+                                  <div className="font-semibold font-noto-sans-tc">NT${orderDetail.totalAmount}</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-gray-500 mb-1 font-noto-sans-tc">折扣金額</div>
+                                  <div className="font-semibold text-green-600 font-noto-sans-tc">-NT${orderDetail.discountAmount || 0}</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-gray-500 mb-1 font-noto-sans-tc">運費</div>
+                                  <div className="font-semibold font-noto-sans-tc">NT${orderDetail.shippingFee || 0}</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-gray-500 mb-1 font-noto-sans-tc">最終金額</div>
+                                  <div className="font-bold text-orange-600 font-noto-sans-tc">NT${orderDetail.finalAmount || order.finalAmount}</div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ) : null
+                  })()}
                 </CardContent>
               </Card>
             )
@@ -539,7 +572,7 @@ export default function OrderCenter() {
                 variant="outline"
                 onClick={() => fetchOrders(pagination.page - 1)}
                 disabled={pagination.page <= 1}
-                className="font-noto-sans-tc"
+                className="font-noto-sans-tc rounded-xl "
               >
                 上一頁
               </Button>
@@ -550,7 +583,7 @@ export default function OrderCenter() {
                 variant="outline"
                 onClick={() => fetchOrders(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages}
-                className="font-noto-sans-tc"
+                className="font-noto-sans-tc rounded-xl "
               >
                 下一頁
               </Button>

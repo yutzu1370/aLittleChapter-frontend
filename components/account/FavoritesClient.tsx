@@ -84,6 +84,8 @@ export default function FavoritesClient() {
         setWishlistItems(prev => prev.filter(item => item.productId !== productId))
         // 更新全域收藏狀態
         toggleFavorite(productId)
+        // 觸發收藏變更事件
+        window.dispatchEvent(new CustomEvent('wishlistChanged'))
         toast.success(`《${item?.title}》已從收藏移除`, {
           position: "top-center",
           duration: 2000,
@@ -239,8 +241,8 @@ export default function FavoritesClient() {
       {/* 標題 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Heart className="h-8 w-8 text-[#E8652B]" />
-          <h1 className="text-3xl font-bold text-gray-800">我的收藏</h1>
+          <Heart className="h-5 w-5 text-[#E8652B]" />
+          <h1 className="text-lg font-bold text-gray-800">我的收藏</h1>
         </div>
         <div className="text-sm text-gray-600">
           共 {wishlistItems.length} 項商品

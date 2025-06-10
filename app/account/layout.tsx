@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
+import { getUnreadCountApi } from "@/lib/api/notifications"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 
@@ -21,6 +22,7 @@ export default function AccountLayout({
   const { logout, isAuthenticated } = useAuthStore()
   const [isClient, setIsClient] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0)
 
   // 處理 Zustand store 水合問題
   useEffect(() => {
@@ -37,6 +39,27 @@ export default function AccountLayout({
     setIsClient(true)
   }, [])
   
+  // 載入未讀通知數量
+  const fetchUnreadNotificationCount = async () => {
+    if (isAuthenticated && isHydrated) {
+      try {
+        console.log('🚀 [Account Layout] 開始載入未讀通知數量')
+        const result = await getUnreadCountApi()
+        
+        if (result.status && result.data) {
+          setUnreadNotificationCount(result.data.count)
+          console.log('✅ [Account Layout] 成功載入未讀通知數量:', result.data.count)
+        } else {
+          console.log('❌ [Account Layout] 載入未讀通知數量失敗:', result.message)
+          setUnreadNotificationCount(0)
+        }
+      } catch (error) {
+        console.error('💥 [Account Layout] 載入未讀通知數量錯誤:', error)
+        setUnreadNotificationCount(0)
+      }
+    }
+  }
+
   // 確保在客戶端渲染和水合後再進行認證檢查
   useEffect(() => {
     if (!isClient || !isHydrated) return
@@ -44,8 +67,28 @@ export default function AccountLayout({
     // 驗證使用者是否已登入，未登入則立即重定向到首頁
     if (!isAuthenticated) {
       router.replace("/")
+    } else {
+      // 已登入時載入通知數量
+      fetchUnreadNotificationCount()
     }
   }, [isAuthenticated, isClient, isHydrated, router])
+
+  // 監聽通知變更事件
+  useEffect(() => {
+    const handleNotificationsChange = () => {
+      console.log('🔄 [Account Layout] 收到通知變更事件，重新載入數量')
+      fetchUnreadNotificationCount()
+    }
+
+    if (isAuthenticated && isHydrated) {
+      // 監聽自定義事件
+      window.addEventListener('notificationsChanged', handleNotificationsChange)
+      
+      return () => {
+        window.removeEventListener('notificationsChanged', handleNotificationsChange)
+      }
+    }
+  }, [isAuthenticated, isHydrated])
 
   const handleLogout = () => {
     logout()
@@ -75,7 +118,7 @@ export default function AccountLayout({
     {
       href: "/account/notifications",
       label: "通知",
-      count: 8,
+      count: unreadNotificationCount,
     },
   ]
 

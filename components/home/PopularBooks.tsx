@@ -205,6 +205,8 @@ export default function PopularBooks() {
         const response = await removeFromWishlistApi(bookId);
         if (response.status) {
           toggleFavorite(bookId);
+          // 觸發收藏變更事件
+          window.dispatchEvent(new CustomEvent('wishlistChanged'));
           toast.success(`《${book?.title}》已從收藏移除`, {
             position: "top-center",
             duration: 2000,
@@ -220,6 +222,8 @@ export default function PopularBooks() {
         const response = await addToWishlistApi(bookId);
         if (response.status) {
           toggleFavorite(bookId);
+          // 觸發收藏變更事件
+          window.dispatchEvent(new CustomEvent('wishlistChanged'));
           toast.success(`《${book?.title}》已加入收藏`, {
             position: "top-center",
             duration: 2000,

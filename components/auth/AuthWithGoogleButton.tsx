@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import apiClient from '@/lib/apiClient';
 import { GoogleCredentialResponse, GoogleAuthResponse } from './types';
@@ -61,9 +60,9 @@ export default function AuthWithGoogleButton({
               {
                 theme: 'outline',
                 size: 'large',
-                width: 300,
+                width: 384,  // 增加寬度以匹配上方按鈕
+                shape: 'pill',
                 text: isSignup ? 'signup_with' : 'signin_with',
-                shape: 'rectangular',
                 logo_alignment: 'left'
               }
             );
@@ -130,33 +129,13 @@ export default function AuthWithGoogleButton({
   };
 
   return (
-    <div className="w-[98%] mx-auto">
+    <div className="w-full flex justify-center">
       {/* Google 按鈕容器 */}
       <div 
         ref={googleButtonRef}
         className="flex justify-center"
-        style={{ minHeight: '44px' }}
+        style={{ minHeight: '50px', minWidth: '384px' }}
       />
-      
-      {/* 備用按鈕 - 如果 Google 按鈕載入失敗 */}
-      {!isInitialized.current && (
-        <motion.button
-          type="button"
-          className="w-full h-11 text-base font-bold rounded-full border-2 border-[#F8D0B0] bg-white text-gray-700 flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors duration-200"
-          onClick={() => {
-            if (window.google?.accounts?.id) {
-              window.google.accounts.id.prompt();
-            } else {
-              alert('Google 登入服務載入中，請稍後再試');
-            }
-          }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Image src="/images/icon/google.svg" alt="Google" width={20} height={20} />
-          <span>{buttonText}</span>
-        </motion.button>
-      )}
     </div>
   );
 }

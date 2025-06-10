@@ -54,6 +54,8 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
         const response = await removeFromWishlistApi(productId);
         if (response.status) {
           toggleFavorite(productId);
+          // 觸發收藏變更事件
+          window.dispatchEvent(new CustomEvent('wishlistChanged'));
           toast.success("已從收藏移除", {
             duration: 2000,
           });
@@ -68,6 +70,8 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
         const response = await addToWishlistApi(productId);
         if (response.status) {
           toggleFavorite(productId);
+          // 觸發收藏變更事件
+          window.dispatchEvent(new CustomEvent('wishlistChanged'));
           toast.success("已加入收藏", {
             duration: 2000,
           });

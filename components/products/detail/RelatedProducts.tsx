@@ -130,6 +130,8 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
         const response = await removeFromWishlistApi(productId);
         if (response.status) {
           toggleFavorite(productId);
+          // 觸發收藏變更事件
+          window.dispatchEvent(new CustomEvent('wishlistChanged'));
           toast.success(`《${product?.name}》已從收藏移除`, {
             duration: 2000,
           });
@@ -144,6 +146,8 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
         const response = await addToWishlistApi(productId);
         if (response.status) {
           toggleFavorite(productId);
+          // 觸發收藏變更事件
+          window.dispatchEvent(new CustomEvent('wishlistChanged'));
           toast.success(`《${product?.name}》已加入收藏`, {
             duration: 2000,
           });

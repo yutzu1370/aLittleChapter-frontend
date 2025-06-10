@@ -85,7 +85,7 @@ export const products: Product[] = [
 ];
 
 // 分類選項
-export const categories = ["全部書籍", "熱銷排行", "亮點新書", "套裝推薦","特價優惠"];
+export const categories = ["全部書籍", "熱銷排行", "亮點新書", "優惠折扣"];
 
 // 商品詳細頁假資料
 export const productDetail: ProductDetail = {

@@ -137,7 +137,7 @@ export function LoginForm({
 
         <motion.button
           type="submit"
-          className="w-[98%] mx-auto h-11 text-base font-bold rounded-full bg-[#E8652B] text-white shadow-[4px_6px_0px_#74281A] flex items-center justify-center"
+          className="w-96 mx-auto h-11 text-base font-bold rounded-full bg-[#E8652B] text-white shadow-[4px_6px_0px_#74281A] flex items-center justify-center"
           disabled={form.formState.isSubmitting}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
