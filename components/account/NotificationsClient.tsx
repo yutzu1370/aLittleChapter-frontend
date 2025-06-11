@@ -15,17 +15,13 @@ export default function NotificationsClient() {
   const loadNotifications = async () => {
     try {
       setLoading(true);
-      console.log('🚀 [Notifications] 開始載入通知資料');
       const response = await getNotificationsApi();
       if (response.status && response.data) {
         setNotifications(response.data);
         const unreadCount = response.data.filter(n => !n.isRead).length;
-        console.log('✅ [Notifications] 成功載入通知資料:', response.data.length, '條，未讀:', unreadCount);
-      } else {
-        console.log('❌ [Notifications] 載入通知資料失敗');
       }
     } catch (error) {
-      console.error('💥 [Notifications] 載入通知失敗:', error);
+      // 載入失敗處理
     } finally {
       setLoading(false);
     }
@@ -35,7 +31,6 @@ export default function NotificationsClient() {
   const handleMarkAllRead = async () => {
     try {
       setMarkingAllRead(true);
-      console.log('🚀 [Notifications] 開始標記全部已讀');
       const response = await markAllReadApi();
       if (response.status) {
         // 更新本地狀態
@@ -44,12 +39,9 @@ export default function NotificationsClient() {
         );
         // 觸發通知數量更新事件
         window.dispatchEvent(new CustomEvent('notificationsChanged'));
-        console.log('✅ [Notifications] 成功標記全部已讀');
-      } else {
-        console.log('❌ [Notifications] 標記全部已讀失敗');
       }
     } catch (error) {
-      console.error('💥 [Notifications] 標記全部已讀失敗:', error);
+      // 標記失敗處理
     } finally {
       setMarkingAllRead(false);
     }
@@ -59,7 +51,6 @@ export default function NotificationsClient() {
   const handleMarkAsRead = async (notificationId: string) => {
     try {
       setMarkingRead(notificationId);
-      console.log('🚀 [Notifications] 開始標記單個通知已讀:', notificationId);
       const response = await markAsReadApi(notificationId);
       if (response.status) {
         // 更新本地狀態
@@ -72,12 +63,9 @@ export default function NotificationsClient() {
         );
         // 觸發通知數量更新事件
         window.dispatchEvent(new CustomEvent('notificationsChanged'));
-        console.log('✅ [Notifications] 成功標記單個通知已讀');
-      } else {
-        console.log('❌ [Notifications] 標記單個通知已讀失敗');
       }
     } catch (error) {
-      console.error('💥 [Notifications] 標記單個通知已讀失敗:', error);
+      // 標記失敗處理
     } finally {
       setMarkingRead(null);
     }
@@ -141,8 +129,8 @@ export default function NotificationsClient() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-10">
-        <div className="flex justify-center items-center h-64">
+      <div className="container mx-auto py-6 sm:py-10 px-4">
+        <div className="flex justify-center items-center h-32 sm:h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
         </div>
       </div>
@@ -150,17 +138,17 @@ export default function NotificationsClient() {
   }
 
   return (
-    <div className="container mx-auto py-5 px-4">
+    <div className="container mx-auto py-4 sm:py-5 px-4">
       {/* 標題區域 */}
-      <h2 className="text-xl font-bold text-gray-800 mb-6 font-noto-sans-tc">我的通知</h2>
+      <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6 font-noto-sans-tc">我的通知</h2>
 
       {/* 篩選標籤和全部已讀按鈕 */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
         {/* 左側：篩選標籤 */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto">
           <button
             onClick={() => setActiveFilter('all')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
               activeFilter === 'all'
                 ? 'bg-[#E8652B] text-white'
                 : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
@@ -170,7 +158,7 @@ export default function NotificationsClient() {
           </button>
           <button
             onClick={() => setActiveFilter('read')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
               activeFilter === 'read'
                 ? 'bg-[#E8652B] text-white'
                 : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
@@ -180,7 +168,7 @@ export default function NotificationsClient() {
           </button>
           <button
             onClick={() => setActiveFilter('unread')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors relative ${
+            className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors relative whitespace-nowrap ${
               activeFilter === 'unread'
                 ? 'bg-[#E8652B] text-white'
                 : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
@@ -196,23 +184,23 @@ export default function NotificationsClient() {
         </div>
 
         {/* 右側：全部標示為已讀按鈕 */}
-        <div>
+        <div className="flex justify-center sm:justify-end">
           {unreadCount > 0 && (
             <motion.button
               onClick={handleMarkAllRead}
               disabled={markingAllRead}
-              className="flex items-center gap-2 px-4 py-2 bg-[#E8652B] text-white rounded-full hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#E8652B] text-white rounded-full hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
               {markingAllRead ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  處理中...
+                  <span className="hidden sm:inline">處理中...</span>
                 </>
               ) : (
                 <>
-                  ✓ 全部標示為已讀
+                  ✓ <span className="hidden sm:inline">全部標示為已讀</span><span className="sm:hidden">全部已讀</span>
                 </>
               )}
             </motion.button>
@@ -221,11 +209,11 @@ export default function NotificationsClient() {
       </div>
 
       {/* 通知列表 */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {filteredNotifications.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-8 sm:py-12 text-gray-500">
             <div className="text-4xl mb-4">📭</div>
-            <p className="text-lg">
+            <p className="text-base sm:text-lg">
               {activeFilter === 'unread' ? '沒有未讀通知' : 
                activeFilter === 'read' ? '沒有已讀通知' : '暫無通知'}
             </p>
@@ -234,7 +222,7 @@ export default function NotificationsClient() {
           filteredNotifications.map((notification) => (
             <motion.div
               key={notification.id}
-              className={`p-4 rounded-xl border transition-all hover:shadow-md ${
+              className={`p-3 sm:p-4 rounded-xl border transition-all hover:shadow-md ${
                 notification.isRead 
                   ? 'bg-white border-gray-200' 
                   : 'bg-blue-50 border-blue-200'
@@ -243,9 +231,9 @@ export default function NotificationsClient() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-3 sm:gap-4">
                 {/* 通知圖示 */}
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg ${
+                <div className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-lg ${
                   notification.type === 'order' ? 'bg-blue-100' :
                   notification.type === 'event' ? 'bg-purple-100' :
                   notification.type === 'system' ? 'bg-green-100' : 'bg-green-100'
@@ -267,10 +255,10 @@ export default function NotificationsClient() {
                       <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                     )}
                   </div>
-                  <h3 className="font-medium text-gray-900 mb-1">
+                  <h3 className="font-medium text-gray-900 mb-1 text-sm sm:text-base">
                     {notification.title}
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                     {notification.content}
                   </p>
                 </div>
@@ -280,7 +268,7 @@ export default function NotificationsClient() {
                   <div className="text-xs text-gray-500">
                     <div className="flex items-center gap-1">
                       <span>🕐</span>
-                      <span>{formatTime(notification.createdAt)}</span>
+                      <span className="hidden sm:inline">{formatTime(notification.createdAt)}</span>
                     </div>
                   </div>
                   
@@ -289,7 +277,7 @@ export default function NotificationsClient() {
                     <button
                       onClick={() => handleMarkAsRead(notification.id)}
                       disabled={markingRead === notification.id}
-                      className="px-3 py-1 text-xs bg-[#E8652B] text-white rounded-full hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="px-2 sm:px-3 py-1 text-xs bg-[#E8652B] text-white rounded-full hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       {markingRead === notification.id ? '處理中...' : '標為已讀'}
                     </button>

@@ -40,7 +40,6 @@ export default function ProductDetailPage() {
         const reviewsData = await fetchProductReviews(id);
         setReviews(reviewsData);
       } catch (err) {
-        console.error("獲取商品資料失敗:", err);
         setError("無法載入商品資料，請稍後再試。");
       } finally {
         setIsLoading(false);

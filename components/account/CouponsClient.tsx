@@ -80,16 +80,16 @@ const CouponCard = ({ coupon }: { coupon: typeof coupons[0] }) => {
       isActive ? "border-amber-200" : "border-gray-200 opacity-60"
     )}>
       <div className={cn(
-        "px-6 py-4",
+        "px-4 sm:px-6 py-3 sm:py-4",
         isActive ? "bg-amber-50" : "bg-gray-50"
       )}>
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Ticket className={cn(
-              "w-5 h-5 mr-2",
+              "w-4 h-4 sm:w-5 sm:h-5 mr-2",
               isActive ? "text-amber-600" : "text-gray-400"
             )} />
-            <h3 className="font-medium">
+            <h3 className="font-medium text-sm sm:text-base">
               {coupon.type === "percentage" && `${coupon.discount}% 折扣`}
               {coupon.type === "fixed" && `現折 NT$${coupon.discount}`}
               {coupon.type === "shipping" && "免運費優惠"}
@@ -109,16 +109,16 @@ const CouponCard = ({ coupon }: { coupon: typeof coupons[0] }) => {
         </div>
       </div>
 
-      <CardContent className="pt-4">
-        <p className="text-sm text-gray-600 mb-4">{coupon.description}</p>
+      <CardContent className="p-3 sm:pt-4 sm:px-6 sm:pb-4">
+        <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4">{coupon.description}</p>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
           <div className="flex items-center text-xs text-gray-500">
-            <Clock className="w-3.5 h-3.5 mr-1" />
+            <Clock className="w-3 sm:w-3.5 h-3 sm:h-3.5 mr-1" />
             {isActive ? (
-              <span>有效期限 {coupon.validUntil} ({daysLeft} 天後過期)</span>
+              <span className="text-xs sm:text-xs">有效期限 {coupon.validUntil} ({daysLeft} 天後過期)</span>
             ) : (
-              <span>已於 {coupon.validUntil} 過期</span>
+              <span className="text-xs sm:text-xs">已於 {coupon.validUntil} 過期</span>
             )}
           </div>
           <div className="text-xs text-gray-500">
@@ -128,10 +128,10 @@ const CouponCard = ({ coupon }: { coupon: typeof coupons[0] }) => {
       </CardContent>
 
       <CardFooter className="bg-gray-50 border-t p-3">
-        <div className="flex items-center w-full justify-between">
+        <div className="flex items-center w-full justify-between gap-2">
           <div
             ref={codeRef}
-            className="font-mono text-sm px-3 py-1.5 bg-white border border-gray-200 rounded"
+            className="font-mono text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 bg-white border border-gray-200 rounded flex-1 text-center sm:text-left"
           >
             {coupon.code}
           </div>
@@ -140,19 +140,19 @@ const CouponCard = ({ coupon }: { coupon: typeof coupons[0] }) => {
             variant="ghost"
             onClick={handleCopy}
             disabled={!isActive}
-            className={cn("text-xs gap-1",
+            className={cn("text-xs gap-1 px-2 sm:px-3",
               isActive ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50" : "text-gray-400"
             )}
           >
             {copied ? (
               <>
-                <CheckCircle className="w-3.5 h-3.5" />
-                已複製
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="hidden sm:inline">已複製</span>
               </>
             ) : (
               <>
-                <Copy className="w-3.5 h-3.5" />
-                複製
+                <Copy className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                <span className="hidden sm:inline">複製</span>
               </>
             )}
           </Button>
@@ -193,29 +193,25 @@ export default function CouponsClient() {
   }
 
   return (
-    <div>
-  
-
-      <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-medium mb-4 flex items-center">
-            <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
-            可使用的折扣碼
-          </h3>
-          {activeCoupons.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {activeCoupons.map((coupon) => (
-                <CouponCard key={coupon.id} coupon={coupon} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10 bg-gray-50 rounded-lg">
-              <Ticket className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium text-gray-900">尚無可用折扣碼</h3>
-              <p className="mt-1 text-gray-500">您目前沒有任何可使用的折扣碼。</p>
-            </div>
-          )}
-        </div>
+    <div className="space-y-4 sm:space-y-6">
+      <div>
+        <h3 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
+          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
+          可使用的折扣碼
+        </h3>
+        {activeCoupons.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+            {activeCoupons.map((coupon) => (
+              <CouponCard key={coupon.id} coupon={coupon} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 sm:py-10 bg-gray-50 rounded-lg">
+            <Ticket className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
+            <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900">尚無可用折扣碼</h3>
+            <p className="mt-1 text-sm text-gray-500">您目前沒有任何可使用的折扣碼。</p>
+          </div>
+        )}
       </div>
     </div>
   )
