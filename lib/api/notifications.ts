@@ -30,11 +30,6 @@ export async function getNotificationsApi(): Promise<NotificationsResponse> {
   return apiClient.get('/api/notifications');
 }
 
-// 獲取未讀通知數量
-export async function getUnreadCountApi(): Promise<ApiResponse<{ count: number }>> {
-  return apiClient.get('/api/notifications/unread-count');
-}
-
 // 標記全部已讀
 export async function markAllReadApi(): Promise<ApiResponse> {
   return apiClient.put('/api/notifications/markAllRead', { confirm: true });

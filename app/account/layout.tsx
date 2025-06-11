@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { useAuthStore } from "@/lib/store/useAuthStore"
-import { getUnreadCountApi } from "@/lib/api/notifications"
+import { getNotificationsApi } from "@/lib/api/notifications"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 
@@ -44,13 +44,13 @@ export default function AccountLayout({
     if (isAuthenticated && isHydrated) {
       try {
         console.log('🚀 [Account Layout] 開始載入未讀通知數量')
-        const result = await getUnreadCountApi()
+        const result = await getNotificationsApi()
         
         if (result.status && result.data) {
-          setUnreadNotificationCount(result.data.count)
-          console.log('✅ [Account Layout] 成功載入未讀通知數量:', result.data.count)
+          setUnreadNotificationCount(result.data.filter((notification: any) => !notification.isRead).length)
+          console.log('✅ [Account Layout] 成功載入未讀通知數量:', result.data.filter((notification: any) => !notification.isRead).length)
         } else {
-          console.log('❌ [Account Layout] 載入未讀通知數量失敗:', result.message)
+          console.log('❌ [Account Layout] 載入未讀通知數量失敗:', result.data.filter((notification: any) => !notification.isRead).length)
           setUnreadNotificationCount(0)
         }
       } catch (error) {
