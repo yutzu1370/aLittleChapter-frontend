@@ -16,7 +16,7 @@ const animalsImage = "/images/animals.png"
 
 export default function Hero() {
   return (
-    <div className="relative h-[calc(100vh-3rem)] min-h-[550px] overflow-hidden pt-16">
+    <div className="relative h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)] min-h-[450px] sm:min-h-[550px] overflow-hidden pt-12 sm:pt-16">
       {/* 背景圖片：固定不動 */}
       <div className="absolute inset-0 w-full h-full">
         <Image
@@ -51,7 +51,7 @@ export default function Hero() {
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-        className="absolute top-[15%] left-[5%] w-1/4 h-1/4 animate-slide-left delay-300"
+        className="absolute top-[12%] sm:top-[15%] left-[3%] sm:left-[5%] w-1/5 sm:w-1/4 h-1/5 sm:h-1/4 animate-slide-left delay-300"
       >
         <Image
           src={leftClouds}
@@ -67,7 +67,7 @@ export default function Hero() {
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-        className="absolute top-[10%] right-[5%] w-1/3 h-1/3 animate-slide-right delay-300"
+        className="absolute top-[8%] sm:top-[10%] right-[3%] sm:right-[5%] w-1/4 sm:w-1/3 h-1/4 sm:h-1/3 animate-slide-right delay-300"
       >
         <Image
           src={rightClouds}
@@ -83,14 +83,14 @@ export default function Hero() {
         initial={{ opacity: 0, y: -30, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-        className="absolute top-[15%] left-0 right-0 mx-auto w-[70%] sm:w-[60%] md:w-[50%] lg:w-[40%] aspect-[3/1] animate-slide-down delay-500"
+        className="absolute top-[12%] sm:top-[15%] left-0 right-0 mx-auto w-[80%] sm:w-[70%] md:w-[60%] lg:w-[50%] xl:w-[40%] aspect-[3/1] animate-slide-down delay-500"
       >
         <Image
           src={titleImage}
           alt="Little Chapter"
           fill
           priority
-          sizes="(max-width: 640px) 70vw, (max-width: 768px) 60vw, (max-width: 1024px) 50vw, 40vw"
+          sizes="(max-width: 640px) 80vw, (max-width: 768px) 70vw, (max-width: 1024px) 60vw, (max-width: 1280px) 50vw, 40vw"
           className="object-contain"
         />
       </motion.div>
@@ -100,13 +100,13 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 0.8 }}
-        className="absolute top-[33%] left-0 right-0 mx-auto w-[60%] sm:w-[50%] md:w-[40%] lg:w-[30%] aspect-[3/1] animate-fade-in delay-800"
+        className="absolute top-[28%] sm:top-[33%] left-0 right-0 mx-auto w-[70%] sm:w-[60%] md:w-[50%] lg:w-[40%] xl:w-[30%] aspect-[3/1] animate-fade-in delay-800"
       >
         <Image
           src={subtitleImage}
           alt="專為兒童打造的優質閱讀體驗"
           fill
-          sizes="(max-width: 640px) 60vw, (max-width: 768px) 50vw, (max-width: 1024px) 40vw, 30vw"
+          sizes="(max-width: 640px) 70vw, (max-width: 768px) 60vw, (max-width: 1024px) 50vw, (max-width: 1280px) 40vw, 30vw"
           className="object-contain"
         />
       </motion.div>
@@ -116,19 +116,19 @@ export default function Hero() {
         initial={{ opacity: 0, y: 50, scale: 0.8 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.8, delay: 1, ease: "easeOut" }}
-        className="absolute bottom-[15%] left-0 right-0 mx-auto w-[90%] sm:w-[80%] md:w-[70%] lg:w-[60%] aspect-[3/1] animate-slide-up animate-scale-up delay-1000"
+        className="absolute bottom-[20%] sm:bottom-[15%] left-0 right-0 mx-auto w-[95%] sm:w-[90%] md:w-[80%] lg:w-[70%] xl:w-[60%] aspect-[3/1] animate-slide-up animate-scale-up delay-1000"
       >
         <Image
           src={animalsImage}
           alt="可愛動物"
           fill
-          sizes="(max-width: 640px) 90vw, (max-width: 768px) 80vw, (max-width: 1024px) 70vw, 60vw"
+          sizes="(max-width: 640px) 95vw, (max-width: 768px) 90vw, (max-width: 1024px) 80vw, (max-width: 1280px) 70vw, 60vw"
           className="object-contain"
         />
       </motion.div>
 
       {/* 年齡選項容器 */}
-      <div className="absolute bottom-[7%] left-0 right-0 flex flex-wrap justify-center gap-4 px-4 font-['Coiny'] text-lg tracking-wide [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]">
+      <div className="absolute bottom-[5%] sm:bottom-[7%] left-0 right-0 flex flex-wrap justify-center gap-2 sm:gap-3 lg:gap-4 px-2 sm:px-4 font-['Coiny'] text-sm sm:text-lg tracking-wide [text-shadow:_1px_1px_2px_rgb(0_0_0_/_20%)]">
         {/* 年齡類別按鈕 */}
         {[
           { id: 1, name: "0-3歲", href: "/age/0-3" },
@@ -153,7 +153,7 @@ export default function Hero() {
           >
             <Link
               href={category.href}
-              className="bg-amber-100 text-amber-800 px-5 py-2 rounded-full border-2 border-amber-300 hover:bg-amber-200 hover:scale-105 active:scale-95 transition-all duration-200 font-medium text-base sm:text-base block"
+              className="bg-amber-100 text-amber-800 px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2 rounded-full border-2 border-amber-300 hover:bg-amber-200 hover:scale-105 active:scale-95 transition-all duration-200 font-medium text-sm sm:text-base block whitespace-nowrap"
             >
               {category.name}
             </Link>

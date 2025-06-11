@@ -34,21 +34,15 @@ export default function FavoritesClient() {
     try {
       setLoading(true)
       setError(null)
-      console.log('🚀 [Favorites] 開始獲取收藏清單')
       
       const response = await getWishlistApi()
       
-      console.log('📦 [Favorites] API 回應:', response)
-      
       if (response.status && response.data) {
-        console.log('✅ [Favorites] 成功獲取收藏清單:', response.data.length, '項')
         setWishlistItems(response.data)
       } else {
-        console.error('❌ [Favorites] 收藏清單資料格式錯誤:', response)
         throw new Error(response.message || '收藏清單資料格式錯誤')
       }
     } catch (error) {
-      console.error('💥 [Favorites] 獲取收藏清單失敗:', error)
       setError('無法載入收藏清單')
       toast.error('獲取收藏清單失敗', {
         description: error instanceof Error ? error.message : '請稍後再試'
@@ -97,7 +91,6 @@ export default function FavoritesClient() {
         })
       }
     } catch (error) {
-      console.error("移除收藏失敗:", error)
       toast.error("移除收藏失敗", {
         description: "請稍後再試",
         duration: 3000,
@@ -137,7 +130,7 @@ export default function FavoritesClient() {
         const backendResult = await addItemToBackendApi(cartItem)
         
         if (!backendResult.status) {
-          console.warn('後端購物車同步失敗:', backendResult.message)
+          // 後端購物車同步失敗，但不影響主流程
         }
       }
       
@@ -146,7 +139,6 @@ export default function FavoritesClient() {
         duration: 2000,
       })
     } catch (error) {
-      console.error("加入購物車失敗:", error)
       toast.error("加入購物車失敗", {
         description: "請稍後再試",
         duration: 3000,
@@ -162,12 +154,12 @@ export default function FavoritesClient() {
   if (!isAuthenticated) {
     return (
       <section className="space-y-6">
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="mb-6 bg-[#FEF5EE] p-4 rounded-full">
             <Heart className="h-12 w-12 text-[#F8D0B0]" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 font-noto-sans-tc">我的收藏</h2>
-          <p className="text-gray-600 max-w-md font-noto-sans-tc">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 font-noto-sans-tc">我的收藏</h2>
+          <p className="text-gray-600 max-w-md font-noto-sans-tc text-sm sm:text-base">
             請先登入以查看您的收藏清單
           </p>
           <Link href="/auth/login">
@@ -184,7 +176,7 @@ export default function FavoritesClient() {
   if (loading) {
     return (
       <section className="space-y-6">
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#3E8E87] mb-4"></div>
           <p className="text-gray-600 font-noto-sans-tc">載入收藏清單中...</p>
         </div>
@@ -196,12 +188,12 @@ export default function FavoritesClient() {
   if (error) {
     return (
       <section className="space-y-6">
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="mb-6 bg-red-50 p-4 rounded-full">
             <Heart className="h-12 w-12 text-red-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 font-noto-sans-tc">載入失敗</h2>
-          <p className="text-gray-600 max-w-md mb-4 font-noto-sans-tc">{error}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 font-noto-sans-tc">載入失敗</h2>
+          <p className="text-gray-600 max-w-md mb-4 font-noto-sans-tc text-sm sm:text-base">{error}</p>
           <Button 
             onClick={fetchWishlist}
             className="bg-[#E8652B] hover:bg-[#D55A24] text-white font-noto-sans-tc"
@@ -217,12 +209,12 @@ export default function FavoritesClient() {
   if (wishlistItems.length === 0) {
     return (
       <section className="space-y-6">
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="mb-6 bg-[#FEF5EE] p-4 rounded-full">
             <Heart className="h-12 w-12 text-orange-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2 font-noto-sans-tc">我的收藏</h2>
-          <p className="text-gray-600 max-w-md mb-4 font-noto-sans-tc">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 font-noto-sans-tc">我的收藏</h2>
+          <p className="text-gray-600 max-w-md mb-4 font-noto-sans-tc text-sm sm:text-base">
             目前尚未收藏任何書籍
           </p>
           <Link href="/products">
@@ -239,10 +231,10 @@ export default function FavoritesClient() {
   return (
     <section className="space-y-6 font-noto-sans-tc">
       {/* 標題 */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <Heart className="h-5 w-5 text-[#E8652B]" />
-          <h1 className="text-lg font-bold text-gray-800">我的收藏</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-gray-800">我的收藏</h1>
         </div>
         <div className="text-sm text-gray-600">
           共 {wishlistItems.length} 項商品
@@ -250,7 +242,7 @@ export default function FavoritesClient() {
       </div>
 
       {/* 收藏商品網格 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-min">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-min">
         {wishlistItems.map((item, index) => (
           <motion.div
             key={`wishlist-${item.productId}-${index}`}
@@ -263,7 +255,7 @@ export default function FavoritesClient() {
             {/* 商品圖片 */}
             <div className="relative overflow-hidden">
               <Link href={`/products/${item.productId}`}>
-                <div className="p-4">
+                <div className="p-3 sm:p-4">
                   <Image
                     src={item.coverImage || "/placeholder.svg"}
                     alt={item.title}
@@ -276,7 +268,7 @@ export default function FavoritesClient() {
               
               {/* 移除收藏按鈕 */}
               <motion.button
-                className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full flex items-center justify-center shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleRemoveFromWishlist(item.productId)}
@@ -284,25 +276,25 @@ export default function FavoritesClient() {
                 aria-label="從收藏移除"
               >
                 {removingItems.has(item.productId) ? (
-                  <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
                 )}
               </motion.button>
             </div>
 
             {/* 商品資訊 */}
-            <div className="p-4 space-y-2">
+            <div className="p-3 sm:p-4 space-y-2">
               {/* 商品標題 */}
               <Link href={`/products/${item.productId}`}>
-                <h3 className="text-lg font-semibold text-gray-800 hover:text-[#E8652B] transition-colors duration-300 line-clamp-2 cursor-pointer">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 hover:text-[#E8652B] transition-colors duration-300 line-clamp-2 cursor-pointer">
                   {item.title}
                 </h3>
               </Link>
 
               {/* 價格 */}
               <div className="flex items-end gap-2">
-                <span className="text-xl font-bold text-[#E8652B]">
+                <span className="text-lg sm:text-xl font-bold text-[#E8652B]">
                   NT${item.discountPrice || item.price}
                 </span>
                 {item.discountPrice && (
@@ -326,12 +318,13 @@ export default function FavoritesClient() {
                 <motion.button
                   whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex-1 h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] transition-colors duration-100 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-500 disabled:shadow-none flex items-center justify-center gap-2"
+                  className="flex-1 h-10 sm:h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[2px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] transition-colors duration-100 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-500 disabled:shadow-none flex items-center justify-center gap-2 text-sm sm:text-base"
                   onClick={() => handleAddToCart(item)}
                   disabled={item.stockQuantity === 0}
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  {item.stockQuantity > 0 ? "加入購物車" : "暫時缺貨"}
+                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">{item.stockQuantity > 0 ? "加入購物車" : "暫時缺貨"}</span>
+                  <span className="sm:hidden">{item.stockQuantity > 0 ? "加入" : "缺貨"}</span>
                 </motion.button>
               </div>
             </div>

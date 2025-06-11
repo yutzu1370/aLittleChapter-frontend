@@ -48,40 +48,52 @@ export default function FAQ() {
   }
 
   return (
-    <section className="py-16 bg-white" >
+    <section className="py-12 sm:py-14 lg:py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
-        <div className="flex justify-center items-center mb-16">
-          <div className="w-12 h-12 mr-4">
+        <div className="flex justify-center items-center mb-12 sm:mb-14 lg:mb-16">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 mr-3 sm:mr-4">
             <Image
               src="/images/home/title_icon_faq.png"
               alt="Icon"
               width={48}
               height={48}
+              className="w-full h-full object-contain"
             />
           </div>
-          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest ">常見問題</h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-[#2F726D] tracking-widest">常見問題</h2>
         </div>
 
         {/* FAQ Container */}
-        <div className="bg-[#F3FAF8] rounded-[48px] p-16">
-          <div className="space-y-6">
+        <div className="bg-[#F3FAF8] rounded-[24px] sm:rounded-[36px] lg:rounded-[48px] p-6 sm:p-10 lg:p-16">
+          <div className="space-y-4 sm:space-y-5 lg:space-y-6">
             {faqs.map((faq) => (
-              <div key={faq.id} className="border-b border-gray-200 last:border-b-0 py-2">
-                <button className="w-full flex justify-between items-center py-2" onClick={() => toggleFaq(faq.id)}>
+              <div key={faq.id} className="border-b border-gray-200 last:border-b-0 py-2 sm:py-2">
+                <button 
+                  className="w-full flex justify-between items-start py-2 sm:py-2 text-left focus:outline-none focus:ring-2 focus:ring-[#2F726D] focus:ring-opacity-50 rounded-lg"
+                  onClick={() => toggleFaq(faq.id)}
+                >
                   <span
-                    className={`text-2xl font-['jf-openhuninn-2.0'] text-left ${openFaq === faq.id ? "text-[#295C58]" : "text-gray-900"}`}
+                    className={`text-lg sm:text-xl lg:text-2xl font-['jf-openhuninn-2.0'] pr-4 ${
+                      openFaq === faq.id ? "text-[#295C58]" : "text-gray-900"
+                    }`}
                   >
                     {faq.question}
                   </span>
-                  {openFaq === faq.id ? (
-                    <Minus className={`w-8 h-8 ${openFaq === faq.id ? "text-[#295C58]" : "text-gray-900"}`} />
-                  ) : (
-                    <Plus className="w-8 h-8 text-gray-900" />
-                  )}
+                  <div className="flex-shrink-0 mt-1">
+                    {openFaq === faq.id ? (
+                      <Minus className={`w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 ${openFaq === faq.id ? "text-[#295C58]" : "text-gray-900"}`} />
+                    ) : (
+                      <Plus className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-gray-900" />
+                    )}
+                  </div>
                 </button>
 
-                {openFaq === faq.id && <div className="py-2 text-lg text-gray-900">{faq.answer}</div>}
+                {openFaq === faq.id && (
+                  <div className="py-2 sm:py-3 lg:py-2 text-base sm:text-lg lg:text-lg text-gray-900 leading-relaxed pr-8 sm:pr-10 lg:pr-12">
+                    {faq.answer}
+                  </div>
+                )}
               </div>
             ))}
           </div>

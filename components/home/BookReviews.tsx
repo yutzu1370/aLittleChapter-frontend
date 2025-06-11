@@ -79,9 +79,9 @@ export default function BookReviews() {
   const renderStars = useMemo(() => {
     return (rating: number, size: "sm" | "md" | "lg") => {
       const starSizes = {
-        sm: "w-5 h-5",
-        md: "w-6 h-6",
-        lg: "w-7 h-7"
+        sm: "w-4 h-4 sm:w-5 sm:h-5",
+        md: "w-5 h-5 sm:w-6 sm:h-6",
+        lg: "w-6 h-6 sm:w-7 sm:h-7"
       };
       
       return (
@@ -103,8 +103,8 @@ export default function BookReviews() {
   const renderUserIcon = useMemo(() => {
     return (authorIndex: number, size: "sm" | "md") => {
       const iconSizes = {
-        sm: "w-10 h-10",
-        md: "w-12 h-12"
+        sm: "w-8 h-8 sm:w-10 sm:h-10",
+        md: "w-10 h-10 sm:w-12 sm:h-12"
       };
       
       return (
@@ -118,7 +118,7 @@ export default function BookReviews() {
               className="object-cover"
             />
           </div>
-          <span className={size === "sm" ? "text-xs" : "text-sm"}>{reviews[authorIndex].author}</span>
+          <span className={size === "sm" ? "text-xs sm:text-sm" : "text-sm sm:text-base"}>{reviews[authorIndex].author}</span>
         </div>
       );
     };
@@ -126,7 +126,7 @@ export default function BookReviews() {
 
   // 記憶化輪播卡片，避免不必要的重新渲染
   const PrevReviewCard = useMemo(() => (
-    <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
+    <div className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] lg:w-[356px] lg:h-[356px] relative flex flex-col items-center z-10 opacity-50">
       <div className="absolute inset-0">
         <Image
           src="/images/home/reviews_card.png"
@@ -137,36 +137,36 @@ export default function BookReviews() {
         />
       </div>
       
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute top-3 sm:top-4 lg:top-5 left-1/2 transform -translate-x-1/2 z-10">
         {renderStars(reviews[prevIndex].rating, "sm")}
       </div>
       
-      <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+      <div className="mt-10 sm:mt-12 lg:mt-16 relative w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[110px] lg:h-[110px] bg-white border-2 sm:border-3 lg:border-4 border-[#EC824B] rounded-[8px] sm:rounded-[10px] lg:rounded-[12px] p-1 z-10">
         <Image
           src={reviews[prevIndex].image}
           alt={reviews[prevIndex].title}
           width={110}
           height={110}
-          className="object-cover"
+          className="object-cover w-full h-full"
         />
       </div>
       
-      <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
+      <h3 className="mt-2 sm:mt-3 text-sm sm:text-base lg:text-lg font-['jf-openhuninn-2.0'] z-10 text-center">
         {reviews[prevIndex].title}
       </h3>
       
-      <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
+      <p className="px-4 sm:px-5 lg:px-6 mt-1 sm:mt-2 text-xs sm:text-xs lg:text-xs tracking-wide leading-tight line-clamp-3 sm:line-clamp-4 text-center z-10 min-h-[60px] sm:min-h-[70px] lg:min-h-[80px]">
         {reviews[prevIndex].content}
       </p>
       
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute bottom-6 sm:bottom-8 lg:bottom-10 left-1/2 transform -translate-x-1/2 z-10">
         {renderUserIcon(prevIndex, "sm")}
       </div>
     </div>
   ), [prevIndex, renderStars, renderUserIcon, reviews]);
 
   const CurrentReviewCard = useMemo(() => (
-    <div className="w-[480px] h-[480px] relative flex flex-col items-center z-20">
+    <div className="w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] lg:w-[480px] lg:h-[480px] relative flex flex-col items-center z-20">
       <div className="absolute inset-0">
         <Image
           src="/images/home/reviews_card.png"
@@ -177,36 +177,36 @@ export default function BookReviews() {
         />
       </div>
       
-      <div className="absolute top-7 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute top-4 sm:top-5 lg:top-7 left-1/2 transform -translate-x-1/2 z-10">
         {renderStars(reviews[currentIndex].rating, "lg")}
       </div>
       
-      <div className="mt-24 relative w-[150px] h-[150px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+      <div className="mt-16 sm:mt-20 lg:mt-24 relative w-[100px] h-[100px] sm:w-[120px] sm:h-[120px] lg:w-[150px] lg:h-[150px] bg-white border-3 sm:border-3 lg:border-4 border-[#EC824B] rounded-[10px] sm:rounded-[11px] lg:rounded-[12px] p-1 z-10">
         <Image
           src={reviews[currentIndex].image}
           alt={reviews[currentIndex].title}
           width={150}
           height={150}
-          className="object-cover"
+          className="object-cover w-full h-full"
         />
       </div>
       
-      <h3 className="mt-4 text-2xl font-['jf-openhuninn-2.0'] z-10">
+      <h3 className="mt-3 sm:mt-3 lg:mt-4 text-lg sm:text-xl lg:text-2xl font-['jf-openhuninn-2.0'] z-10 text-center">
         {reviews[currentIndex].title}
       </h3>
       
-      <p className="px-12 mt-3 text-sm tracking-wide leading-relaxed text-center z-10 min-h-[90px]">
+      <p className="px-6 sm:px-8 lg:px-12 mt-2 sm:mt-2 lg:mt-3 text-xs sm:text-sm lg:text-sm tracking-wide leading-relaxed text-center z-10 min-h-[70px] sm:min-h-[80px] lg:min-h-[90px]">
         {reviews[currentIndex].content}
       </p>
       
-      <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute bottom-8 sm:bottom-12 lg:bottom-16 left-1/2 transform -translate-x-1/2 z-10">
         {renderUserIcon(currentIndex, "md")}
       </div>
     </div>
   ), [currentIndex, renderStars, renderUserIcon, reviews]);
 
   const NextReviewCard = useMemo(() => (
-    <div className="w-[356px] h-[356px] relative flex flex-col items-center z-10 opacity-50">
+    <div className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] lg:w-[356px] lg:h-[356px] relative flex flex-col items-center z-10 opacity-50">
       <div className="absolute inset-0">
         <Image
           src="/images/home/reviews_card.png"
@@ -217,29 +217,29 @@ export default function BookReviews() {
         />
       </div>
       
-      <div className="absolute top-5 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute top-3 sm:top-4 lg:top-5 left-1/2 transform -translate-x-1/2 z-10">
         {renderStars(reviews[nextIndex].rating, "sm")}
       </div>
       
-      <div className="mt-16 relative w-[110px] h-[110px] bg-white border-4 border-[#EC824B] border-3 rounded-[12px] p-1 z-10">
+      <div className="mt-10 sm:mt-12 lg:mt-16 relative w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[110px] lg:h-[110px] bg-white border-2 sm:border-3 lg:border-4 border-[#EC824B] rounded-[8px] sm:rounded-[10px] lg:rounded-[12px] p-1 z-10">
         <Image
           src={reviews[nextIndex].image}
           alt={reviews[nextIndex].title}
           width={110}
           height={110}
-          className="object-cover"
+          className="object-cover w-full h-full"
         />
       </div>
       
-      <h3 className="mt-3 text-lg font-['jf-openhuninn-2.0'] z-10">
+      <h3 className="mt-2 sm:mt-3 text-sm sm:text-base lg:text-lg font-['jf-openhuninn-2.0'] z-10 text-center">
         {reviews[nextIndex].title}
       </h3>
       
-      <p className="px-6 mt-2 text-xs tracking-wide leading-tight line-clamp-4 text-center z-10 min-h-[80px]">
+      <p className="px-4 sm:px-5 lg:px-6 mt-1 sm:mt-2 text-xs sm:text-xs lg:text-xs tracking-wide leading-tight line-clamp-3 sm:line-clamp-4 text-center z-10 min-h-[60px] sm:min-h-[70px] lg:min-h-[80px]">
         {reviews[nextIndex].content}
       </p>
       
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="absolute bottom-6 sm:bottom-8 lg:bottom-10 left-1/2 transform -translate-x-1/2 z-10">
         {renderUserIcon(nextIndex, "sm")}
       </div>
     </div>
@@ -247,12 +247,12 @@ export default function BookReviews() {
 
   // 記憶化點指示器，避免不必要的重新渲染
   const DotsIndicator = useMemo(() => (
-    <div className="flex justify-center mt-8">
+    <div className="flex justify-center mt-6 sm:mt-8">
       {reviews.map((_, index) => (
         <button
           key={index}
           onClick={() => requestAnimationFrame(() => setCurrentIndex(index))}
-          className={`w-3 h-3 mx-1 rounded-full ${currentIndex === index ? "bg-[#E8652B]" : "bg-gray-300"}`}
+          className={`w-2.5 h-2.5 sm:w-3 sm:h-3 mx-1 rounded-full ${currentIndex === index ? "bg-[#E8652B]" : "bg-gray-300"}`}
           aria-label={`跳至第 ${index + 1} 個評論`}
           tabIndex={0}
           onKeyDown={(e) => {
@@ -267,24 +267,25 @@ export default function BookReviews() {
   ), [currentIndex, reviews]);
 
   return (
-    <section className="py-16 bg-[#F3FAF8] rounded-[64px]">
+    <section className="py-12 sm:py-14 lg:py-16 bg-[#F3FAF8] rounded-[32px] sm:rounded-[48px] lg:rounded-[64px]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
-        <div className="flex justify-center items-center mb-16">
-          <div className="w-12 h-12 mr-4">
+        <div className="flex justify-center items-center mb-12 sm:mb-14 lg:mb-16">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 mr-3 sm:mr-4">
             <Image
               src="/images/home/title_icon_review.png"
               alt="書籍好評"
               width={48}
               height={48}
+              className="w-full h-full object-contain"
             />
           </div>
-          <h2 className="text-4xl font-normal text-[#2F726D] tracking-widest">書籍好評</h2>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-[#2F726D] tracking-widest">書籍好評</h2>
         </div>
 
         {/* Reviews Carousel */}
         <div className="relative" ref={carouselRef}>
-          <div className="flex justify-center items-center gap-6 h-[480px]">
+          <div className="flex justify-center items-center gap-3 sm:gap-4 lg:gap-6 h-[300px] sm:h-[380px] lg:h-[480px] overflow-hidden">
             {/* Previous Review (Left) */}
             {PrevReviewCard}
 
@@ -295,8 +296,8 @@ export default function BookReviews() {
             {NextReviewCard}
           </div>
 
-          {/* 裝飾性動物圖片 - 老鼠 */}
-          <div className="absolute left-[320px] bottom-0 z-30">
+          {/* 裝飾性動物圖片 - 老鼠 - 隱藏在小螢幕 */}
+          <div className="hidden lg:block absolute left-[320px] bottom-0 z-30">
             <Image
               src="/images/home/reviews_Mouse.png"
               alt="裝飾性老鼠圖片"
@@ -309,7 +310,7 @@ export default function BookReviews() {
           {/* Left Arrow Button */}
           <button
             onClick={prevSlide}
-            className="absolute -left-10 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-[#E8652B] rounded-full shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10"
+            className="absolute -left-6 sm:-left-8 lg:-left-10 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
             aria-label="前一個評論"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -319,13 +320,13 @@ export default function BookReviews() {
               }
             }}
           >
-            <ChevronLeft className="w-8 h-8 text-white" />
+            <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
           </button>
 
           {/* Right Arrow Button */}
           <button
             onClick={nextSlide}
-            className="absolute -right-10 top-1/2 transform -translate-y-1/2 w-16 h-16 bg-[#E8652B] rounded-full shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10"
+            className="absolute -right-6 sm:-right-8 lg:-right-10 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
             aria-label="下一個評論"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -335,7 +336,7 @@ export default function BookReviews() {
               }
             }}
           >
-            <ChevronRight className="w-8 h-8 text-white" />
+            <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
           </button>
 
           {/* Dots indicator */}
