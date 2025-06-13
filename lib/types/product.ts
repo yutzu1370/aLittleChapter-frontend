@@ -11,6 +11,8 @@ export interface Product {
   isHot?: boolean;
   authorName?: string;
   publisherName?: string;
+  categoryName?: string;
+  ageRangeName?: string;
 }
 
 // API 回應中的圖片資料型別
@@ -96,7 +98,7 @@ export interface ProductResponse {
 export interface Pagination {
   page: number;
   limit: number;
-  total: number;
+  totalNum: number;
   totalPages: number;
 }
 

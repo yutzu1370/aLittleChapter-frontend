@@ -1,101 +1,108 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { Product } from "@/lib/types/product";
 import ProductCard from "./ProductCard";
+import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 
 interface ProductListProps {
-  products: Product[];
   searchKeyword?: string;
   totalCount?: number;
 }
 
-export default function ProductList({ products, searchKeyword = "親子共讀", totalCount = 15 }: ProductListProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 10; // 假設總頁數為10
+export default function ProductList({ searchKeyword = "親子共讀", totalCount = 15 }: ProductListProps) {
+  const { products, pagination, currentPage, setCurrentPage, isLoading } = useProductSearchStore();
   
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
-
+  const totalPages = pagination?.totalPages || 1;
+  
   // 生成顯示的頁碼
   const getPageNumbers = () => {
     const pageNumbers = [];
-    
     // 永遠顯示前五頁
     for (let i = 1; i <= Math.min(5, totalPages); i++) {
       pageNumbers.push(i);
     }
-    
     // 如果總頁數大於5，顯示省略號
     if (totalPages > 5) {
       if (currentPage > 5) {
         pageNumbers.push('...');
-        // 顯示當前頁（如果當前頁大於5）
         pageNumbers.push(currentPage);
       }
-      
-      // 如果當前頁不是最後一頁，顯示省略號
       if (currentPage < totalPages) {
         pageNumbers.push('...');
       }
-      
-      // 顯示最後一頁（如果不是前5頁中的一頁）
       if (totalPages > 5) {
         pageNumbers.push(totalPages);
       }
     }
-    
     return pageNumbers;
   };
   
   return (
     <div className="flex-1">
       
-      {/* 商品網格 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {/* 載入狀態 */}
+      {isLoading && (
+        <div className="flex justify-center items-center py-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-orange-500"></div>
+        </div>
+      )}
       
-      {/* 分頁 */}
-      <div className="flex justify-end items-center mt-8 gap-4">
-        <button 
-          className="w-3 h-3 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-50"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          <Image src="/images/icon/chevron-left.svg" alt="上一頁" width={20} height={20} />
-        </button>
-        
-        {getPageNumbers().map((page, index) => (
-          page === '...' ? (
-            <span key={`ellipsis-${index}`} className="mx-1 text-gray-500">...</span>
-          ) : (
+      {/* 無商品提示 */}
+      {!isLoading && products.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+
+          <h3 className="text-xl font-jf-openhuninn text-gray-600 mb-2">找不到相關商品</h3>
+          <p className="text-gray-500 mb-4">請嘗試調整搜尋條件或篩選設定</p>
+
+        </div>
+      )}
+      
+      {/* 商品網格 */}
+      {!isLoading && products.length > 0 && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          
+          {/* 分頁 */}
+          <div className="flex justify-end items-center mt-8 gap-4">
             <button 
-              key={`page-${page}`} 
-              className={`w-10 h-10 rounded-full flex items-center justify-center font-jf-openhuninn ${
-                page === currentPage ? 'bg-orange-50 text-orange-600' : 'text-gray-500 hover:bg-gray-100'
-              }`}
-              onClick={() => handlePageChange(Number(page))}
+              className="w-3 h-3 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-50"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
             >
-              {page}
+              <Image src="/images/icon/chevron-left.svg" alt="上一頁" width={20} height={20} />
             </button>
-          )
-        ))}
-        
-        <button 
-          className="w-3 h-3 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-50"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          <Image src="/images/icon/chevron-right.svg" alt="下一頁" width={20} height={20} />
-        </button>
-      </div>
+            
+            {getPageNumbers().map((page, index) => (
+              page === '...' ? (
+                <span key={`ellipsis-${index}`} className="mx-1 text-gray-500">...</span>
+              ) : (
+                <button 
+                  key={`page-${page}`} 
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-jf-openhuninn ${
+                    page === currentPage ? 'bg-orange-50 text-orange-600' : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                  onClick={() => setCurrentPage(Number(page))}
+                >
+                  {page}
+                </button>
+              )
+            ))}
+            
+            <button 
+              className="w-3 h-3 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 disabled:opacity-50"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <Image src="/images/icon/chevron-right.svg" alt="下一頁" width={20} height={20} />
+            </button>
+          </div>
+        </>
+      )}
     </div>  
   );
 } 

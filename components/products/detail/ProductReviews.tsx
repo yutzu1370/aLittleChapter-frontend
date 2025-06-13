@@ -2,15 +2,89 @@
 
 import Image from "next/image";
 import { Review } from "@/lib/types/product";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import apiClient, { ApiResponse } from "@/lib/apiClient";
 
 interface ProductReviewsProps {
-  reviews: Review[];
+  productId: number;
 }
 
-export default function ProductReviews({ reviews }: ProductReviewsProps) {
+// API 回應格式
+interface ReviewsApiResponse {
+  status: boolean;
+  data: {
+    averageRating: number;
+    reviewCount: number;
+    reviews: {
+      productId: number;
+      productTitle: string;
+      productImageUrl: string;
+      content: string;
+      rating: number;
+      username: string;
+      createdAt: string;
+    }[];
+  };
+}
+
+export default function ProductReviews({ productId }: ProductReviewsProps) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [reviewCount, setReviewCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const [showAllReviews, setShowAllReviews] = useState(false);
+
+  // 獲取評論資料
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response: ApiResponse<ReviewsApiResponse['data']> = await apiClient.get(
+          `/api/products/reviews?productId=${productId}`
+        );
+
+        if (!response.status || !response.data) {
+          throw new Error(response.message || '獲取評論失敗');
+        }
+
+        const { averageRating, reviewCount, reviews: apiReviews } = response.data;
+
+        // 轉換 API 資料格式為元件所需格式
+        const transformedReviews: Review[] = apiReviews.map((review, index) => ({
+          id: index + 1,
+          username: review.username,
+          level: 1, // API 沒有提供 level，設為預設值
+          profilePic: "/images/user_icon/user_icon_3.png", // 使用預設頭像
+          rating: review.rating,
+          date: new Date(review.createdAt).toLocaleDateString('zh-TW'),
+          content: review.content,
+          likes: 0, // API 沒有提供 likes，設為預設值
+          isLiked: false
+        }));
+
+        setReviews(transformedReviews);
+        setAverageRating(averageRating);
+        setReviewCount(reviewCount);
+      } catch (err) {
+        console.error('獲取評論時發生錯誤:', err);
+        setError('載入評論失敗');
+        // 設為預設值
+        setReviews([]);
+        setAverageRating(0);
+        setReviewCount(0);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (productId) {
+      fetchReviews();
+    }
+  }, [productId]);
 
   const handleImageError = (reviewId: string) => {
     setFailedImages(prev => new Set(prev).add(reviewId));
@@ -19,6 +93,32 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
   const handleShowAllReviews = () => {
     setShowAllReviews(true);
   };
+
+  // 顯示載入中狀態
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center">
+            <div className="text-gray-500">載入評論中...</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // 顯示錯誤狀態
+  if (error) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center">
+            <div className="text-red-500">{error}</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3);
 
@@ -42,23 +142,31 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
           {/* 評分統計 */}
           <div className="mb-8">
             <div className="flex items-center mb-1">
-              <span className="text-4xl font-coiny text-orange-500 mr-2">5.0</span>
+              <span className="text-4xl font-coiny text-orange-500 mr-2">
+                {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
+              </span>
               <div className="flex">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <svg key={star} className="w-6 h-6 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <svg 
+                    key={star} 
+                    className={`w-6 h-6 ${star <= averageRating ? 'text-yellow-400' : 'text-gray-300'} fill-current`} 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                   </svg>
                 ))}
               </div>
             </div>
             <div className="flex items-center text-gray-500 text-sm">
-              <span>{reviews.length} 則評分</span>
+              <span>{reviewCount} 則評分</span>
               <span className="mx-1">・</span>
-              <span>{reviews.length} 則評價</span>
+              <span>{reviewCount} 則評價</span>
             </div>
           </div>
 
           {/* 評論列表 */}
+          {reviews.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {displayedReviews.map((review) => (
               <div key={review.id} className="bg-white rounded-2xl p-6 border-4 border-[#F8D0B0] h-full flex flex-col">
@@ -83,7 +191,12 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <svg key={star} className="w-5 h-5 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <svg 
+                          key={star} 
+                          className={`w-5 h-5 ${star <= review.rating ? 'text-yellow-400' : 'text-gray-300'} fill-current`} 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24"
+                        >
                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                       </svg>
                     ))}
@@ -95,11 +208,14 @@ export default function ProductReviews({ reviews }: ProductReviewsProps) {
                 <p className="text-gray-800 whitespace-pre-line mb-4 flex-grow">
                   {review.content}
                 </p>
-
-            
               </div>
             ))}
           </div>
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              <p>目前還沒有評論</p>
+            </div>
+          )}
 
           {/* 查看所有評論按鈕 */}
           {reviews.length > 3 && (

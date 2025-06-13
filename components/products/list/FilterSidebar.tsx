@@ -1,30 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
+import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 
-interface FilterSidebarProps {
-  activeAgeFilters: string[];
-  activeThemeFilters: string[];
-  activePriceFilter: string | null;
-  onClearFilters: () => void;
-  onToggleAgeFilter: (filter: string) => void;
-  onToggleThemeFilter: (filter: string) => void;
-  onSetPriceFilter: (price: string) => void;
-}
-
-export default function FilterSidebar({
-  activeAgeFilters,
-  activeThemeFilters,
-  activePriceFilter,
-  onClearFilters,
-  onToggleAgeFilter,
-  onToggleThemeFilter,
-  onSetPriceFilter
-}: FilterSidebarProps) {
+export default function FilterSidebar() {
+  const {
+    activeAgeFilters,
+    activeThemeFilters,
+    activePriceFilter,
+    authorKeyword,
+    publisherKeyword,
+    clearFilters,
+    toggleAgeFilter,
+    toggleThemeFilter,
+    setPriceFilter,
+    setAuthorKeyword,
+    setPublisherKeyword
+  } = useProductSearchStore();
   const ageFilters = ["0-3 歲", "3-5 歲", "5-7 歲", "7-11 歲", "11-13 歲"];
-  const themeFilters = ["親子共讀", "健康飲食", "科學啟蒙", "兒童文學", "藝術啟蒙"];
+  const themeFilters = ["健康生活", "科學知識", "藝術啟蒙", "音樂欣賞", "勵志成長"];
   const priceFilters = ["$", "$$", "$$$"];
+  
+  // 本地狀態用於輸入框
+  const [authorInput, setAuthorInput] = useState("");
+  const [publisherInput, setPublisherInput] = useState("");
   
   // 控制各分類的展開/收合狀態
   const [expandedSections, setExpandedSections] = useState({
@@ -42,12 +42,41 @@ export default function FilterSidebar({
     }));
   };
 
+  // debounce for author
+  const authorDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const handleAuthorInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setAuthorInput(value);
+    if (authorDebounceRef.current) clearTimeout(authorDebounceRef.current);
+    authorDebounceRef.current = setTimeout(() => {
+      setAuthorKeyword(value);
+    }, 1000);
+  };
+
+  // debounce for publisher
+  const publisherDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const handlePublisherInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPublisherInput(value);
+    if (publisherDebounceRef.current) clearTimeout(publisherDebounceRef.current);
+    publisherDebounceRef.current = setTimeout(() => {
+      setPublisherKeyword(value);
+    }, 1000);
+  };
+
+  // 清除所有篩選包括本地狀態
+  const handleClearFilters = () => {
+    setAuthorInput("");
+    setPublisherInput("");
+    clearFilters();
+  };
+
   return (
-    <div className="w-full lg:w-80 bg-white rounded-3xl border border-gray-200 p-6 h-fit">
+    <div className="w-full lg:w-64 bg-white rounded-3xl border border-gray-200 p-6 h-fit">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-jf-openhuninn text-gray-900">篩選</h2>
         <button 
-          onClick={onClearFilters} 
+          onClick={handleClearFilters} 
           className="text-orange-600 hover:underline"
         >
           清除篩選
@@ -78,7 +107,7 @@ export default function FilterSidebar({
                   type="checkbox" 
                   id={`age-${filter}`} 
                   checked={activeAgeFilters.includes(filter)}
-                  onChange={() => onToggleAgeFilter(filter)}
+                  onChange={() => toggleAgeFilter(filter)}
                   className={`w-4 h-4 form-checkbox rounded ${
                     activeAgeFilters.includes(filter)
                       ? 'bg-orange-600 border-orange-600 text-white accent-orange-600' 
@@ -118,7 +147,7 @@ export default function FilterSidebar({
                   type="checkbox" 
                   id={`theme-${filter}`} 
                   checked={activeThemeFilters.includes(filter)}
-                  onChange={() => onToggleThemeFilter(filter)}
+                  onChange={() => toggleThemeFilter(filter)}
                   className={`w-4 h-4 form-checkbox rounded ${
                     activeThemeFilters.includes(filter) 
                       ? 'bg-orange-600 border-orange-600 text-white accent-orange-600' 
@@ -155,7 +184,7 @@ export default function FilterSidebar({
             {priceFilters.map((price) => (
               <button
                 key={price}
-                onClick={() => onSetPriceFilter(price)}
+                onClick={() => setPriceFilter(price)}
                 className={`w-16 h-10 rounded-full flex items-center justify-center ${
                   activePriceFilter === price ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-900'
                 }`}
@@ -175,8 +204,8 @@ export default function FilterSidebar({
           onClick={() => toggleSection('publisher')}
           className="flex justify-between items-center mb-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
         >
-          <h3 className="text-xl font-jf-openhuninn text-gray-900">出版社/作者</h3>
-          <div className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+          <h3 className="text-xl font-jf-openhuninn text-gray-900">作者/出版社</h3>
+          <div className="w-8 h-8 flex items-center justify-center rounded-full hover:border-orange-100">
             <Image 
               src={expandedSections.publisher ? "/images/icon/remove-rounded-2.svg" : "/images/icon/add-rounded-2.svg"} 
               alt={expandedSections.publisher ? "收合" : "展開"} 
@@ -187,7 +216,20 @@ export default function FilterSidebar({
         </div>
         {expandedSections.publisher && (
           <div className="flex flex-col gap-2">
-            <p className="text-gray-500">出版社/作者篩選功能尚未實作</p>
+            <input
+              type="text"
+              placeholder="請輸入作者名稱"
+              value={authorInput}
+              onChange={handleAuthorInput}
+              className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400 transition-all duration-200"
+            />
+            <input
+              type="text"
+              placeholder="請輸入出版社名稱"
+              value={publisherInput}
+              onChange={handlePublisherInput}
+              className="w-full px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 hover:border-gray-400 transition-all duration-200"
+            />
           </div>
         )}
       </div>

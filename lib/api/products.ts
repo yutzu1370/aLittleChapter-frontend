@@ -1,4 +1,4 @@
-import { ProductDetail, Product, Review, ProductImage, ProductListItem } from '@/lib/types/product';
+import { ProductDetail, Product, Review, ProductImage, ProductListItem, Pagination } from '@/lib/types/product';
 import { getMockReviews } from '../mocks/products';
 import apiClient, { ApiResponse } from '@/lib/apiClient';
 
@@ -190,4 +190,20 @@ export async function fetchProductsByAgeRange(ageRangeId: number): Promise<Produ
     // 發生錯誤時返回空陣列，避免頁面崩潰
     return [];
   }
-} 
+}
+
+// 商品篩選參數介面
+export interface ProductFilters {
+  keyword?: string;
+  author?: string;
+  publisher?: string;
+  category_id?: number;
+  age_range_id?: number;
+  price_range?: number;
+  is_new_arrival?: boolean;
+  is_bestseller?: boolean;
+  is_discount?: boolean;
+  page?: number;
+}
+
+// 移除 fetchProductsWithFilters，改由 lib/api/search.ts 處理 

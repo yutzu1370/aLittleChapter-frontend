@@ -10,6 +10,8 @@ import { useCartStore } from "@/lib/store/useCartStore"
 import { useFavoritesStore } from "@/lib/store/useFavoritesStore"
 import { getWishlistApi } from "@/lib/api/wishlist"
 import { getNotificationsApi } from "@/lib/api/notifications"
+import { useRouter } from "next/navigation"
+import { useProductSearchStore } from "@/lib/store/useProductSearchStore"
 
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -22,6 +24,12 @@ export default function Header() {
   const { isAuthenticated, user } = useAuthStore()
   const { items } = useCartStore()
   const { getFavoriteCount } = useFavoritesStore()
+  const [localSearchKeyword, setLocalSearchKeyword] = useState("")
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  const router = useRouter()
+  const { setSearchKeyword, setActiveCategory } = useProductSearchStore()
   
   // 確保客戶端 hydration 完成
   useEffect(() => {
@@ -121,11 +129,11 @@ export default function Header() {
 
   // 產品分類選項
   const productCategories = [
-    { name: "健康生活", href: "/products?category=health" },
-    { name: "科學知識", href: "/products?category=science" },
-    { name: "藝術啟蒙", href: "/products?category=art" },
-    { name: "音樂欣賞", href: "/products?category=music" },
-    { name: "勵志成長", href: "/products?category=motivation" }
+    { name: "健康生活", href: "/products?category_id=1", id: 1 },
+    { name: "科學知識", href: "/products?category_id=2", id: 2 },
+    { name: "藝術啟蒙", href: "/products?category_id=3", id: 3 },
+    { name: "音樂欣賞", href: "/products?category_id=4", id: 4 },
+    { name: "勵志成長", href: "/products?category_id=5", id: 5 }
   ]
 
   const handleProductsMouseEnter = () => {
@@ -138,6 +146,42 @@ export default function Header() {
 
   // 獲取用戶頭像 URL
   const userAvatar = user?.avatar || "/images/user_icon/user.png"
+
+  // 假自動補全資料
+  const mockSuggestions = ["貓公主", "白雪公主", "長髮公主"]
+
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setLocalSearchKeyword(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      if (value) {
+        setSuggestions(mockSuggestions.filter(s => s.includes(value)))
+        setShowSuggestions(true)
+      } else {
+        setShowSuggestions(false)
+      }
+    }, 300)
+  }
+
+  const handleSearch = () => {
+    if (!localSearchKeyword) return
+    setShowSuggestions(false)
+    // 跳轉到產品頁並帶上 keyword
+    router.push(`/products?keyword=${encodeURIComponent(localSearchKeyword)}`)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+
+  const handleSuggestionClick = (s: string) => {
+    setLocalSearchKeyword(s)
+    setShowSuggestions(false)
+    router.push(`/products?keyword=${encodeURIComponent(s)}`)
+  }
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 py-2 sm:py-4">
@@ -159,9 +203,14 @@ export default function Header() {
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex space-x-3 xl:space-x-6 flex-1 justify-start">
-            <Link href="/hot" className="text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm xl:text-base">
+            <button 
+              onClick={() => {
+                router.push('/products?is_bestseller=true');
+              }}
+              className="pb-2 text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm xl:text-base"
+            >
               熱銷排行
-            </Link>
+            </button>
             
             {/* Products Dropdown */}
             <div 
@@ -174,7 +223,13 @@ export default function Header() {
                 className="flex items-center text-gray-900 font-semibold hover:text-orange-500 whitespace-nowrap text-sm xl:text-base pb-2"
                 aria-expanded={showProductsDropdown}
                 aria-haspopup="true"
-                onClick={() => setShowProductsDropdown(!showProductsDropdown)}
+                onClick={() => {
+                  if (showProductsDropdown) {
+                    setShowProductsDropdown(false);
+                  } else {
+                    router.push('/products');
+                  }
+                }}
               >
                 探索商品
               </button>
@@ -184,15 +239,18 @@ export default function Header() {
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/5 mt-4 w-32 bg-white border-4 border-[#F8D0B0] rounded-3xl shadow-lg overflow-hidden z-[60] text-center">
                   <div className="py-2">
                     {productCategories.map((category, index) => (
-                      <Link
+                      <button
                         key={category.name}
-                        href={category.href}
-                        className="block px-6 py-3 text-sm font-medium text-gray-900 hover:bg-[#FEF5EE] hover:text-orange-500 transition-colors cursor-pointer"
-                        onClick={() => setShowProductsDropdown(false)}
-                        onMouseDown={(e) => e.preventDefault()}
+                        className="block w-full  px-6 py-3 text-sm font-medium text-gray-900 hover:bg-[#FEF5EE] hover:text-orange-500 transition-colors cursor-pointer"
+                        onClick={() => {
+                          setShowProductsDropdown(false);
+                          router.push(`/products?category_id=${category.id}`);
+                        }}
+                        tabIndex={0}
+                        aria-label={category.name}
                       >
                         {category.name}
-                      </Link>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -221,10 +279,33 @@ export default function Header() {
           <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
             {/* Search - Hidden on mobile */}
             <div className="hidden sm:flex relative w-32 lg:w-auto">
-              <div className="flex items-center border-2 sm:border-4 border-[#F8D0B0] rounded-full pl-2 pr-1 py-1 sm:py-1.5">
-                <Search className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-gray-900 flex-shrink-0" />
-                <input type="text" placeholder="搜尋" className="pl-1 pr-1 w-full focus:outline-none text-xs sm:text-sm" />
+              <div className="flex items-center border-2 sm:border-4 border-[#F8D0B0] rounded-full pl-2 pr-1 py-1 sm:py-1.5 bg-white transition-all duration-300 w-40 focus-within:w-64 hover:w-64 hover:border-orange-500">
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-gray-900 flex-shrink-0 cursor-pointer" onClick={handleSearch} />
+                <input 
+                  type="text" 
+                  placeholder="搜尋" 
+                  className="pl-1 pr-1 w-full focus:outline-none text-xs sm:text-sm bg-white"
+                  value={localSearchKeyword}
+                  onChange={handleSearchInput}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => localSearchKeyword && setShowSuggestions(true)}
+                  aria-label="搜尋"
+                />
               </div>
+              {/* 自動補全建議 dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-10 mt-2 bg-white border-2 border-orange-300 rounded-2xl shadow-lg z-50">
+                  {suggestions.map((s, i) => (
+                    <div
+                      key={s}
+                      className="px-4 py-2 cursor-pointer hover:bg-orange-50 text-gray-900 rounded-2xl"
+                      onClick={() => handleSuggestionClick(s)}
+                    >
+                      {s}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {isAuthenticated ? (

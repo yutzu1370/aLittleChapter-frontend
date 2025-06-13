@@ -4,23 +4,20 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-interface ProductBannerProps {
-  currentSlide: number;
-  setCurrentSlide: (index: number) => void;
-  onPrevSlide: () => void;
-  onNextSlide: () => void;
-}
-
-export default function ProductBanner({
-  currentSlide,
-  setCurrentSlide,
-  onPrevSlide,
-  onNextSlide
-}: ProductBannerProps) {
+export default function ProductBanner() {
+  const [currentSlide, setCurrentSlide] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
+  const handlePrevSlide = () => {
+    setCurrentSlide(prev => (prev === 0 ? 4 : prev - 1));
+  };
+
+  const handleNextSlide = () => {
+    setCurrentSlide(prev => (prev === 4 ? 0 : prev + 1));
+  };
+
   return (
-    <div className="pt-8 sm:pt-16 md:pt-24">
+    <div className="pt-2 sm:pt-12 md:pt-20">
       <section className="w-full overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" ref={carouselRef}>
           <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-stretch">
@@ -59,7 +56,7 @@ export default function ProductBanner({
                     <span className="text-base sm:text-lg text-gray-900">練習情緒理解與同理心</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Image src="/images/icon/title-icon-3.svg" alt="親子時光" width={24} height={24} />
+                    <Image src="/images/icon/title-icon-3.svg" alt="語言表達" width={24} height={24} />
                     <span className="text-base sm:text-lg text-gray-900">創造溫馨親子時光</span>
                   </div>
                 </div>
@@ -73,7 +70,7 @@ export default function ProductBanner({
               {/* 輪播控制區 */}
               <div className="flex justify-between items-center w-full mt-9">
                 <button 
-                  onClick={onPrevSlide}
+                  onClick={handlePrevSlide}
                   aria-label="上一頁"
                   className="bg-white border-2 border-[#E8652B] rounded-full shadow-[4px_6px_0px_#74281A] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-[#FEF5EE] transition"
                 >
@@ -93,7 +90,7 @@ export default function ProductBanner({
                 </div>
                 
                 <button 
-                  onClick={onNextSlide}
+                  onClick={handleNextSlide}
                   aria-label="下一頁"
                   className="bg-white border-2 border-[#E8652B] rounded-full shadow-[4px_6px_0px_#74281A] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center hover:bg-[#FEF5EE] transition"
                 >

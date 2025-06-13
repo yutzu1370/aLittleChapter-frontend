@@ -1,111 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { categories, products } from "@/lib/data/products";
 import FloatingButtons from "@/components/interaction/FloatingButtons";
 import ClientChat from "@/components/interaction/chat/ClientChat";
 import ProductBanner from "@/components/products/list/ProductBanner";
 import FilterSidebar from "@/components/products/list/FilterSidebar";
 import ProductList from "@/components/products/list/ProductList";
 import CategoryFilter from "@/components/products/list/CategoryFilter";
+import { useSearchParams } from "next/navigation";
+import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 
 export default function ProductsPage() {
-  const [activeCategory, setActiveCategory] = useState("全部作品");
-  const [activeAgeFilters, setActiveAgeFilters] = useState<string[]>([]);
-  const [activeThemeFilters, setActiveThemeFilters] = useState<string[]>(["親子共讀"]);
-  const [activePriceFilter, setActivePriceFilter] = useState<string | null>(null);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  
-  // 模擬根據分類過濾商品
-  const filteredProducts = activeCategory === "全部作品"
-    ? products
-    : products.filter((_, index) => index % 2 === 0); // 假過濾，僅供示範
+  const searchParams = useSearchParams();
+  const { 
+    products, 
+    pagination, 
+    isLoading, 
+    error, 
+    initFromQuery, 
+    fetchProducts 
+  } = useProductSearchStore();
 
-  const handlePrevSlide = () => {
-    setCurrentSlide(prev => (prev === 0 ? 4 : prev - 1));
-  };
+  // 從 URL 參數初始化並觸發查詢
+  useEffect(() => {
+    initFromQuery(searchParams);
+  }, [searchParams, initFromQuery]);
 
-  const handleNextSlide = () => {
-    setCurrentSlide(prev => (prev === 4 ? 0 : prev + 1));
-  };
-
-  const handleClearFilters = () => {
-    setActiveAgeFilters([]);
-    setActiveThemeFilters([]);
-    setActivePriceFilter(null);
-  };
-
-  const toggleAgeFilter = (filter: string) => {
-    setActiveAgeFilters(prev => 
-      prev.includes(filter) 
-        ? prev.filter(f => f !== filter) 
-        : [...prev, filter]
-    );
-  };
-
-  const toggleThemeFilter = (filter: string) => {
-    setActiveThemeFilters(prev => 
-      prev.includes(filter) 
-        ? prev.filter(f => f !== filter) 
-        : [...prev, filter]
-    );
-  };
-
-  const setPriceFilter = (price: string) => {
-    setActivePriceFilter(prev => prev === price ? null : price);
-  };
+  // 初始載入
+  useEffect(() => {
+    // 如果沒有 URL 參數，載入預設商品
+    if (!searchParams.get("keyword") && !searchParams.get("category_id") && !searchParams.get("age_range_id")) {
+      fetchProducts();
+    }
+  }, []);
 
   return (
-    <main className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
       <Header />
       
-      {/* 輪播橫幅區域 */}
-      <ProductBanner 
-        currentSlide={currentSlide}
-        setCurrentSlide={setCurrentSlide}
-        onPrevSlide={handlePrevSlide}
-        onNextSlide={handleNextSlide}
-      />
-      
-      {/* 商品區塊 */}
-      <section className="max-w-7xl mx-auto mb-40  px-4 sm:px-6 lg:px-8 py-30">
-        {/* 分類過濾 */}
-        <CategoryFilter 
-          categories={categories}
-          activeCategory={activeCategory}
-          onCategoryChange={setActiveCategory}
-        />
-        
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* 篩選側邊欄 */}
-          <FilterSidebar 
-            activeAgeFilters={activeAgeFilters}
-            activeThemeFilters={activeThemeFilters}
-            activePriceFilter={activePriceFilter}
-            onClearFilters={handleClearFilters}
-            onToggleAgeFilter={toggleAgeFilter}
-            onToggleThemeFilter={toggleThemeFilter}
-            onSetPriceFilter={setPriceFilter}
-          />
+      <main className="pt-8 px-16 sm:pt-16 lg:pt-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Banner */}
+          <ProductBanner />
           
-          {/* 產品列表 */}
-          <ProductList 
-            products={filteredProducts}
-            searchKeyword="親子共讀"
-            totalCount={15}
-          />
+          {/* 分類篩選 */}
+          <CategoryFilter />
+          
+          {/* 主要內容區域 */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* 左側篩選欄 */}
+            <FilterSidebar />
+            
+            {/* 右側商品列表 */}
+            <div className="flex-1">
+              {isLoading && (
+                <div className="flex justify-center items-center py-20">
+                  <div className="text-lg text-gray-600">載入中...</div>
+                </div>
+              )}
+              
+              {error && (
+                <div className="flex justify-center items-center py-20">
+                  <div className="text-lg text-red-600">{error}</div>
+                </div>
+              )}
+              
+              {!isLoading && !error && (
+                <ProductList />
+              )}
+            </div>
+          </div>
         </div>
-      </section>
-
-      {/* 浮動回到頂部按鈕 */}
-      <FloatingButtons />
+      </main>
       
-      {/* 聊天機器人 */}
-      <ClientChat />
-
       <Footer />
-    </main>
+      <FloatingButtons />
+      <ClientChat />
+    </div>
   );
 }

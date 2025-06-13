@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchProductById, fetchProductReviews } from "@/lib/api/products";
+import { fetchProductById } from "@/lib/api/products";
 import ProductImages from "@/components/products/detail/ProductImages";
 import ProductInfo from "@/components/products/detail/ProductInfo";
 import ProductAbout from "@/components/products/detail/ProductAbout";
@@ -12,7 +12,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ClientChat from "@/components/interaction/chat/ClientChat";
 import { useParams } from "next/navigation";
-import { ProductDetail, Review } from "@/lib/types/product";
+import { ProductDetail } from "@/lib/types/product";
 
 export default function ProductDetailPage() {
   // 使用 useParams 鉤子獲取路由參數
@@ -21,7 +21,6 @@ export default function ProductDetailPage() {
   
   // 使用狀態管理商品資料
   const [product, setProduct] = useState<ProductDetail | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -35,10 +34,6 @@ export default function ProductDetailPage() {
         // 使用真實 API 獲取商品詳情
         const productData = await fetchProductById(id);
         setProduct(productData);
-        
-        // 獲取評論
-        const reviewsData = await fetchProductReviews(id);
-        setReviews(reviewsData);
       } catch (err) {
         setError("無法載入商品資料，請稍後再試。");
       } finally {
@@ -98,7 +93,7 @@ export default function ProductDetailPage() {
       <RelatedProducts currentProduct={product} />
 
       {/* 會員評價區塊 */}
-      <ProductReviews reviews={reviews} />
+      <ProductReviews productId={product.productId} />
 
       {/* 浮動回到頂部按鈕 */}
       <FloatingButtons />

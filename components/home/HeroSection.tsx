@@ -4,6 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 
 // 預加載圖片
 const heroBackground = "/images/hero_0.png"
@@ -15,6 +16,7 @@ const subtitleImage = "/images/subtitle.png"
 const animalsImage = "/images/animals.png"
 
 export default function Hero() {
+  const router = useRouter()
   return (
     <div className="relative h-[calc(100vh-2rem)] sm:h-[calc(100vh-3rem)] min-h-[450px] sm:min-h-[550px] overflow-hidden pt-12 sm:pt-16">
       {/* 背景圖片：固定不動 */}
@@ -151,12 +153,14 @@ export default function Hero() {
             className="animate-spring-up"
             style={{ animationDelay: `${1.2 + index * 0.1}s` }}
           >
-            <Link
-              href={category.href}
+            <button
               className="bg-amber-100 text-amber-800 px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 lg:py-2 rounded-full border-2 border-amber-300 hover:bg-amber-200 hover:scale-105 active:scale-95 transition-all duration-200 font-medium text-sm sm:text-base block whitespace-nowrap"
+              onClick={() => router.push(`/products?age_range_id=${category.id}`)}
+              tabIndex={0}
+              aria-label={category.name}
             >
               {category.name}
-            </Link>
+            </button>
           </motion.div>
         ))}
       </div>

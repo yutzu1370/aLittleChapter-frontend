@@ -153,8 +153,8 @@ export default function RecommendedSets() {
   }
 
   return (
-    <section className="py-12 sm:py-14 lg:py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 sm:py-14 lg:py-16 bg-white">
+      <div className="max-w-7xl mx-auto px-16 sm:px-12 lg:px-16">
         <div className="flex justify-center items-center mb-12 sm:mb-14 lg:mb-16">
           <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 mr-3 sm:mr-4 relative">
             <Image

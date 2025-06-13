@@ -2,22 +2,16 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 
-interface CategoryFilterProps {
-  categories: string[];
-  activeCategory: string;
-  onCategoryChange: (category: string) => void;
-}
-
-export default function CategoryFilter({
-  categories,
-  activeCategory,
-  onCategoryChange,
-}: CategoryFilterProps) {
+export default function CategoryFilter() {
+  const { activeCategory, setActiveCategory } = useProductSearchStore();
+  
+  const categories = ["全部作品", "亮點新書", "熱銷排行", "優惠折扣", "科學知識", "藝術啟蒙", "音樂欣賞", "勵志成長"];
   const [showAll, setShowAll] = useState(false);
   
   // 根據畫面寬度決定顯示多少個類別
-  const visibleCategories = showAll ? categories : categories.slice(0, 5);
+  const visibleCategories = showAll ? categories : categories.slice(0, 4);
   
   return (
     <div className="w-full bg-white rounded-3xl border border-gray-200 p-6 mb-6">
@@ -25,7 +19,7 @@ export default function CategoryFilter({
         {visibleCategories.map((category) => (
           <button
             key={category}
-            onClick={() => onCategoryChange(category)}
+            onClick={() => setActiveCategory(category)}
             className={cn(
               "px-4 py-2 rounded-full text-sm font-medium transition-colors",
               activeCategory === category

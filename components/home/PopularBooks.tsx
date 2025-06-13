@@ -511,12 +511,13 @@ export default function PopularBooks() {
                         )}
 
                         {/* Hover Action Buttons - 改為手機可見 */}
-                        <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-24 flex items-end justify-center gap-2 p-4 sm:p-6 opacity-0 group-hover:opacity-100 sm:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-24 flex items-end justify-center gap-2 p-4 sm:p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <motion.button 
                             whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
                             whileTap={{ scale: 0.95 }}
                             className="flex-1 h-10 sm:h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] transition-colors duration-100 text-xs sm:text-sm"
-                            onClick={() => handleAddToCart(book)}
+                            onClick={() => 
+                              handleAddToCart(book)}
                           >
                             加入購物車
                           </motion.button>
