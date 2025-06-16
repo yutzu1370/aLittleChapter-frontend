@@ -12,6 +12,7 @@ import { getWishlistApi } from "@/lib/api/wishlist"
 import { getNotificationsApi } from "@/lib/api/notifications"
 import { useRouter } from "next/navigation"
 import { useProductSearchStore } from "@/lib/store/useProductSearchStore"
+import axios from "axios"
 
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -147,19 +148,82 @@ export default function Header() {
   // 獲取用戶頭像 URL
   const userAvatar = user?.avatar || "/images/user_icon/user.png"
 
-  // 假自動補全資料
-  const mockSuggestions = ["貓公主", "白雪公主", "長髮公主"]
+  // 檢查是否包含英文字母
+  const containsEnglish = (text: string) => {
+    return /[a-zA-Z]/.test(text)
+  }
+
+  // 串接 n8n webhook 獲取自動補全建議
+  const fetchSuggestions = async (keyword: string) => {
+    console.log('🔍 開始搜尋建議，關鍵字:', keyword)
+    
+    // 檢查輸入條件：不能包含英文，且字數不能超過2個字
+    if (containsEnglish(keyword)) {
+      console.log('❌ 包含英文字母，不呼叫 API')
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+    
+    if (keyword.length > 2) {
+      console.log('❌ 輸入字數超過2個字，不呼叫 API')
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+    
+    console.log('✅ 通過驗證，準備呼叫 API')
+    
+    try {
+      const response = await axios.get('http://35.187.144.53:5678/webhook/suggest-keyword', {
+        params: { keyword }
+      })
+      
+      console.log('📡 API 回應狀態:', response.status)
+      console.log('📦 完整回應資料:', response.data)
+      
+      if (response.status === 200 && response.data?.status && response.data?.data?.suggestions) {
+        const suggestions = response.data.data.suggestions
+        console.log('✅ 成功獲取建議:', suggestions)
+        console.log('📝 建議數量:', suggestions.length)
+        
+        setSuggestions(suggestions)
+        setShowSuggestions(true)
+      } else {
+        console.log('⚠️ API 回應格式不正確或無建議')
+        setSuggestions([])
+        setShowSuggestions(false)
+      }
+    } catch (error) {
+      console.error('❌ 獲取搜尋建議失敗:', error)
+      if (error instanceof Error) {
+        console.error('❌ 錯誤詳情:', error.message)
+      }
+      setSuggestions([])
+      setShowSuggestions(false)
+    }
+  }
 
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    console.log('⌨️ 使用者輸入:', value)
     setLocalSearchKeyword(value)
-    if (debounceRef.current) clearTimeout(debounceRef.current)
+    
+    if (debounceRef.current) {
+      console.log('⏰ 清除之前的防抖動計時器')
+      clearTimeout(debounceRef.current)
+    }
+    
     debounceRef.current = setTimeout(() => {
-      if (value) {
-        setSuggestions(mockSuggestions.filter(s => s.includes(value)))
-        setShowSuggestions(true)
+      const trimmedValue = value.trim()
+      console.log('🕐 防抖動結束，處理輸入:', trimmedValue)
+      
+      if (trimmedValue) {
+        fetchSuggestions(trimmedValue)
       } else {
+        console.log('🚫 輸入為空，隱藏建議')
         setShowSuggestions(false)
+        setSuggestions([])
       }
     }, 300)
   }
@@ -178,9 +242,12 @@ export default function Header() {
   }
 
   const handleSuggestionClick = (s: string) => {
+    console.log('🖱️ 使用者點擊建議:', s)
     setLocalSearchKeyword(s)
     setShowSuggestions(false)
-    router.push(`/products?keyword=${encodeURIComponent(s)}`)
+    const encodedKeyword = encodeURIComponent(s)
+    console.log('🔗 跳轉到搜尋頁面:', `/products?keyword=${encodedKeyword}`)
+    router.push(`/products?keyword=${encodedKeyword}`)
   }
 
   return (
@@ -393,9 +460,37 @@ export default function Header() {
           <div className="lg:hidden absolute top-full left-4 right-4 mt-2 bg-white border-4 border-[#F8D0B0] rounded-3xl shadow-lg overflow-hidden z-[60]">
             <div className="p-4 space-y-4">
               {/* Mobile Search */}
-              <div className="flex items-center border-2 border-[#F8D0B0] rounded-full pl-3 pr-2 py-2">
-                <Search className="h-5 w-5 text-gray-900 flex-shrink-0" />
-                <input type="text" placeholder="搜尋" className="pl-2 w-full focus:outline-none text-sm" />
+              <div className="relative">
+                <div className="flex items-center border-2 border-[#F8D0B0] rounded-full pl-3 pr-2 py-2">
+                  <Search className="h-5 w-5 text-gray-900 flex-shrink-0 cursor-pointer" onClick={handleSearch} />
+                  <input 
+                    type="text" 
+                    placeholder="搜尋" 
+                    className="pl-2 w-full focus:outline-none text-sm" 
+                    value={localSearchKeyword}
+                    onChange={handleSearchInput}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => localSearchKeyword && setShowSuggestions(true)}
+                    aria-label="搜尋"
+                  />
+                </div>
+                {/* 手機版自動補全建議 dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-orange-300 rounded-2xl shadow-lg z-50">
+                    {suggestions.map((s, i) => (
+                      <div
+                        key={s}
+                        className="px-4 py-2 cursor-pointer hover:bg-orange-50 text-gray-900 rounded-2xl"
+                        onClick={() => {
+                          handleSuggestionClick(s)
+                          setShowMobileMenu(false)
+                        }}
+                      >
+                        {s}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               
               {/* Mobile Menu Items */}
