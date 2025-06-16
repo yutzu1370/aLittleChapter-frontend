@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingButtons from "@/components/interaction/FloatingButtons";
@@ -12,7 +12,8 @@ import CategoryFilter from "@/components/products/list/CategoryFilter";
 import { useSearchParams } from "next/navigation";
 import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 
-export default function ProductsPage() {
+// 提取使用 searchParams 的邏輯到單獨的組件
+function ProductsContent() {
   const searchParams = useSearchParams();
   const { 
     products, 
@@ -37,41 +38,60 @@ export default function ProductsPage() {
   }, []);
 
   return (
+    <>
+      {/* Banner */}
+      <ProductBanner />
+      
+      {/* 分類篩選 */}
+      <CategoryFilter />
+      
+      {/* 主要內容區域 */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* 左側篩選欄 */}
+        <FilterSidebar />
+        
+        {/* 右側商品列表 */}
+        <div className="flex-1">
+          {isLoading && (
+            <div className="flex justify-center items-center py-20">
+              <div className="text-lg text-gray-600">載入中...</div>
+            </div>
+          )}
+          
+          {error && (
+            <div className="flex justify-center items-center py-20">
+              <div className="text-lg text-red-600">{error}</div>
+            </div>
+          )}
+          
+          {!isLoading && !error && (
+            <ProductList />
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// 載入中的 fallback 組件
+function ProductsLoadingFallback() {
+  return (
+    <div className="flex justify-center items-center py-20">
+      <div className="text-lg text-gray-600">載入中...</div>
+    </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
     <div className="min-h-screen bg-white">
       <Header />
       
       <main className="pt-8 px-16 sm:pt-16 lg:pt-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Banner */}
-          <ProductBanner />
-          
-          {/* 分類篩選 */}
-          <CategoryFilter />
-          
-          {/* 主要內容區域 */}
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* 左側篩選欄 */}
-            <FilterSidebar />
-            
-            {/* 右側商品列表 */}
-            <div className="flex-1">
-              {isLoading && (
-                <div className="flex justify-center items-center py-20">
-                  <div className="text-lg text-gray-600">載入中...</div>
-                </div>
-              )}
-              
-              {error && (
-                <div className="flex justify-center items-center py-20">
-                  <div className="text-lg text-red-600">{error}</div>
-                </div>
-              )}
-              
-              {!isLoading && !error && (
-                <ProductList />
-              )}
-            </div>
-          </div>
+          <Suspense fallback={<ProductsLoadingFallback />}>
+            <ProductsContent />
+          </Suspense>
         </div>
       </main>
       

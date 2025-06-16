@@ -90,4 +90,47 @@ export async function getOrderById(orderId: string): Promise<ApiResponse<Order>>
     console.error('❌ [Order Detail API] 請求失敗:', error);
     throw error;
   }
+}
+
+// 評價資料介面
+export interface ReviewData {
+  rating: number;
+  content: string;
+}
+
+// 提交商品評價
+export async function submitReviewApi(orderNumber: string, productId: number, reviewData: ReviewData): Promise<ApiResponse> {
+  console.log('🔍 [Review API] 提交評價:', { orderNumber, productId, reviewData });
+  
+  try {
+    const response: ApiResponse = await apiClient.post(`/api/orders/${orderNumber}/products/${productId}/reviews`, reviewData);
+    console.log('✅ [Review API] 回應資料:', response);
+    return response;
+  } catch (error) {
+    console.error('❌ [Review API] 請求失敗:', error);
+    throw error;
+  }
+}
+
+// 訂單操作類型
+export type OrderActionType = 'cancel' | 'return';
+
+// 訂單操作資料
+export interface OrderActionData {
+  orderNumber: string;
+}
+
+// 訂單操作 API
+export async function orderActionApi(type: OrderActionType, data: OrderActionData): Promise<ApiResponse> {
+  console.log('🔍 [Order Action API] 訂單操作:', { type, data });
+  
+  try {
+    const response: ApiResponse = await apiClient.post(`/api/orders/action?type=${type}`, data);
+    console.log('✅ [Order Action API] 回應資料:', response);
+    return response;
+  } catch (error) {
+    console.error('❌ [Order Action API] 請求失敗:', error);
+    throw error;
+  }
 } 
+

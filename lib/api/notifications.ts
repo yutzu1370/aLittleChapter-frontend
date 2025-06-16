@@ -32,10 +32,10 @@ export async function getNotificationsApi(): Promise<NotificationsResponse> {
 
 // 標記全部已讀
 export async function markAllReadApi(): Promise<ApiResponse> {
-  return apiClient.put('/api/notifications/markAllRead', { confirm: true });
+  return apiClient.put('/api/notifications/read', { confirm: true });
 }
 
 // 標記單個通知為已讀
 export async function markAsReadApi(notificationId: string): Promise<ApiResponse> {
-  return apiClient.post(`/api/notifications/${notificationId}/mark-read`);
+  return apiClient.put('/api/notifications/read', { confirm: true, notificationId: notificationId });
 } 

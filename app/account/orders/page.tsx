@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import Image from "next/image"
 import { toast } from "sonner"
-import { getOrders, getOrderByNumber, Order, OrderItem, OrdersResponse } from "@/lib/api/orders"
+import { getOrders, getOrderByNumber, Order, OrderItem, OrdersResponse, orderActionApi, OrderActionType } from "@/lib/api/orders"
 import { ReviewModal } from "@/components/ui/review-modal"
 
 // 狀態映射
@@ -66,10 +66,12 @@ export default function OrderCenter() {
     isOpen: boolean
     productId: number
     productTitle: string
+    orderNumber: string
   }>({
     isOpen: false,
     productId: 0,
-    productTitle: ""
+    productTitle: "",
+    orderNumber: ""
   })
 
   const tabs = ["全部訂單", "待出貨", "已出貨", "已送達"]
@@ -255,11 +257,12 @@ export default function OrderCenter() {
   }
 
   // 開啟評價 Modal
-  const handleOpenReviewModal = (productId: number, productTitle: string) => {
+  const handleOpenReviewModal = (productId: number, productTitle: string, orderNumber: string) => {
     setReviewModal({
       isOpen: true,
       productId,
-      productTitle
+      productTitle,
+      orderNumber
     })
   }
 
@@ -268,7 +271,8 @@ export default function OrderCenter() {
     setReviewModal({
       isOpen: false,
       productId: 0,
-      productTitle: ""
+      productTitle: "",
+      orderNumber: ""
     })
   }
 
@@ -277,16 +281,10 @@ export default function OrderCenter() {
     try {
       console.log('🚀 [Review] 提交評價:', {
         productId: reviewModal.productId,
+        orderNumber: reviewModal.orderNumber,
         rating,
         comment
       })
-      
-      // 這裡可以調用後端 API 提交評價
-      // const response = await submitReviewApi({
-      //   productId: reviewModal.productId,
-      //   rating,
-      //   comment
-      // })
       
       toast.success('評價提交成功！', {
         description: '感謝您的評價',
@@ -305,6 +303,33 @@ export default function OrderCenter() {
     }
   }
 
+  // 處理訂單操作（取消訂單、申請退貨）
+  const handleOrderAction = async (orderNumber: string, actionType: OrderActionType, actionName: string) => {
+    try {
+      console.log('🚀 [Order Action] 執行訂單操作:', { orderNumber, actionType, actionName })
+      
+      const response = await orderActionApi(actionType, { orderNumber })
+      
+      if (response.status) {
+        toast.success(`${actionName}成功！`, {
+          description: response.message || `您的${actionName}請求已提交`,
+          duration: 3000,
+        })
+        
+        // 重新獲取訂單列表以更新狀態
+        fetchOrders(pagination.page)
+      } else {
+        throw new Error(response.message || `${actionName}失敗`)
+      }
+    } catch (error) {
+      console.error(`💥 [Order Action] ${actionName}失敗:`, error)
+      toast.error(`${actionName}失敗`, {
+        description: error instanceof Error ? error.message : '請稍後再試',
+        duration: 3000,
+      })
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white">
@@ -319,7 +344,7 @@ export default function OrderCenter() {
 
   return (
     <div className="h-auto bg-white font-noto-sans-tc">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4  max-w-4xl">
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
@@ -410,11 +435,11 @@ export default function OrderCenter() {
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                      <div>
+                      <div className="whitespace-nowrap">
                         <span className="text-gray-500 font-noto-sans-tc">下單日期：</span>
                         <span className="text-gray-800 font-noto-sans-tc">{formatDate(order.createdAt)}</span>
                       </div>
-                      <div>
+                      <div className="text-center">
                         <span className="text-gray-500 font-noto-sans-tc">商品數量：</span>
                         <span className="text-gray-800 font-noto-sans-tc">共{order.totalQuantity}件</span>
                       </div>
@@ -425,6 +450,30 @@ export default function OrderCenter() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      {/* 取消訂單按鈕 - 只在 pending 狀態顯示 */}
+                      {order.orderStatus === "pending" && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleOrderAction(order.orderNumber, 'cancel', '取消訂單')}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl font-noto-sans-tc"
+                        >
+                          取消訂單
+                        </Button>
+                      )}
+                      
+                      {/* 申請退貨按鈕 - 只在 completed 狀態顯示 */}
+                      {order.orderStatus === "completed" && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleOrderAction(order.orderNumber, 'return', '申請退貨')}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 rounded-xl font-noto-sans-tc"
+                        >
+                          申請退貨
+                        </Button>
+                      )}
+                      
                       <Button variant="default" size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-noto-sans-tc">
                         訂單客服
                       </Button>
@@ -482,8 +531,8 @@ export default function OrderCenter() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => handleOpenReviewModal(item.productId, item.productTitle)}
-                                  className="border-orange-500 text-orange-600 hover:bg-orange-50 rounded-full font-noto-sans-tc"
+                                  onClick={() => handleOpenReviewModal(item.productId, item.productTitle, order.orderNumber)}
+                                  className="border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-[#B4371A] rounded-full font-noto-sans-tc"
                                 >
                                   撰寫評價
                                 </Button>
@@ -597,6 +646,7 @@ export default function OrderCenter() {
           onClose={handleCloseReviewModal}
           productTitle={reviewModal.productTitle}
           productId={reviewModal.productId}
+          orderNumber={reviewModal.orderNumber}
           onSubmit={handleSubmitReview}
         />
       </div>

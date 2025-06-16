@@ -16,4 +16,21 @@ export interface DiscountCodeResponse {
 // 驗證折扣碼
 export async function validateDiscountCodeApi(code: string, data: DiscountCodeData): Promise<ApiResponse<DiscountCodeResponse>> {
   return apiClient.post(`/api/discountCodes/${code}`, data);
+}
+
+// 折扣碼資料介面
+export interface DiscountCode {
+  id: number;
+  code: string;
+  description: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  startDate: string;
+  endDate: string;
+  isUsed: boolean;
+}
+
+// 獲取折扣碼列表
+export async function getDiscountCodesApi(): Promise<ApiResponse<DiscountCode[]>> {
+  return apiClient.get('/api/discountCodes');
 } 

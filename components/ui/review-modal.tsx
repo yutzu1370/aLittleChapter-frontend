@@ -4,12 +4,14 @@ import { useState } from "react"
 import { X, Star } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { submitReviewApi } from "@/lib/api/orders"
 
 interface ReviewModalProps {
   isOpen: boolean
   onClose: () => void
   productTitle: string
   productId: number
+  orderNumber: string
   onSubmit: (rating: number, comment: string) => void
 }
 
@@ -17,7 +19,8 @@ export function ReviewModal({
   isOpen, 
   onClose, 
   productTitle, 
-  productId, 
+  productId,
+  orderNumber, 
   onSubmit 
 }: ReviewModalProps) {
   const [rating, setRating] = useState(0)
@@ -43,14 +46,26 @@ export function ReviewModal({
 
     setIsSubmitting(true)
     try {
-      await onSubmit(rating, comment.trim())
-      // 重置表單
-      setRating(0)
-      setHoveredRating(0)
-      setComment("")
-      onClose()
+      // 調用真實的 API
+      const response = await submitReviewApi(orderNumber, productId, {
+        rating,
+        content: comment.trim()
+      })
+
+      if (response.status) {
+        // API 成功回應
+        await onSubmit(rating, comment.trim())
+        // 重置表單
+        setRating(0)
+        setHoveredRating(0)
+        setComment("")
+        onClose()
+      } else {
+        throw new Error(response.message || '提交評價失敗')
+      }
     } catch (error) {
       console.error("提交評價失敗:", error)
+      alert(error instanceof Error ? error.message : '提交評價失敗，請稍後再試')
     } finally {
       setIsSubmitting(false)
     }
@@ -148,7 +163,7 @@ export function ReviewModal({
               {/* 評價內容 */}
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700 font-noto-sans-tc">
-                  請輸入評價內容（最多300字）
+                  請輸入評價內容（最少10字，最多100字）
                 </label>
                 <textarea
                   value={comment}
