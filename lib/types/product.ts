@@ -65,6 +65,7 @@ export interface Review {
   username: string;
   level: number;
   profilePic: string;
+  userAvatar: string;
   rating: number;
   date: string;
   content: string;

@@ -21,21 +21,20 @@ function ProductsContent() {
     isLoading, 
     error, 
     initFromQuery, 
-    fetchProducts 
+    fetchProducts,
+    clearFilters 
   } = useProductSearchStore();
 
   // 從 URL 參數初始化並觸發查詢
   useEffect(() => {
-    initFromQuery(searchParams);
-  }, [searchParams, initFromQuery]);
-
-  // 初始載入
-  useEffect(() => {
-    // 如果沒有 URL 參數，載入預設商品
-    if (!searchParams.get("keyword") && !searchParams.get("category_id") && !searchParams.get("age_range_id")) {
-      fetchProducts();
+    // 如果有 URL 參數，從參數初始化
+    if (searchParams.get("keyword") || searchParams.get("category_id") || searchParams.get("age_range_id") || searchParams.get("is_bestseller")) {
+      initFromQuery(searchParams);
+    } else {
+      // 如果沒有 URL 參數，清除之前的搜尋條件並載入預設商品
+      clearFilters();
     }
-  }, []);
+  }, [searchParams, initFromQuery, clearFilters]);
 
   return (
     <>

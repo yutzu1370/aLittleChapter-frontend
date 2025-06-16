@@ -12,7 +12,7 @@ import { getWishlistApi } from "@/lib/api/wishlist"
 import { getNotificationsApi } from "@/lib/api/notifications"
 import { useRouter } from "next/navigation"
 import { useProductSearchStore } from "@/lib/store/useProductSearchStore"
-import axios from "axios"
+import { getKeywordSuggestionsApi } from "@/lib/api/keyword"
 
 export default function Header() {
   const [showAuthModal, setShowAuthModal] = useState(false)
@@ -175,30 +175,24 @@ export default function Header() {
     console.log('✅ 通過驗證，準備呼叫 API')
     
     try {
-      const response = await axios.get('http://35.187.144.53:5678/webhook/suggest-keyword', {
-        params: { keyword }
-      })
+      const suggestions = await getKeywordSuggestionsApi(keyword)
+      console.log('📦 [Header] API 回應的建議陣列:', suggestions)
+      console.log('📦 [Header] 建議陣列類型:', typeof suggestions)
+      console.log('📦 [Header] 是否為陣列:', Array.isArray(suggestions))
       
-      console.log('📡 API 回應狀態:', response.status)
-      console.log('📦 完整回應資料:', response.data)
-      
-      if (response.status === 200 && response.data?.status && response.data?.data?.suggestions) {
-        const suggestions = response.data.data.suggestions
-        console.log('✅ 成功獲取建議:', suggestions)
-        console.log('📝 建議數量:', suggestions.length)
+      if (Array.isArray(suggestions) && suggestions.length > 0) {
+        console.log('✅ [Header] 成功獲取建議，數量:', suggestions.length)
+        console.log('📝 [Header] 建議內容:', suggestions)
         
         setSuggestions(suggestions)
         setShowSuggestions(true)
       } else {
-        console.log('⚠️ API 回應格式不正確或無建議')
+        console.log('⚠️ [Header] 沒有獲取到有效的建議')
         setSuggestions([])
         setShowSuggestions(false)
       }
     } catch (error) {
-      console.error('❌ 獲取搜尋建議失敗:', error)
-      if (error instanceof Error) {
-        console.error('❌ 錯誤詳情:', error.message)
-      }
+      console.error('❌ [Header] 獲取搜尋建議失敗:', error)
       setSuggestions([])
       setShowSuggestions(false)
     }

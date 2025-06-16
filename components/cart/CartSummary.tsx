@@ -25,7 +25,7 @@ const CartSummary = ({ appliedDiscount }: CartSummaryProps) => {
   
   // 在組件內部計算運費和折扣
   const shippingFee = 60;
-  const discount = appliedDiscount?.discountAmount || 0;
+  const discount = Math.floor(appliedDiscount?.discountAmount || 0);
   const subtotal = getSubtotal();
   const addOnSubtotal = getAddOnSubtotal();
   const total = subtotal + addOnSubtotal + shippingFee - discount;
@@ -64,7 +64,7 @@ const CartSummary = ({ appliedDiscount }: CartSummaryProps) => {
           <div className="flex justify-between items-center text-[#509D94]">
             <span className="text-sm">折扣 ({appliedDiscount.code})</span>
             <span className="text-sm">
-              <span className="font-jf-openhuninn">-${discount.toLocaleString('zh-TW')}</span>
+              <span className="font-jf-openhuninn">-${Math.floor(discount).toLocaleString('zh-TW')}</span>
             </span>
           </div>
         )}

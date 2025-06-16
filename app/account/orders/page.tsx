@@ -10,6 +10,8 @@ import Image from "next/image"
 import { toast } from "sonner"
 import { getOrders, getOrderByNumber, Order, OrderItem, OrdersResponse, orderActionApi, OrderActionType } from "@/lib/api/orders"
 import { ReviewModal } from "@/components/ui/review-modal"
+import { ReturnModal } from "@/components/ui/return-modal"
+import ChatWindow from "@/components/interaction/chat/ChatWindow"
 
 // 狀態映射
 const statusMapping = {
@@ -17,11 +19,15 @@ const statusMapping = {
     pending: "待出貨",
     shipped: "已出貨", 
     completed: "已完成",
-    cancelled: "已取消"
+    cancelled: "已取消",
+    returnRequested: "已申請退貨",
+    returnAccepted: "已同意退貨",
+    returnRejected: "已拒絕退貨"
   },
   paymentStatus: {
     paid: "已付款",
-    refunded: "已退款"
+    refunded: "已退款",
+    authorizationVoided: "已取消授權"
   },
   shippingStatus: {
     notReceived: "尚未收貨",
@@ -44,6 +50,10 @@ const statusConfig = {
   "已退款": { color: "bg-gray-100 text-gray-800 border-gray-200", icon: CreditCard },
   "處理中": { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: Package },
   "已退貨": { color: "bg-gray-100 text-gray-800 border-gray-200", icon: Package },
+  "已申請退貨": { color: "bg-orange-100 text-orange-800 border-orange-200", icon: Package },
+  "已同意退貨": { color: "bg-green-100 text-green-800 border-green-200", icon: Package },
+  "已拒絕退貨": { color: "bg-red-100 text-red-800 border-red-200", icon: Package },
+  "已取消授權": { color: "bg-gray-100 text-gray-800 border-gray-200", icon: CreditCard },
 }
 
 export default function OrderCenter() {
@@ -54,6 +64,7 @@ export default function OrderCenter() {
   const [orders, setOrders] = useState<Order[]>([])
   const [orderDetailsCache, setOrderDetailsCache] = useState<Map<string, Order>>(new Map()) // 新增：訂單詳細資料快取
   const [isLoading, setIsLoading] = useState(true)
+  const [isChatOpen, setIsChatOpen] = useState(false)
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -74,7 +85,48 @@ export default function OrderCenter() {
     orderNumber: ""
   })
 
+  // 退貨 Modal 狀態
+  const [returnModal, setReturnModal] = useState<{
+    isOpen: boolean
+    orderNumber: string
+  }>({
+    isOpen: false,
+    orderNumber: ""
+  })
+
   const tabs = ["全部訂單", "待出貨", "已出貨", "已送達"]
+
+  // 檢查是否可以申請退貨（完成時間+3天內）
+  const canRequestReturn = (completedAt: string) => {
+    if (!completedAt) {
+      console.log('🚫 [Return Check] 沒有完成時間:', completedAt)
+      return false
+    }
+    
+    try {
+      const completedDate = new Date(completedAt)
+      const currentDate = new Date()
+      const threeDaysInMs = 3 * 24 * 60 * 60 * 1000
+      
+      const timeDiff = currentDate.getTime() - completedDate.getTime()
+      const canReturn = timeDiff <= threeDaysInMs && timeDiff >= 0
+      
+      console.log('⏰ [Return Check] 退貨時間檢查:', {
+        completedAt,
+        completedDate: completedDate.toISOString(),
+        currentDate: currentDate.toISOString(),
+        timeDiffMs: timeDiff,
+        timeDiffDays: timeDiff / (24 * 60 * 60 * 1000),
+        threeDaysInMs,
+        canReturn
+      })
+      
+      return canReturn
+    } catch (error) {
+      console.error('❌ [Return Check] 日期解析錯誤:', error, completedAt)
+      return false
+    }
+  }
 
   // 獲取訂單資料
   const fetchOrders = async (page: number = 1) => {
@@ -276,6 +328,22 @@ export default function OrderCenter() {
     })
   }
 
+  // 開啟退貨 Modal
+  const handleOpenReturnModal = (orderNumber: string) => {
+    setReturnModal({
+      isOpen: true,
+      orderNumber
+    })
+  }
+
+  // 關閉退貨 Modal
+  const handleCloseReturnModal = () => {
+    setReturnModal({
+      isOpen: false,
+      orderNumber: ""
+    })
+  }
+
   // 提交評價
   const handleSubmitReview = async (rating: number, comment: string) => {
     try {
@@ -297,6 +365,40 @@ export default function OrderCenter() {
       console.error('💥 [Review] 提交評價失敗:', error)
       toast.error('評價提交失敗', {
         description: '請稍後再試',
+        duration: 3000,
+      })
+      throw error // 讓 Modal 知道提交失敗
+    }
+  }
+
+  // 提交退貨申請
+  const handleSubmitReturn = async (returnReason: string) => {
+    try {
+      console.log('🚀 [Return] 提交退貨申請:', {
+        orderNumber: returnModal.orderNumber,
+        returnReason
+      })
+      
+      const response = await orderActionApi('return', { 
+        orderNumber: returnModal.orderNumber,
+        returnReason 
+      })
+      
+      if (response.status) {
+        toast.success('退貨申請提交成功！', {
+          description: response.message || '您的退貨申請已提交，我們將盡快處理',
+          duration: 3000,
+        })
+        
+        // 重新獲取訂單列表以更新狀態
+        fetchOrders(pagination.page)
+      } else {
+        throw new Error(response.message || '退貨申請失敗')
+      }
+    } catch (error) {
+      console.error('💥 [Return] 提交退貨申請失敗:', error)
+      toast.error('退貨申請失敗', {
+        description: error instanceof Error ? error.message : '請稍後再試',
         duration: 3000,
       })
       throw error // 讓 Modal 知道提交失敗
@@ -462,21 +564,37 @@ export default function OrderCenter() {
                         </Button>
                       )}
                       
-                      {/* 申請退貨按鈕 - 只在 completed 狀態顯示 */}
+                      {/* 申請退貨按鈕 - 只在 completed 狀態且在時限內顯示 */}
                       {order.orderStatus === "completed" && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => handleOrderAction(order.orderNumber, 'return', '申請退貨')}
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 rounded-xl font-noto-sans-tc"
-                        >
-                          申請退貨
-                        </Button>
+                        canRequestReturn(order.completedAt) ? (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleOpenReturnModal(order.orderNumber)}
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 rounded-xl font-noto-sans-tc"
+                          >
+                            申請退貨
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            disabled
+                            className="text-gray-400 border-gray-200 rounded-xl font-noto-sans-tc cursor-not-allowed"
+                          >
+                            無法退貨
+                          </Button>
+                        )
                       )}
                       
-                      <Button variant="default" size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-noto-sans-tc">
+                      {/* <Button 
+                        variant="default" 
+                        size="sm" 
+                        onClick={() => setIsChatOpen(true)}
+                        className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-noto-sans-tc"
+                      >
                         訂單客服
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -649,6 +767,17 @@ export default function OrderCenter() {
           orderNumber={reviewModal.orderNumber}
           onSubmit={handleSubmitReview}
         />
+
+        {/* 退貨 Modal */}
+        <ReturnModal
+          isOpen={returnModal.isOpen}
+          onClose={handleCloseReturnModal}
+          orderNumber={returnModal.orderNumber}
+          onSubmit={handleSubmitReturn}
+        />
+
+        {/* 聊天視窗 */}
+        {isChatOpen && <ChatWindow onClose={() => setIsChatOpen(false)} />}
       </div>
     </div>
   )

@@ -8,28 +8,28 @@ export default function WebsiteFeatures() {
       title: "線上訂購",
       description: "便捷的線上購書體驗",
       icon: "/images/home/feature_01.png",
-      href: "/ordering",
+
     },
     {
       id: 2,
       title: "安全交易",
       description: "安全可靠的支付系統",
       icon: "/images/home/feature_02.png",
-      href: "/security",
+
     },
     {
       id: 3,
       title: "可靠配送",
       description: "快速準時的配送服務",
       icon: "/images/home/feature_03.png",
-      href: "/delivery",
+
     },
     {
       id: 4,
       title: "售後服務",
       description: "專業的客戶服務團隊",
       icon: "/images/home/feature_04.png",
-      href: "/support",
+
     },
   ]
 
@@ -54,7 +54,7 @@ export default function WebsiteFeatures() {
         <div className="bg-[#FEF5EE] rounded-3xl sm:rounded-[48px] py-8 px-4 sm:py-12 sm:px-8 lg:py-16 lg:px-24">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {features.map((feature) => (
-              <Link key={feature.id} href={feature.href} className="flex flex-col items-center group">
+              <Link key={feature.id} href="/" className="flex flex-col items-center group">
                 <div className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-60 lg:h-60 mb-3 sm:mb-4 lg:mb-2">
                   <div className="w-full h-full bg-white border-4 sm:border-6 lg:border-8 border-[#F8D0B0] rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg">
                     <Image

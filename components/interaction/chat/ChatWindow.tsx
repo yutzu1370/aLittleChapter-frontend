@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { X, Send } from "lucide-react"
+import { sendChatMessage } from "@/lib/api/chat"
 
 interface ChatMessage {
   id: number
@@ -23,23 +24,13 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
       id: 1,
       text: "您好！我是小小篇章的客服機器人，有什麼可以幫助您的嗎？",
       isUser: false,
-      timestamp: "21:17",
-    },
-    {
-      id: 2,
-      text: "我想了解如何選擇適合孩子的書籍",
-      isUser: true,
-      timestamp: "21:18",
-    },
-    {
-      id: 3,
-      text: "您可以根據孩子的年齡、興趣和閱讀水平來選擇適合的書籍。我們的網站提供了按年齡分類的書籍推薦，並且每本書都有詳細的介紹和適讀年齡建議。",
-      isUser: false,
-      timestamp: "21:18",
-    },
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    }
+
   ])
 
   const [inputText, setInputText] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -48,8 +39,8 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
     }
   }, [messages])
 
-  const handleSendMessage = () => {
-    if (inputText.trim() === "") return
+  const handleSendMessage = async () => {
+    if (inputText.trim() === "" || isLoading) return
 
     const newUserMessage: ChatMessage = {
       id: messages.length + 1,
@@ -58,31 +49,55 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     }
 
-    setMessages([...messages, newUserMessage])
+    setMessages(prev => [...prev, newUserMessage])
+    const userMessage = inputText
     setInputText("")
+    setIsLoading(true)
 
-    // 模擬機器人回覆
-    setTimeout(() => {
+    try {
+      // 呼叫後端 API
+      const response = await sendChatMessage(userMessage)
+      
+      let botReply = '感謝您的提問！我們的客服人員將會盡快回覆您。'
+      
+      if (response.status && response.data?.message) {
+        botReply = response.data.message
+      } else if (response.message) {
+        botReply = response.message
+      }
+      
       const botResponse: ChatMessage = {
         id: messages.length + 2,
-        text: "感謝您的提問！我們的客服人員將會盡快回覆您。",
+        text: botReply,
         isUser: false,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       }
-      setMessages((prev) => [...prev, botResponse])
-    }, 1000)
+      
+      setMessages(prev => [...prev, botResponse])
+    } catch (error) {
+      console.error('發送訊息失敗:', error)
+      const errorResponse: ChatMessage = {
+        id: messages.length + 2,
+        text: "抱歉，目前無法處理您的訊息，請稍後再試。",
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      }
+      setMessages(prev => [...prev, errorResponse])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !isLoading) {
       handleSendMessage()
     }
   }
 
   return (
-    <div className="absolute bottom-24 right-0 w-[400px] h-[680px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col">
+    <div className="fixed bottom-28 right-6 w-[400px] h-[calc(100vh-240px)] max-h-[600px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col z-50">
       {/* 聊天室標題 */}
-      <div className="w-full h-20 bg-[#2F726D] rounded-t-xl px-6 py-4 flex items-center justify-between">
+      <div className="w-full h-20 bg-[#2F726D] rounded-t-xl px-6 py-2 flex items-center justify-between">
         <h3 className="text-white font-semibold text-lg">小小篇章客服中心</h3>
         <button onClick={onClose} className="text-white hover:bg-[#1d5854] p-2 rounded-full transition-colors">
           <X className="w-5 h-5" />
@@ -94,9 +109,9 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
         {messages.map((message) => (
           <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"} gap-2`}>
             {!message.isUser && (
-              <div className="w-8 h-8 rounded-full border-2 border-[#F8D0B0] flex-shrink-0">
+              <div className="w-10 h-10">
                 <Image
-                  src="/images/icon/icon_chatbot.png"
+                  src="/images/chat/default_chatbot.png"
                   alt="Chatbot"
                   width={32}
                   height={32}
@@ -119,6 +134,29 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
             </div>
           </div>
         ))}
+        
+        {/* 載入指示器 */}
+        {isLoading && (
+          <div className="flex justify-start gap-2">
+            <div className="w-10 h-10">
+              <Image
+                src="/images/chat/default_chatbot.png"
+                alt="Chatbot"
+                width={32}
+                height={32}
+                style={{ width: "auto", height: "auto" }}
+                className="rounded-full"
+              />
+            </div>
+            <div className="bg-[#F6F6F6] rounded-r-2xl rounded-bl-2xl px-4 py-3">
+              <div className="flex gap-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 客服時間提示 */}
@@ -135,11 +173,13 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="請輸入您的問題..."
-            className="flex-1 h-14 px-4 py-3 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B]"
+            disabled={isLoading}
+            className="flex-1 h-14 px-4 py-3 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B] disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
           <button
             onClick={handleSendMessage}
-            className="w-10 h-10 bg-[#E8652B] rounded-full flex items-center justify-center"
+            disabled={isLoading || inputText.trim() === ""}
+            className="w-10 h-10 bg-[#E8652B] rounded-full flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <Send className="w-5 h-5 text-white" />
           </button>

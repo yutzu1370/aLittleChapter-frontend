@@ -18,9 +18,16 @@ export interface Order {
   totalAmount: number
   discountAmount: number
   shippingFee: number
-  orderStatus: "pending" | "shipped" | "completed" | "cancelled"
-  paymentStatus: "paid" | "refunded"
+  orderStatus: "pending" | "shipped" | "completed" | "cancelled" | "returnRequested" | "returnAccepted" | "returnRejected"
+  paymentStatus: "paid" | "refunded" | "authorizationVoided"
   shippingStatus: "notReceived" | "processing" | "inTransit" | "delivered" | "returned"
+  paymentMethod: string
+  paidAt: string
+  shippedAt: string
+  completedAt: string
+  returnAt: string
+  transactionNumber: string
+  trackingNumber: string
   items?: OrderItem[]
 }
 
@@ -118,6 +125,7 @@ export type OrderActionType = 'cancel' | 'return';
 // 訂單操作資料
 export interface OrderActionData {
   orderNumber: string;
+  returnReason?: string;
 }
 
 // 訂單操作 API

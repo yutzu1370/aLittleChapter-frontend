@@ -66,7 +66,7 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center py-8 px-4">
-      {/* 引入客戶端組件來清空購物車 */}
+      {/* 引入客戶端組件來清空購物車和折扣碼 */}
       <CartCleaner />
       
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 animate-spring-up">

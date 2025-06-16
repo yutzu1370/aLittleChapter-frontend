@@ -13,6 +13,7 @@ interface DiscountStore {
   appliedDiscount: DiscountInfo | null;
   setDiscount: (discount: DiscountInfo | null) => void;
   clearDiscount: () => void;
+  clearDiscountOnPaymentSuccess: () => void;
   calculateDiscountAmount: (cartTotal: number) => number;
 }
 
@@ -29,6 +30,11 @@ export const useDiscountStore = create<DiscountStore>()(
         set({ appliedDiscount: null });
       },
 
+      clearDiscountOnPaymentSuccess: () => {
+        set({ appliedDiscount: null });
+        console.log('付款成功，折扣碼已清空');
+      },
+
       calculateDiscountAmount: (cartTotal) => {
         const { appliedDiscount } = get();
         if (!appliedDiscount) return 0;
@@ -40,13 +46,7 @@ export const useDiscountStore = create<DiscountStore>()(
           discountAmount = cartTotal * appliedDiscount.value;
         }
         
-        // 更新折扣金額並返回
-        const updatedDiscount = {
-          ...appliedDiscount,
-          discountAmount: Math.floor(discountAmount)
-        };
-        set({ appliedDiscount: updatedDiscount });
-        
+        // 無條件捨去小數點並返回整數
         return Math.floor(discountAmount);
       }
     }),

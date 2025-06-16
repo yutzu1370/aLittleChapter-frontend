@@ -89,13 +89,37 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
         description: discountData.description
       });
 
+      // 計算實際折扣金額
+      // 後端回傳的 discountAmount 就是計算後折扣金額需轉成int（例如：0.75 表示 75% 折扣）
+      let actualDiscountAmount = 0;
+      let discountValue = 0;
+
+      if (discountData.discountType === 'percentage') {
+        // 百分比折扣：後端回傳的是小數值（如 0.75），直接使用
+        const discountAmount = parseInt(discountData.discountAmount.toString());
+        // 折扣金額 = 購物車總額 × 折扣值，無條件捨去小數
+        actualDiscountAmount = cartTotal - discountAmount
+        console.log('💰 [DiscountCode] 百分比折扣計算:', {
+          cartTotal,
+          calculation: `${cartTotal} - ${discountAmount}`,
+          actualDiscountAmount
+        });
+      } else if (discountData.discountType === 'fixed') {
+        // 固定金額折扣
+        discountValue = discountData.discountAmount;
+        actualDiscountAmount = Math.min(discountData.discountAmount, cartTotal);
+        console.log('💰 [DiscountCode] 固定金額折扣計算:', {
+          cartTotal,
+          discountValue,
+          actualDiscountAmount
+        });
+      }
+
       // 根據API回應建立折扣資訊
       const discountInfo: DiscountInfo = {
         code: discountData.discountCode,
         type: discountData.discountType,
-        value: discountData.discountType === 'percentage' 
-          ? discountData.discountAmount / cartTotal  // 將百分比轉換為小數
-          : discountData.discountAmount,
+        value: discountData.discountAmount,
         discountAmount: discountData.discountAmount,
         description: discountData.description
       };
@@ -119,6 +143,9 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
     toast.info("已移除折扣碼");
   };
 
+  // 獲取當前的折扣金額
+  const currentDiscountAmount = appliedDiscount ? calculateDiscountAmount(cartTotal) : 0;
+
   return (
     <div className="border border-gray-200 rounded-3xl p-6 bg-white shadow-sm mb-6">
       <h2 className="text-xl font-medium text-[#295C58] mb-4">
@@ -132,7 +159,7 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
               <p className="font-medium text-[#295C58]">{appliedDiscount.code}</p>
               <p className="text-sm text-[#509D94]">{appliedDiscount.description}</p>
               <p className="text-sm text-[#509D94]">
-                折扣金額: -${appliedDiscount.discountAmount.toFixed(2)}
+                折扣金額: -${Math.floor(appliedDiscount.discountAmount)}
               </p>
             </div>
             <FancyButton

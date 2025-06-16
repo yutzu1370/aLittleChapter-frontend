@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 
@@ -9,6 +9,14 @@ export default function CategoryFilter() {
   
   const categories = ["全部作品", "亮點新書", "熱銷排行", "優惠折扣", "科學知識", "藝術啟蒙", "音樂欣賞", "勵志成長"];
   const [showAll, setShowAll] = useState(false);
+
+  // 監聽 activeCategory 變化，確保組件狀態同步
+  useEffect(() => {
+    // 當 activeCategory 重置為 '全部作品' 時，確保 showAll 狀態也重置
+    if (activeCategory === '全部作品') {
+      setShowAll(false);
+    }
+  }, [activeCategory]);
   
   // 根據畫面寬度決定顯示多少個類別
   const visibleCategories = showAll ? categories : categories.slice(0, 4);

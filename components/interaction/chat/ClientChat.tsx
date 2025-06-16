@@ -17,15 +17,15 @@ export default function ClientChat() {
 
       <button
         onClick={toggleChat}
-        className="w-20 h-20 bg-white border-4 border-[#F3AE7E] rounded-full shadow-[0px_5px_15px_rgba(0,0,0,0.35)] flex items-center justify-center"
+        className="w-20 h-20 group"
       >
         <Image
-          src="/images/icon/icon_chatbot.png"
+          src={isChatOpen ? "/images/chat/hover_chatbot.png" : "/images/chat/default_chatbot.png"}
           alt="Chatbot"
           width={60}
           height={60}
           style={{ width: "auto", height: "auto" }}
-          className="rounded-full"
+          className="transition-opacity duration-200 group-hover:opacity-80"
         />
       </button>
     </div>

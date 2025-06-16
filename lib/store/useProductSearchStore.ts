@@ -159,6 +159,8 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
             return { is_bestseller: true };
           case "優惠折扣":
             return { is_discount: true };
+          case "健康生活":
+            return { category_id: 1 };
           case "科學知識":
             return { category_id: 2 };
           case "藝術啟蒙":
@@ -271,6 +273,7 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
     if (categoryId) {
       // 根據 category_id 設定對應的分類名稱
       const categoryMapping: { [key: string]: string } = {
+        "1": "健康生活",
         "2": "科學知識", 
         "3": "藝術啟蒙",
         "4": "音樂欣賞",

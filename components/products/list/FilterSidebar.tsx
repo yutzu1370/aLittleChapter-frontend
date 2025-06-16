@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 
@@ -33,6 +33,35 @@ export default function FilterSidebar() {
     price: true,
     publisher: false
   });
+
+  // 監聽 store 中的 authorKeyword 和 publisherKeyword 變化，同步本地狀態
+  useEffect(() => {
+    setAuthorInput(authorKeyword);
+  }, [authorKeyword]);
+
+  useEffect(() => {
+    setPublisherInput(publisherKeyword);
+  }, [publisherKeyword]);
+
+  // 監聽篩選條件的重置，當所有條件都為空時，重置展開狀態
+  useEffect(() => {
+    const isAllFiltersEmpty = 
+      activeAgeFilters.length === 0 &&
+      activeThemeFilters.length === 0 &&
+      activePriceFilter === null &&
+      authorKeyword === '' &&
+      publisherKeyword === '';
+    
+    if (isAllFiltersEmpty) {
+      // 重置展開狀態
+      setExpandedSections({
+        age: true,
+        theme: true,
+        price: true,
+        publisher: false
+      });
+    }
+  }, [activeAgeFilters, activeThemeFilters, activePriceFilter, authorKeyword, publisherKeyword]);
   
   // 切換分類的展開/收合狀態
   const toggleSection = (section: keyof typeof expandedSections) => {

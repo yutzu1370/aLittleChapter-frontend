@@ -22,6 +22,7 @@ interface ReviewsApiResponse {
       content: string;
       rating: number;
       username: string;
+      userAvatar: string;
       createdAt: string;
     }[];
   };
@@ -58,7 +59,8 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
           id: index + 1,
           username: review.username,
           level: 1, // API 沒有提供 level，設為預設值
-          profilePic: "/images/user_icon/user_icon_3.png", // 使用預設頭像
+          profilePic: review.userAvatar || "/images/user_icon/user_icon_3.png", // 使用 API 提供的頭像
+          userAvatar: review.userAvatar || "/images/user_icon/user_icon_3.png", // 新增買家頭像
           rating: review.rating,
           date: new Date(review.createdAt).toLocaleDateString('zh-TW'),
           content: review.content,
