@@ -27,11 +27,32 @@ function ProductsContent() {
 
   // 從 URL 參數初始化並觸發查詢
   useEffect(() => {
-    // 如果有 URL 參數，從參數初始化
-    if (searchParams.get("keyword") || searchParams.get("category_id") || searchParams.get("age_range_id") || searchParams.get("is_bestseller")) {
+    // 檢查所有可能的搜尋相關參數
+    const hasSearchParams = 
+      searchParams.get("keyword") ||
+      searchParams.get("category_id") ||
+      searchParams.get("age_range_id") ||
+      searchParams.get("is_bestseller") ||
+      searchParams.get("is_new_arrival") ||
+      searchParams.get("is_discount");
+    
+    console.log('[ProductsPage] URL 參數檢查:', {
+      keyword: searchParams.get("keyword"),
+      category_id: searchParams.get("category_id"),
+      age_range_id: searchParams.get("age_range_id"),
+      is_bestseller: searchParams.get("is_bestseller"),
+      is_new_arrival: searchParams.get("is_new_arrival"),
+      is_discount: searchParams.get("is_discount"),
+      hasSearchParams
+    });
+    
+    if (hasSearchParams) {
+      // 有 URL 參數：重置所有狀態並從參數初始化
+      console.log('[ProductsPage] 發現 URL 參數，從參數初始化');
       initFromQuery(searchParams);
     } else {
-      // 如果沒有 URL 參數，清除之前的搜尋條件並載入預設商品
+      // 沒有 URL 參數：清除之前的搜尋條件並載入預設商品
+      console.log('[ProductsPage] 無 URL 參數，清除篩選並載入預設商品');
       clearFilters();
     }
   }, [searchParams, initFromQuery, clearFilters]);

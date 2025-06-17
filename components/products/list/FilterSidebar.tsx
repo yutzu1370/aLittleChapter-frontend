@@ -36,10 +36,12 @@ export default function FilterSidebar() {
 
   // 監聽 store 中的 authorKeyword 和 publisherKeyword 變化，同步本地狀態
   useEffect(() => {
+    console.log('[FilterSidebar] authorKeyword 變化:', authorKeyword);
     setAuthorInput(authorKeyword);
   }, [authorKeyword]);
 
   useEffect(() => {
+    console.log('[FilterSidebar] publisherKeyword 變化:', publisherKeyword);
     setPublisherInput(publisherKeyword);
   }, [publisherKeyword]);
 
@@ -52,7 +54,17 @@ export default function FilterSidebar() {
       authorKeyword === '' &&
       publisherKeyword === '';
     
+    console.log('[FilterSidebar] 篩選條件檢查:', {
+      activeAgeFilters: activeAgeFilters.length,
+      activeThemeFilters: activeThemeFilters.length,
+      activePriceFilter,
+      authorKeyword,
+      publisherKeyword,
+      isAllFiltersEmpty
+    });
+    
     if (isAllFiltersEmpty) {
+      console.log('[FilterSidebar] 所有篩選條件為空，重置展開狀態');
       // 重置展開狀態
       setExpandedSections({
         age: true,
@@ -95,9 +107,25 @@ export default function FilterSidebar() {
 
   // 清除所有篩選包括本地狀態
   const handleClearFilters = () => {
+    console.log('[FilterSidebar] 開始清除所有篩選');
+    console.log('[FilterSidebar] 清除前狀態:', {
+      authorInput,
+      publisherInput,
+      activeAgeFilters,
+      activeThemeFilters,
+      activePriceFilter,
+      authorKeyword,
+      publisherKeyword
+    });
+    
+    // 重置本地輸入狀態
     setAuthorInput("");
     setPublisherInput("");
+    
+    // 清除 store 中的篩選條件
     clearFilters();
+    
+    console.log('[FilterSidebar] 篩選清除完成');
   };
 
   return (

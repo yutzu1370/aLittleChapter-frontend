@@ -12,8 +12,11 @@ export default function CategoryFilter() {
 
   // 監聽 activeCategory 變化，確保組件狀態同步
   useEffect(() => {
+    console.log('[CategoryFilter] activeCategory 變化:', activeCategory);
+    
     // 當 activeCategory 重置為 '全部作品' 時，確保 showAll 狀態也重置
     if (activeCategory === '全部作品') {
+      console.log('[CategoryFilter] 重置 showAll 狀態');
       setShowAll(false);
     }
   }, [activeCategory]);
@@ -21,13 +24,18 @@ export default function CategoryFilter() {
   // 根據畫面寬度決定顯示多少個類別
   const visibleCategories = showAll ? categories : categories.slice(0, 4);
   
+  const handleCategoryClick = (category: string) => {
+    console.log('[CategoryFilter] 使用者點擊分類:', category);
+    setActiveCategory(category);
+  };
+  
   return (
     <div className="w-full bg-white rounded-3xl border border-gray-200 p-6 mb-6">
       <div className="flex flex-wrap gap-3">
         {visibleCategories.map((category) => (
           <button
             key={category}
-            onClick={() => setActiveCategory(category)}
+            onClick={() => handleCategoryClick(category)}
             className={cn(
               "px-4 py-2 rounded-full text-sm font-medium transition-colors",
               activeCategory === category

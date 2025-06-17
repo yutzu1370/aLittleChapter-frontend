@@ -261,13 +261,33 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
     const categoryId = params.get("category_id") || "";
     const ageRangeId = params.get("age_range_id") || "";
     const isBestseller = params.get("is_bestseller") || "";
+    const isNewArrival = params.get("is_new_arrival") || "";
+    const isDiscount = params.get("is_discount") || "";
     
-    console.log('[ProductSearchStore] 從 URL 初始化:', { keyword, categoryId, ageRangeId, isBestseller });
+    console.log('[ProductSearchStore] 從 URL 初始化:', { 
+      keyword, 
+      categoryId, 
+      ageRangeId, 
+      isBestseller,
+      isNewArrival,
+      isDiscount
+    });
     
-    const updates: Partial<ProductSearchState> = {};
+    // ⭐ 重要：先完全重置所有篩選條件到初始狀態
+    const resetState: Partial<ProductSearchState> = {
+      searchKeyword: '',
+      activeCategory: '全部作品',
+      activeAgeFilters: [],
+      activeThemeFilters: [],
+      activePriceFilter: null,
+      authorKeyword: '',
+      publisherKeyword: '',
+      currentPage: 1
+    };
     
+    // 然後根據 URL 參數設定對應的值
     if (keyword) {
-      updates.searchKeyword = keyword;
+      resetState.searchKeyword = keyword;
     }
     
     if (categoryId) {
@@ -279,11 +299,16 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
         "4": "音樂欣賞",
         "5": "勵志成長"
       };
-      updates.activeCategory = categoryMapping[categoryId] || "全部作品";
+      resetState.activeCategory = categoryMapping[categoryId] || "全部作品";
     }
     
+    // 處理特殊分類參數（優先度高於 category_id）
     if (isBestseller === "true") {
-      updates.activeCategory = "熱銷排行";
+      resetState.activeCategory = "熱銷排行";
+    } else if (isNewArrival === "true") {
+      resetState.activeCategory = "亮點新書";
+    } else if (isDiscount === "true") {
+      resetState.activeCategory = "優惠折扣";
     }
     
     if (ageRangeId) {
@@ -295,12 +320,16 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
         "4": "7-11 歲",
         "5": "11-13 歲"
       };
-      updates.activeAgeFilters = [ageMapping[ageRangeId]].filter(Boolean);
+      const ageFilter = ageMapping[ageRangeId];
+      if (ageFilter) {
+        resetState.activeAgeFilters = [ageFilter];
+      }
     }
     
-    if (Object.keys(updates).length > 0) {
-      set({ ...updates, currentPage: 1 });
-      get().fetchProducts();
-    }
+    console.log('[ProductSearchStore] 設定新的狀態:', resetState);
+    
+    // 設定新狀態並觸發查詢
+    set(resetState);
+    get().fetchProducts();
   }
 })); 
