@@ -133,7 +133,7 @@ export default function CouponsClient() {
         throw new Error(response.message || '獲取折扣碼失敗')
       }
     } catch (error) {
-      console.error('獲取折扣碼失敗:', error)
+    
       toast.error('獲取折扣碼失敗', {
         description: error instanceof Error ? error.message : '請稍後再試'
       })

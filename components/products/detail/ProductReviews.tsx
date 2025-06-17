@@ -72,7 +72,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         setAverageRating(averageRating);
         setReviewCount(reviewCount);
       } catch (err) {
-        console.error('獲取評論時發生錯誤:', err);
+       
         setError('載入評論失敗');
         // 設為預設值
         setReviews([]);

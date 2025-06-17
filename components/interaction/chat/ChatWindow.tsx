@@ -75,7 +75,7 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
       
       setMessages(prev => [...prev, botResponse])
     } catch (error) {
-      console.error('發送訊息失敗:', error)
+      
       const errorResponse: ChatMessage = {
         id: messages.length + 2,
         text: "抱歉，目前無法處理您的訊息，請稍後再試。",

@@ -155,44 +155,41 @@ export default function Header() {
 
   // 串接 n8n webhook 獲取自動補全建議
   const fetchSuggestions = async (keyword: string) => {
-    console.log('🔍 開始搜尋建議，關鍵字:', keyword)
+    
     
     // 檢查輸入條件：不能包含英文，且字數不能超過2個字
     if (containsEnglish(keyword)) {
-      console.log('❌ 包含英文字母，不呼叫 API')
+    
       setSuggestions([])
       setShowSuggestions(false)
       return
     }
     
     if (keyword.length > 2) {
-      console.log('❌ 輸入字數超過2個字，不呼叫 API')
+      
       setSuggestions([])
       setShowSuggestions(false)
       return
     }
     
-    console.log('✅ 通過驗證，準備呼叫 API')
+    
     
     try {
       const suggestions = await getKeywordSuggestionsApi(keyword)
-      console.log('📦 [Header] API 回應的建議陣列:', suggestions)
-      console.log('📦 [Header] 建議陣列類型:', typeof suggestions)
-      console.log('📦 [Header] 是否為陣列:', Array.isArray(suggestions))
+      
       
       if (Array.isArray(suggestions) && suggestions.length > 0) {
-        console.log('✅ [Header] 成功獲取建議，數量:', suggestions.length)
-        console.log('📝 [Header] 建議內容:', suggestions)
+       
         
         setSuggestions(suggestions)
         setShowSuggestions(true)
       } else {
-        console.log('⚠️ [Header] 沒有獲取到有效的建議')
+        
         setSuggestions([])
         setShowSuggestions(false)
       }
     } catch (error) {
-      console.error('❌ [Header] 獲取搜尋建議失敗:', error)
+      
       setSuggestions([])
       setShowSuggestions(false)
     }
@@ -200,22 +197,22 @@ export default function Header() {
 
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
-    console.log('⌨️ 使用者輸入:', value)
+    
     setLocalSearchKeyword(value)
     
     if (debounceRef.current) {
-      console.log('⏰ 清除之前的防抖動計時器')
+      
       clearTimeout(debounceRef.current)
     }
     
     debounceRef.current = setTimeout(() => {
       const trimmedValue = value.trim()
-      console.log('🕐 防抖動結束，處理輸入:', trimmedValue)
+     
       
       if (trimmedValue) {
         fetchSuggestions(trimmedValue)
       } else {
-        console.log('🚫 輸入為空，隱藏建議')
+        
         setShowSuggestions(false)
         setSuggestions([])
       }
@@ -236,11 +233,11 @@ export default function Header() {
   }
 
   const handleSuggestionClick = (s: string) => {
-    console.log('🖱️ 使用者點擊建議:', s)
+    
     setLocalSearchKeyword(s)
     setShowSuggestions(false)
     const encodedKeyword = encodeURIComponent(s)
-    console.log('🔗 跳轉到搜尋頁面:', `/products?keyword=${encodedKeyword}`)
+    
     router.push(`/products?keyword=${encodedKeyword}`)
   }
 

@@ -75,7 +75,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         description: "無法複製連結，請重試",
         duration: 3000,
       });
-      console.error("無法複製連結:", err);
+      
     });
   };
 
@@ -117,7 +117,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         const backendResult = await addItemToBackendApi(cartItem);
         
         if (!backendResult.status) {
-          console.warn('後端購物車同步失敗:', backendResult.message);
+        
           // 即使後端失敗，本地購物車已經成功，所以仍然顯示成功訊息
           // 但可以在控制台記錄警告
         }
@@ -132,7 +132,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       setQuantity(1);
       
     } catch (error) {
-      console.error("加入購物車失敗:", error);
+     
       toast.error("加入購物車失敗", {
         description: "請稍後再試",
         duration: 3000,
@@ -193,7 +193,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
         }
       }
     } catch (error) {
-      console.error("收藏操作失敗:", error);
+   
       toast.error("收藏操作失敗", {
         description: "請稍後再試",
         duration: 3000,

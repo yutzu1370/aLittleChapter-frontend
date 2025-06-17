@@ -69,7 +69,7 @@ const isLocalStorageAvailable = () => {
     window.localStorage.removeItem(testKey);
     return true;
   } catch (e) {
-    console.error('localStorage 不可用:', e);
+
     return false;
   }
 };
@@ -86,7 +86,7 @@ export const useCartStore = create<CartStore>()(
       isLoadingAddOns: false,
 
       addItem: (product, quantity = 1) => {
-        console.log('正在加入商品到購物車:', product.name, 'x', quantity);
+       
         const productId = parseInt(product.id);
         
         set((state) => {
@@ -94,7 +94,7 @@ export const useCartStore = create<CartStore>()(
           
           if (existingItem) {
             // 如果商品已存在，則增加數量
-            console.log('商品已存在，增加數量');
+           
             const newState = {
               ...state,
               items: state.items.map(item => 
@@ -103,11 +103,11 @@ export const useCartStore = create<CartStore>()(
                   : item
               )
             };
-            console.log('更新後的 state:', newState);
+            
             return newState;
           } else {
             // 否則新增商品 - 轉換為簡化格式
-            console.log('新增商品到購物車');
+         
             const simpleItem: SimpleCartItem = {
               productId: productId,
               name: product.name,
@@ -123,23 +123,23 @@ export const useCartStore = create<CartStore>()(
               ...state,
               items: [...state.items, simpleItem]
             };
-            console.log('新增後的 state:', newState);
+            
             return newState;
           }
         });
       },
 
       removeItem: async (productId, isAuthenticated = false) => {
-        console.log('從購物車移除商品:', productId);
+     
         
         // 如果使用者已登入，先呼叫後端 API
         if (isAuthenticated) {
           try {
             const response = await removeItemFromBackendApi(productId);
-            console.log('後端刪除商品結果:', response);
+       
             // 不管後端是否成功，都繼續執行本地刪除
           } catch (error) {
-            console.error('後端刪除商品失敗:', error);
+       
             // 即使後端失敗，仍然執行本地刪除
           }
         }
@@ -152,7 +152,7 @@ export const useCartStore = create<CartStore>()(
       },
 
       updateQuantity: (productId, quantity) => {
-        console.log('更新商品數量:', productId, quantity);
+        
         set((state) => ({
           ...state,
           items: state.items.map(item => 
@@ -194,23 +194,23 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearCart: () => {
-        console.log('清空購物車');
+  
         set((state) => ({ ...state, items: [] }));
       },
 
       // 加購商品相關操作
       addOnItem: (addOnItem, quantity = 1) => {
-        console.log('正在加入加購商品:', addOnItem.name, 'x', quantity);
+
         set((state) => {
           const existingItem = state.addedOnItems.find(item => item.productId === addOnItem.productId);
           
           if (existingItem) {
             // 如果加購商品已存在，不允許重複加入（數量統一只能+1）
-            console.log('加購商品已存在，不允許重複加入');
+           
             return state;
           } else {
             // 新增加購商品，數量固定為1
-            console.log('新增加購商品');
+           
             const addedItem: AddOnItem = {
               ...addOnItem,
               quantity: 1 // 加購商品數量統一只能+1
@@ -225,7 +225,7 @@ export const useCartStore = create<CartStore>()(
       },
 
       removeAddOnItem: (itemId) => {
-        console.log('從購物車移除加購商品:', itemId);
+  
         set((state) => ({
           ...state,
           addedOnItems: state.addedOnItems.filter(item => item.productId !== itemId)
@@ -233,7 +233,7 @@ export const useCartStore = create<CartStore>()(
       },
 
       updateAddOnQuantity: (itemId, quantity) => {
-        console.log('更新加購商品數量:', itemId, quantity);
+      
         set((state) => ({
           ...state,
           addedOnItems: state.addedOnItems.map(item => 
@@ -243,23 +243,21 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearAddOnItems: () => {
-        console.log('清空加購商品');
+      
         set((state) => ({ ...state, addedOnItems: [] }));
       },
 
       // 從API加載加購商品
       loadAddOnsFromAPI: async () => {
-        console.log('開始從API加載加購商品...');
-        set((state) => ({ ...state, isLoadingAddOns: true }));
+        
         
         try {
           // 獲取熱門商品（已轉換為加購商品格式）
           const addOnItems = await fetchAddOnItems();
-          console.log('獲取到的加購商品:', addOnItems);
           
           // 隨機選取4個商品
           const selectedAddOns = getRandomAddOnItems(addOnItems, 4);
-          console.log('隨機選取的加購商品:', selectedAddOns);
+          
           
           set((state) => ({ 
             ...state, 
@@ -268,7 +266,7 @@ export const useCartStore = create<CartStore>()(
           }));
           
         } catch (error) {
-          console.error('加載加購商品失敗:', error);
+
           // 如果API失敗，使用預設的加購商品
           const defaultAddOns: AddOnItem[] = [
             {
@@ -340,10 +338,10 @@ export const useCartStore = create<CartStore>()(
 
         try {
           const response = await syncCartToBackendApi(cartItems);
-          console.log('購物車同步結果:', response);
+ 
           return response.status;
         } catch (error) {
-          console.error('同步購物車到後端失敗:', error);
+
           return false;
         }
       }
@@ -353,7 +351,7 @@ export const useCartStore = create<CartStore>()(
       storage: createJSONStorage(() => localStorage),
       partialize: (state: CartStore) => ({ items: state.items, addedOnItems: state.addedOnItems }),
       onRehydrateStorage: () => (state) => {
-        console.log('購物車 hydration 完成:', state);
+
       },
     }
   )

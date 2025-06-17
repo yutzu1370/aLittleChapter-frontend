@@ -16,7 +16,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
   favoriteIds: [],
 
   addFavorite: (productId) => {
-    console.log('正在加入收藏:', productId);
+
     set((state) => {
       if (!state.favoriteIds.includes(productId)) {
         const newFavorites = [...state.favoriteIds, productId];
@@ -27,7 +27,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
   },
 
   removeFavorite: (productId) => {
-    console.log('正在移除收藏:', productId);
+  
     set((state) => {
       const newFavorites = state.favoriteIds.filter(id => id !== productId);
       return { favoriteIds: newFavorites };
@@ -40,11 +40,11 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
     
     if (isCurrentlyFavorite) {
       get().removeFavorite(productId);
-      console.log('已從收藏移除:', productId);
+
       return false;
     } else {
       get().addFavorite(productId);
-      console.log('已加入收藏:', productId);
+   
       return true;
     }
   },
@@ -55,7 +55,7 @@ export const useFavoritesStore = create<FavoritesStore>((set, get) => ({
   },
 
   clearFavorites: () => {
-    console.log('清空所有收藏');
+ 
     set({ favoriteIds: [] });
   },
 

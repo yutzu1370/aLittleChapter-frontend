@@ -16,7 +16,7 @@ export default function CartCleaner() {
     clearAddOnItems();
     // 清空折扣碼
     clearDiscountOnPaymentSuccess();
-    console.log('付款成功，購物車和折扣碼已清空');
+    
   }, [clearCart, clearAddOnItems, clearDiscountOnPaymentSuccess]);
 
   // 這個組件不渲染任何內容，只執行副作用

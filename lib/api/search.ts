@@ -29,20 +29,17 @@ export async function fetchProductsWithFilters(filters: ProductFilters = {}): Pr
     });
     
     const apiUrl = `/api/search?${queryParams.toString()}`;
-    console.log('[search.ts] API 請求 URL:', apiUrl);
-    console.log('[search.ts] 篩選參數:', filters);
+
     
     const response: ApiResponse = await apiClient.get(apiUrl);
     
-    console.log('[search.ts] API 原始回應:', response);
+
     
     if (!response.status || !response.data) {
       throw new Error(response.message || '獲取商品列表失敗');
     }
     
-    console.log('[search.ts] API 回應商品數量:', response.data.products?.length || 0);
-    console.log('[search.ts] API 回應分頁資訊:', response.data.pagination);
-    console.log('[search.ts] API 回應商品內容 (前3筆):', response.data.products?.slice(0, 3));
+    
     
     const products: Product[] = response.data.products.map((item: ProductListItem) => ({
       id: item.productId.toString(),
@@ -60,15 +57,14 @@ export async function fetchProductsWithFilters(filters: ProductFilters = {}): Pr
       ageRangeName: item.ageName,
     }));
     
-    console.log('[search.ts] 轉換後商品數量:', products.length);
-    console.log('[search.ts] 轉換後商品內容 (前3筆):', products.slice(0, 3));
+
     
     return {
       products,
       pagination: response.data.pagination
     };
   } catch (error) {
-    console.error('[search.ts] 獲取商品列表時發生錯誤:', error);
+  
     throw new Error('無法載入商品資料');
   }
 } 

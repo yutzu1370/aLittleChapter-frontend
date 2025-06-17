@@ -36,7 +36,7 @@ export default function AuthWithGoogleButton({
       script.defer = true;
       script.onload = initializeGoogle;
       script.onerror = () => {
-        console.error('❌ [Google Auth] 無法載入 Google Identity Services');
+       
       };
       document.head.appendChild(script);
     };
@@ -44,7 +44,7 @@ export default function AuthWithGoogleButton({
     const initializeGoogle = () => {
       if (window.google?.accounts?.id && !isInitialized.current) {
         try {
-          console.log('🚀 [Google Auth] 初始化 Google Identity Services');
+         
           
           window.google.accounts.id.initialize({
             client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
@@ -69,9 +69,9 @@ export default function AuthWithGoogleButton({
           }
 
           isInitialized.current = true;
-          console.log('✅ [Google Auth] Google 登入按鈕初始化完成');
+        
         } catch (error) {
-          console.error('❌ [Google Auth] 初始化失敗:', error);
+         
         }
       }
     };
@@ -87,15 +87,15 @@ export default function AuthWithGoogleButton({
   const handleCredentialResponse = async (response: GoogleCredentialResponse) => {
     const idToken = response.credential;
     try {
-      console.log('🚀 [Google Auth] 開始 Google 登入/註冊流程');
+     
       
       // 呼叫後端 Google 登入/註冊 API
       const result: GoogleAuthResponse = await apiClient.post('/api/users/google-sign-in', { idToken });
 
-      console.log('📦 [Google Auth] API 回應:', result);
+     
 
       if (result.status && result.data?.token) {
-        console.log('✅ [Google Auth] Google 登入/註冊成功');
+       
         
         // 儲存 token 到 localStorage
         localStorage.setItem('token', result.data.token);
@@ -119,11 +119,11 @@ export default function AuthWithGoogleButton({
         // 重新載入頁面以更新狀態
         window.location.reload();
       } else {
-        console.error('❌ [Google Auth] Google 登入/註冊失敗:', result.message);
+          
         alert(result.message || 'Google 登入失敗，請稍後再試');
       }
     } catch (error) {
-      console.error('💥 [Google Auth] Google 登入/註冊錯誤:', error);
+      
       alert('Google 登入失敗，請稍後再試');
     }
   };

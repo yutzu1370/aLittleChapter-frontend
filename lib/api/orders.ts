@@ -56,45 +56,41 @@ export async function getOrders(params: GetOrdersParams = {}): Promise<ApiRespon
     limit: limit.toString(),
   });
 
-  console.log('🔍 [Orders API] 請求參數:', { page, limit });
-  console.log('🔍 [Orders API] 請求 URL:', `/api/orders?${queryParams.toString()}`);
   
   try {
     const response: ApiResponse<OrdersResponse> = await apiClient.get(`/api/orders?${queryParams.toString()}`);
-    console.log('✅ [Orders API] 回應資料:', response);
-    console.log('📊 [Orders API] 訂單數量:', response.data?.orders?.length || 0);
-    console.log('📄 [Orders API] 分頁資訊:', response.data?.pagination);
+   
     return response;
   } catch (error) {
-    console.error('❌ [Orders API] 請求失敗:', error);
+ 
     throw error;
   }
 }
 
 // 獲取單一訂單詳情 - 使用 orderNumber
 export async function getOrderByNumber(orderNumber: string): Promise<ApiResponse<Order>> {
-  console.log('🔍 [Order Detail API] 請求訂單編號:', orderNumber);
+ 
   
   try {
     const response: ApiResponse<Order> = await apiClient.get(`/api/orders/${orderNumber}`);
-    console.log('✅ [Order Detail API] 回應資料:', response);
+  
     return response;
   } catch (error) {
-    console.error('❌ [Order Detail API] 請求失敗:', error);
+
     throw error;
   }
 }
 
 // 獲取單一訂單詳情 - 使用 orderId (保留向後相容)
 export async function getOrderById(orderId: string): Promise<ApiResponse<Order>> {
-  console.log('🔍 [Order Detail API] 請求訂單 ID:', orderId);
+
   
   try {
     const response: ApiResponse<Order> = await apiClient.get(`/api/orders/${orderId}`);
-    console.log('✅ [Order Detail API] 回應資料:', response);
+  
     return response;
   } catch (error) {
-    console.error('❌ [Order Detail API] 請求失敗:', error);
+
     throw error;
   }
 }
@@ -107,14 +103,14 @@ export interface ReviewData {
 
 // 提交商品評價
 export async function submitReviewApi(orderNumber: string, productId: number, reviewData: ReviewData): Promise<ApiResponse> {
-  console.log('🔍 [Review API] 提交評價:', { orderNumber, productId, reviewData });
+  
   
   try {
     const response: ApiResponse = await apiClient.post(`/api/orders/${orderNumber}/products/${productId}/reviews`, reviewData);
-    console.log('✅ [Review API] 回應資料:', response);
+    
     return response;
   } catch (error) {
-    console.error('❌ [Review API] 請求失敗:', error);
+  
     throw error;
   }
 }
@@ -130,14 +126,13 @@ export interface OrderActionData {
 
 // 訂單操作 API
 export async function orderActionApi(type: OrderActionType, data: OrderActionData): Promise<ApiResponse> {
-  console.log('🔍 [Order Action API] 訂單操作:', { type, data });
-  
+
   try {
     const response: ApiResponse = await apiClient.post(`/api/orders/action?type=${type}`, data);
-    console.log('✅ [Order Action API] 回應資料:', response);
+   
     return response;
   } catch (error) {
-    console.error('❌ [Order Action API] 請求失敗:', error);
+
     throw error;
   }
 } 

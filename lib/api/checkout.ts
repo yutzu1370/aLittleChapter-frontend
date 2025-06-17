@@ -26,7 +26,7 @@ export async function submitCheckoutApi(checkoutData: CheckoutRequest): Promise<
     
     return response.data;
   } catch (error) {
-    console.error('結帳請求失敗:', error);
+
     throw new Error(error instanceof Error ? error.message : '結帳請求失敗，請稍後再試');
   }
 } 

@@ -33,7 +33,7 @@ const isLocalStorageAvailable = () => {
     window.localStorage.removeItem(testKey);
     return true;
   } catch (e) {
-    console.error('localStorage 不可用:', e);
+    
     return false;
   }
 };
@@ -41,7 +41,7 @@ const isLocalStorageAvailable = () => {
 // 客戶端 hydration 時才執行
 const isBrowser = typeof window !== 'undefined';
 if (isBrowser) {
-  console.log('localStorage 可用:', isLocalStorageAvailable());
+
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       token: null,
       login: async (user) => {
-        console.log('正在儲存使用者資訊到 store:', user);
+     
         
         // 先設置登入狀態
         set({
@@ -68,23 +68,23 @@ export const useAuthStore = create<AuthState>()(
           
           // 檢查是否有購物車項目需要同步
           if (cartStore.items.length > 0) {
-            console.log('開始同步訪客購物車到後端...');
+            
             const syncSuccess = await cartStore.syncCartToBackend();
             
             if (syncSuccess) {
-              console.log('購物車同步成功');
+              
               // 同步成功後可以選擇清空本地購物車，或保留讓用戶決定
               // cartStore.clearCart();
             } else {
-              console.error('購物車同步失敗');
+              
             }
           }
         } catch (error) {
-          console.error('購物車同步過程中發生錯誤:', error);
+          
         }
       },
       logout: () => {
-        console.log('登出中...');
+        
         set({
           user: null,
           isAuthenticated: false,
@@ -92,7 +92,7 @@ export const useAuthStore = create<AuthState>()(
         });
       },
       updateUser: (userData) => {
-        console.log('正在更新使用者資訊:', userData);
+        
         set((state) => {
           // 確保用戶存在
           if (!state.user) return state;

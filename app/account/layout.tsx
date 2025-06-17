@@ -43,18 +43,18 @@ export default function AccountLayout({
   const fetchUnreadNotificationCount = async () => {
     if (isAuthenticated && isHydrated) {
       try {
-        console.log('🚀 [Account Layout] 開始載入未讀通知數量')
+        
         const result = await getNotificationsApi()
         
         if (result.status && result.data) {
           setUnreadNotificationCount(result.data.filter((notification: any) => !notification.isRead).length)
-          console.log('✅ [Account Layout] 成功載入未讀通知數量:', result.data.filter((notification: any) => !notification.isRead).length)
+          
         } else {
-          console.log('❌ [Account Layout] 載入未讀通知數量失敗:', result.data.filter((notification: any) => !notification.isRead).length)
+          
           setUnreadNotificationCount(0)
         }
       } catch (error) {
-        console.error('💥 [Account Layout] 載入未讀通知數量錯誤:', error)
+        
         setUnreadNotificationCount(0)
       }
     }
@@ -76,7 +76,7 @@ export default function AccountLayout({
   // 監聽通知變更事件
   useEffect(() => {
     const handleNotificationsChange = () => {
-      console.log('🔄 [Account Layout] 收到通知變更事件，重新載入數量')
+      
       fetchUnreadNotificationCount()
     }
 

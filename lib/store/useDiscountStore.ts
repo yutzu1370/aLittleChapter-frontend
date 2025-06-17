@@ -32,7 +32,7 @@ export const useDiscountStore = create<DiscountStore>()(
 
       clearDiscountOnPaymentSuccess: () => {
         set({ appliedDiscount: null });
-        console.log('付款成功，折扣碼已清空');
+
       },
 
       calculateDiscountAmount: (cartTotal) => {

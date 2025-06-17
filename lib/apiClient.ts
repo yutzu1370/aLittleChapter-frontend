@@ -26,7 +26,7 @@ const getTokenFromLocalStorage = (): string | null => {
     const authData = JSON.parse(authStorage);
     return authData.state?.token || null;
   } catch (error) {
-    console.error('從 localStorage 獲取 token 失敗:', error);
+
     return null;
   }
 };

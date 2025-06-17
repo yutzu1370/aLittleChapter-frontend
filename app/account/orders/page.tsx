@@ -99,7 +99,6 @@ export default function OrderCenter() {
   // 檢查是否可以申請退貨（完成時間+3天內）
   const canRequestReturn = (completedAt: string) => {
     if (!completedAt) {
-      console.log('🚫 [Return Check] 沒有完成時間:', completedAt)
       return false
     }
     
@@ -109,21 +108,9 @@ export default function OrderCenter() {
       const threeDaysInMs = 3 * 24 * 60 * 60 * 1000
       
       const timeDiff = currentDate.getTime() - completedDate.getTime()
-      const canReturn = timeDiff <= threeDaysInMs && timeDiff >= 0
-      
-      console.log('⏰ [Return Check] 退貨時間檢查:', {
-        completedAt,
-        completedDate: completedDate.toISOString(),
-        currentDate: currentDate.toISOString(),
-        timeDiffMs: timeDiff,
-        timeDiffDays: timeDiff / (24 * 60 * 60 * 1000),
-        threeDaysInMs,
-        canReturn
-      })
-      
+      const canReturn = timeDiff <= threeDaysInMs && timeDiff >= 0    
       return canReturn
     } catch (error) {
-      console.error('❌ [Return Check] 日期解析錯誤:', error, completedAt)
       return false
     }
   }
@@ -132,26 +119,25 @@ export default function OrderCenter() {
   const fetchOrders = async (page: number = 1) => {
     try {
       setIsLoading(true)
-      console.log('🚀 [Orders Page] 開始獲取訂單，頁數:', page)
+      
       
       const response = await getOrders({
         page,
         limit: pagination.limit
       })
       
-      console.log('📦 [Orders Page] API 回應:', response)
+      
       
       if (response.status && response.data) {
-        console.log('✅ [Orders Page] 成功獲取訂單:', response.data.orders.length, '筆')
-        console.log('📄 [Orders Page] 分頁資訊:', response.data.pagination)
+        
         setOrders(response.data.orders)
         setPagination(response.data.pagination)
       } else {
-        console.error('❌ [Orders Page] 訂單資料格式錯誤:', response)
+        
         throw new Error(response.message || '訂單資料格式錯誤')
       }
     } catch (error) {
-      console.error('💥 [Orders Page] 獲取訂單失敗:', error)
+      
       toast.error('獲取訂單失敗', {
         description: error instanceof Error ? error.message : '請稍後再試'
       })
@@ -168,14 +154,13 @@ export default function OrderCenter() {
   const toggleOrderExpansion = async (orderId: string, orderNumber: string) => {
     // 使用 orderNumber 作為備用 key，如果 orderId 不存在
     const orderKey = orderId || orderNumber
-    console.log('🎯 [Order Toggle] 切換訂單展開狀態:', { orderId, orderNumber, orderKey, currentExpanded: expandedOrders.has(orderKey) })
     
     if (expandedOrders.has(orderKey)) {
       // 如果已展開，則收起
       setExpandedOrders(prev => {
         const newExpanded = new Set(prev)
         newExpanded.delete(orderKey)
-        console.log('🔽 [Order] 收起訂單詳情:', orderKey, '剩餘展開:', Array.from(newExpanded))
+        
         return newExpanded
       })
     } else {
@@ -183,7 +168,7 @@ export default function OrderCenter() {
       setExpandedOrders(prev => {
         const newExpanded = new Set(prev)
         newExpanded.add(orderKey)
-        console.log('🔼 [Order] 展開訂單詳情:', orderKey, '目前展開:', Array.from(newExpanded))
+        
         return newExpanded
       })
       
@@ -194,29 +179,29 @@ export default function OrderCenter() {
         setLoadingDetails(prev => {
           const newLoading = new Set(prev)
           newLoading.add(orderKey)
-          console.log('⏳ [Order] 開始載入詳細資料:', orderKey)
+          
           return newLoading
         })
         
         try {
-          console.log('🔍 [Order Detail] 獲取訂單詳細資料:', { orderId, orderNumber })
+          
           const response = await getOrderByNumber(orderNumber)
           
           if (response.status && response.data) {
-            console.log('✅ [Order Detail] 成功獲取訂單詳細資料:', response.data)
+            
             // 將詳細資料存入快取，以訂單ID為key
             const orderData = response.data
             setOrderDetailsCache(prevCache => {
               const newCache = new Map(prevCache)
               newCache.set(orderKey, orderData)
-              console.log('💾 [Order Cache] 快取訂單詳細資料:', orderKey, '快取大小:', newCache.size)
+              
               return newCache
             })
           } else {
             throw new Error(response.message || '獲取訂單詳細資料失敗')
           }
         } catch (error) {
-          console.error('❌ [Order Detail] 獲取訂單詳細資料失敗:', error)
+          
           toast.error('獲取訂單詳細資料失敗', {
             description: error instanceof Error ? error.message : '請稍後再試'
           })
@@ -224,19 +209,19 @@ export default function OrderCenter() {
           setExpandedOrders(prev => {
             const failedExpanded = new Set(prev)
             failedExpanded.delete(orderKey)
-            console.log('❌ [Order] 獲取失敗，收起展開狀態:', orderKey)
+            
             return failedExpanded
           })
         } finally {
           setLoadingDetails(prev => {
             const finalLoading = new Set(prev)
             finalLoading.delete(orderKey)
-            console.log('✅ [Order] 完成載入詳細資料:', orderKey)
+            
             return finalLoading
           })
         }
       } else {
-        console.log('📋 [Order Detail] 使用快取的訂單詳細資料:', orderKey, '快取內容:', cachedOrderDetail)
+        
       }
     }
   }
@@ -347,12 +332,7 @@ export default function OrderCenter() {
   // 提交評價
   const handleSubmitReview = async (rating: number, comment: string) => {
     try {
-      console.log('🚀 [Review] 提交評價:', {
-        productId: reviewModal.productId,
-        orderNumber: reviewModal.orderNumber,
-        rating,
-        comment
-      })
+
       
       toast.success('評價提交成功！', {
         description: '感謝您的評價',
@@ -362,7 +342,7 @@ export default function OrderCenter() {
       // 可以在這裡更新訂單狀態或重新獲取數據
       
     } catch (error) {
-      console.error('💥 [Review] 提交評價失敗:', error)
+      
       toast.error('評價提交失敗', {
         description: '請稍後再試',
         duration: 3000,
@@ -374,10 +354,7 @@ export default function OrderCenter() {
   // 提交退貨申請
   const handleSubmitReturn = async (returnReason: string) => {
     try {
-      console.log('🚀 [Return] 提交退貨申請:', {
-        orderNumber: returnModal.orderNumber,
-        returnReason
-      })
+      
       
       const response = await orderActionApi('return', { 
         orderNumber: returnModal.orderNumber,
@@ -396,7 +373,7 @@ export default function OrderCenter() {
         throw new Error(response.message || '退貨申請失敗')
       }
     } catch (error) {
-      console.error('💥 [Return] 提交退貨申請失敗:', error)
+      
       toast.error('退貨申請失敗', {
         description: error instanceof Error ? error.message : '請稍後再試',
         duration: 3000,
@@ -408,7 +385,7 @@ export default function OrderCenter() {
   // 處理訂單操作（取消訂單、申請退貨）
   const handleOrderAction = async (orderNumber: string, actionType: OrderActionType, actionName: string) => {
     try {
-      console.log('🚀 [Order Action] 執行訂單操作:', { orderNumber, actionType, actionName })
+      
       
       const response = await orderActionApi(actionType, { orderNumber })
       
@@ -424,7 +401,7 @@ export default function OrderCenter() {
         throw new Error(response.message || `${actionName}失敗`)
       }
     } catch (error) {
-      console.error(`💥 [Order Action] ${actionName}失敗:`, error)
+      
       toast.error(`${actionName}失敗`, {
         description: error instanceof Error ? error.message : '請稍後再試',
         duration: 3000,
@@ -497,16 +474,7 @@ export default function OrderCenter() {
             const isExpanded = expandedOrders.has(orderKey)
             const isLoadingDetail = loadingDetails.has(orderKey)
             
-            // 調試日誌
-            console.log(`🔍 [Order Render] 訂單 ${orderKey} 渲染狀態:`, {
-              orderId: order.id,
-              orderNumber: order.orderNumber,
-              orderKey,
-              isExpanded,
-              isLoadingDetail,
-              expandedOrdersSize: expandedOrders.size,
-              expandedOrdersList: Array.from(expandedOrders)
-            })
+            
             
             return (
               <Card

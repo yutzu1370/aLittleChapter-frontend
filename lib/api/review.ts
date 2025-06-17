@@ -21,28 +21,27 @@ export interface ReviewsResponse {
 
 // 獲取所有評論
 export async function getAllReviewsApi(): Promise<ApiResponse<ReviewsResponse>> {
-  console.log('🔍 [Review API] 獲取所有評論');
-  
+
   try {
     const response: ApiResponse<ReviewsResponse> = await apiClient.get('/api/products/reviews');
-    console.log('✅ [Review API] 回應資料:', response);
+  
     return response;
   } catch (error) {
-    console.error('❌ [Review API] 請求失敗:', error);
+   
     throw error;
   }
 }
 
 // 根據商品 ID 獲取評論
 export async function getReviewsByProductIdApi(productId: number): Promise<ApiResponse<ReviewsResponse>> {
-  console.log('🔍 [Review API] 獲取商品評論:', { productId });
+
   
   try {
     const response: ApiResponse<ReviewsResponse> = await apiClient.get(`/api/products/reviews?productId=${productId}`);
-    console.log('✅ [Review API] 回應資料:', response);
+
     return response;
   } catch (error) {
-    console.error('❌ [Review API] 請求失敗:', error);
+
     throw error;
   }
 }

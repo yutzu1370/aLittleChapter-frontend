@@ -25,21 +25,21 @@ interface PopularBooksResponse {
 // 獲取熱門商品並轉換為加購商品格式
 export const fetchAddOnItems = async (): Promise<AddOnItem[]> => {
   try {
-    console.log('正在獲取熱門商品作為加購商品...');
+
     
     const response: ApiResponse<PopularBooksResponse> = await apiClient.get('/api/homepage?sectionName=popularProducts');
     
-    console.log('熱門商品API回應:', response);
+
     
     // 檢查 API 回應狀態
     if (!response.status || !response.data) {
-      console.error('API 回應格式錯誤:', response);
+    
       throw new Error(response.message || '獲取熱門商品失敗');
     }
 
     // 檢查是否有 books 陣列
     if (!response.data.books || !Array.isArray(response.data.books)) {
-      console.error('API 回應中沒有 books 陣列:', response.data);
+
       return [];
     }
 
@@ -52,10 +52,10 @@ export const fetchAddOnItems = async (): Promise<AddOnItem[]> => {
       imageUrl: book.imageUrl
     }));
 
-    console.log(`成功獲取並轉換 ${addOnItems.length} 個加購商品`);
+
     return addOnItems;
   } catch (error) {
-    console.error('獲取加購商品時發生錯誤:', error);
+
     // 發生錯誤時返回空陣列，避免頁面崩潰
     return [];
   }

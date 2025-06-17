@@ -80,7 +80,7 @@ export default function BookReviews() {
 
         setReviews(transformedReviews);
       } catch (err) {
-        console.error('獲取評論時發生錯誤:', err);
+       
         setError('載入評論失敗');
         
         // 如果 API 失敗，使用預設資料

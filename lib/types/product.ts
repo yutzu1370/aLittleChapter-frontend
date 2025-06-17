@@ -107,7 +107,7 @@ export interface Pagination {
 export interface ProductListItem {
   productId: number;
   title: string;
-  ageRangeName: string;
+  ageName: string;
   categoryName: string;
   author: string;
   publisher: string;

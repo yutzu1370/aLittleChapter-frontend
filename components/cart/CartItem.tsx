@@ -125,7 +125,6 @@ const CartItem = ({ item }: CartItemProps) => {
         }
       }
     } catch (error) {
-      console.error("收藏操作失敗:", error);
       toast.error("收藏操作失敗", {
         description: "請稍後再試",
         duration: 3000,

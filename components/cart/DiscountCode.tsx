@@ -28,23 +28,18 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
     setIsApplying(true);
     
     try {
-      console.log('🚀 [DiscountCode] 開始驗證折扣碼:', {
-        code: discountCode.trim(),
-        totalAmount: cartTotal
-      });
+    
 
       // 呼叫後端API驗證折扣碼
       const result = await validateDiscountCodeApi(discountCode.trim(), {
         totalAmount: cartTotal
       });
 
-      console.log('📦 [DiscountCode] API 完整回應:', result);
-      console.log('🔍 [DiscountCode] API 回應類型:', typeof result);
-      console.log('🔍 [DiscountCode] API 回應 keys:', Object.keys(result || {}));
+      
 
       // 檢查回應結構
       if (!result) {
-        console.log('❌ [DiscountCode] API 回應為空');
+        
         toast.error("折扣碼驗證失敗");
         setIsApplying(false);
         return;
@@ -52,13 +47,13 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
 
       // 檢查 status 屬性
       if (!result.status) {
-        console.log('❌ [DiscountCode] API 回應 status 為 false:', result.message);
+        
         toast.error(result.message || "折扣碼無效或已過期");
         setIsApplying(false);
         return;
       }
 
-      console.log('✅ [DiscountCode] API 回應 status 為 true，檢查 message 物件:', result.message);
+     
 
       // 根據 apiClient.ts 的攔截器，實際資料在 result.message 中
       // 但 message 可能是字串或物件，需要檢查
@@ -69,25 +64,20 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
       } else if (result.data && typeof result.data === 'object') {
         discountData = result.data;
       } else {
-        console.log('❌ [DiscountCode] 無法解析折扣碼資料，message:', result.message, 'data:', result.data);
+        
         toast.error("折扣碼驗證失敗");
         setIsApplying(false);
         return;
       }
       
       if (!discountData) {
-        console.log('❌ [DiscountCode] 折扣碼資料為空');
+        
         toast.error("折扣碼驗證失敗");
         setIsApplying(false);
         return;
       }
 
-      console.log('📋 [DiscountCode] 折扣碼資料:', {
-        discountCode: discountData.discountCode,
-        discountType: discountData.discountType,
-        discountAmount: discountData.discountAmount,
-        description: discountData.description
-      });
+     
 
       // 計算實際折扣金額
       // 後端回傳的 discountAmount 就是計算後折扣金額需轉成int（例如：0.75 表示 75% 折扣）
@@ -99,20 +89,12 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
         const discountAmount = parseInt(discountData.discountAmount.toString());
         // 折扣金額 = 購物車總額 × 折扣值，無條件捨去小數
         actualDiscountAmount = cartTotal - discountAmount
-        console.log('💰 [DiscountCode] 百分比折扣計算:', {
-          cartTotal,
-          calculation: `${cartTotal} - ${discountAmount}`,
-          actualDiscountAmount
-        });
+       
       } else if (discountData.discountType === 'fixed') {
         // 固定金額折扣
         discountValue = discountData.discountAmount;
         actualDiscountAmount = Math.min(discountData.discountAmount, cartTotal);
-        console.log('💰 [DiscountCode] 固定金額折扣計算:', {
-          cartTotal,
-          discountValue,
-          actualDiscountAmount
-        });
+       
       }
 
       // 根據API回應建立折扣資訊
@@ -124,14 +106,14 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
         description: discountData.description
       };
 
-      console.log('💡 [DiscountCode] 建立的折扣資訊:', discountInfo);
+     
 
       setDiscount(discountInfo);
       
       toast.success(`折扣碼套用成功！${discountData.description}`);
       setIsApplying(false);
     } catch (error) {
-      console.error('💥 [DiscountCode] 折扣碼驗證錯誤:', error);
+      
       toast.error("折扣碼驗證失敗，請稍後再試");
       setIsApplying(false);
     }

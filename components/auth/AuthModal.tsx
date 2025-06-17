@@ -5,7 +5,6 @@ import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
-import { API_BASE_URL } from "@/lib/constants"
 import { useAuthStore } from "@/lib/store/useAuthStore"
 
 // 引入重構後的子組件
@@ -50,7 +49,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   // 當彈窗打開時，重置狀態
   useEffect(() => {
     if (open) {
-      console.log("Auth modal is open:", open)
+     
       setActiveTab("login")
     }
   }, [open])
@@ -71,9 +70,9 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   // Google 第三方註冊/登入處理
   const handleGoogleAuth = async () => {
     try {
-      console.log("Google 第三方登入/註冊流程")
+     
     } catch (error) {
-      console.error("Google 登入/註冊失敗", error)
+     
     }
   }
 
@@ -91,7 +90,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         return;
       }
 
-      console.log('登入成功，後端返回數據:', responseData);
+
 
       try {
         if (responseData.status && responseData.data) {
@@ -103,18 +102,16 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             token: responseData.data.token
           };
 
-          console.log('準備儲存到 store 的資料:', userData);
+        
           await storeLogin(userData);
-          console.log('儲存到 useAuthStore 完成');
+          
 
-          if (typeof window !== 'undefined') {
-            console.log('localStorage 中的 auth-storage:', localStorage.getItem('auth-storage'));
-          }
+         
         } else {
-          console.error('後端回傳的資料格式不符合預期:', responseData);
+         
         }
       } catch (storeError) {
-        console.error('儲存使用者資訊到 store 時發生錯誤:', storeError);
+       
       }
 
       toast.success("登入成功", {
@@ -124,7 +121,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       
       onOpenChange(false)
     } catch (error) {
-      console.error("登入請求過程發生錯誤", error)
+      
       toast.error("登入失敗", {
         description: "網路連接問題，請稍後再試",
         duration: 2000
@@ -146,8 +143,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         return;
       }
 
-      console.log('註冊成功，後端返回數據:', responseData);
-      console.log('註冊成功，引導使用者返回首頁進行登入');
+
 
       toast.success("註冊成功", {
         description: "已發送驗證信至您的信箱，請於 24 小時內完成驗證後登入",
@@ -156,7 +152,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       
       onOpenChange(false)
     } catch (error) {
-      console.error("註冊請求過程發生錯誤", error)
+      
       toast.error("註冊失敗", {
         description: "網路連接問題，請稍後再試",
         duration: 2000
@@ -185,7 +181,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       
       setResetPasswordStep(2)
     } catch (error) {
-      console.error("忘記密碼請求失敗", error)
+     
       toast.error("請求失敗", {
         description: "網路連接問題，請稍後再試",
         duration: 2000
@@ -213,7 +209,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       
       setResetPasswordStep(3)
     } catch (error) {
-      console.error("驗證碼驗證失敗", error)
+     
       toast.error("驗證失敗", {
         description: "網路連接問題，請稍後再試",
         duration: 2000
@@ -245,7 +241,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       setActiveTab("login")
       setResetPasswordStep(1)
     } catch (error) {
-      console.error("密碼重設失敗", error)
+     
       toast.error("密碼重設失敗", {
         description: "網路連接問題，請稍後再試",
         duration: 2000

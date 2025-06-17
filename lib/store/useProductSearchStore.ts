@@ -106,7 +106,7 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
     const newFilters = activeAgeFilters.includes(filter)
       ? activeAgeFilters.filter(f => f !== filter)
       : [...activeAgeFilters, filter];
-    console.log('[ProductSearchStore] 年齡篩選:', newFilters);
+    
     set({ activeAgeFilters: newFilters, currentPage: 1 });
     get().fetchProducts();
   },
@@ -116,7 +116,7 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
     const newFilters = activeThemeFilters.includes(filter)
       ? activeThemeFilters.filter(f => f !== filter)
       : [...activeThemeFilters, filter];
-    console.log('[ProductSearchStore] 主題篩選:', newFilters);
+
     set({ activeThemeFilters: newFilters, currentPage: 1 });
     get().fetchProducts();
   },
@@ -124,13 +124,13 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
   setPriceFilter: (price) => {
     const { activePriceFilter } = get();
     const newFilter = activePriceFilter === price ? null : price;
-    console.log('[ProductSearchStore] 價格篩選:', newFilter);
+ 
     set({ activePriceFilter: newFilter, currentPage: 1 });
     get().fetchProducts();
   },
   
   clearFilters: () => {
-    console.log('[ProductSearchStore] 清除所有篩選');
+
     set({
       searchKeyword: '',
       activeCategory: '全部作品',
@@ -231,13 +231,11 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
         filters.price_range = getPriceRange(state.activePriceFilter);
       }
       
-      console.log('[ProductSearchStore] fetchProducts filters:', filters);
+   
       
       const result = await fetchProductsWithFilters(filters);
       
-      console.log('[ProductSearchStore] API 回應商品數量:', result.products.length);
-      console.log('[ProductSearchStore] API 回應商品內容:', result.products);
-      console.log('[ProductSearchStore] API 回應分頁資訊:', result.pagination);
+
       
       set({ 
         products: result.products, 
@@ -245,7 +243,7 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
         isLoading: false 
       });
     } catch (err) {
-      console.error('[ProductSearchStore] 獲取商品失敗:', err);
+  
       set({ 
         error: '載入商品資料失敗，請稍後再試',
         products: [],
@@ -263,15 +261,7 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
     const isBestseller = params.get("is_bestseller") || "";
     const isNewArrival = params.get("is_new_arrival") || "";
     const isDiscount = params.get("is_discount") || "";
-    
-    console.log('[ProductSearchStore] 從 URL 初始化:', { 
-      keyword, 
-      categoryId, 
-      ageRangeId, 
-      isBestseller,
-      isNewArrival,
-      isDiscount
-    });
+   
     
     // ⭐ 重要：先完全重置所有篩選條件到初始狀態
     const resetState: Partial<ProductSearchState> = {
@@ -325,8 +315,7 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
         resetState.activeAgeFilters = [ageFilter];
       }
     }
-    
-    console.log('[ProductSearchStore] 設定新的狀態:', resetState);
+
     
     // 設定新狀態並觸發查詢
     set(resetState);

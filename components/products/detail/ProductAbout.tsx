@@ -7,9 +7,7 @@ interface ProductAboutProps {
 }
 
 export default function ProductAbout({ aboutContent }: ProductAboutProps) {
-  console.log('ProductAbout 收到的 aboutContent:', aboutContent);
-  console.log('aboutContent 長度:', aboutContent?.length);
-  console.log('aboutContent 類型:', typeof aboutContent);
+  
 
   return (
     <section className="bg-[#F3FAF8] py-16 rounded-t-[64px]">

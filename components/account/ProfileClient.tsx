@@ -251,7 +251,7 @@ export default function ProfileClient() {
         processCityData(data);
         localStorage.setItem(CITY_DATA_CACHE_KEY, JSON.stringify(data));
       } catch (error) {
-        console.error('獲取城市資料失敗:', error)
+     
         toast.error('無法載入城市資料')
       }
     }
@@ -311,7 +311,7 @@ export default function ProfileClient() {
               hasPreloadedData = true;
             }
           } catch (e) {
-            console.error("預載用戶資料失敗:", e);
+      
             // 繼續從 API 加載
           }
         }
@@ -338,7 +338,7 @@ export default function ProfileClient() {
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "獲取資料失敗"
-        console.error("獲取用戶資料失敗:", error)
+     
         toast.error(errorMessage)
       } finally {
         setIsInitialLoading(false)
@@ -467,7 +467,7 @@ export default function ProfileClient() {
                 localStorage.setItem(USER_PROFILE_CACHE_KEY, JSON.stringify(profileData));
               }
             } catch (e) {
-              console.error("更新緩存頭像失敗:", e);
+  
             }
           }
           
@@ -492,7 +492,7 @@ export default function ProfileClient() {
       // 清理舊的預覽 URL 物件
       URL.revokeObjectURL(fileUrl);
     } catch (error) {
-      console.error("上傳頭像失敗:", error)
+
       
       // 檢查錯誤訊息是否包含 Google Cloud 相關內容
       const errorMessage = error instanceof Error ? error.message : "";
@@ -555,7 +555,7 @@ export default function ProfileClient() {
             localStorage.setItem(USER_PROFILE_CACHE_KEY, JSON.stringify(profileData));
           }
         } catch (e) {
-          console.error("更新緩存用戶資料失敗:", e);
+      
         }
       }
       
@@ -584,7 +584,7 @@ export default function ProfileClient() {
       setIsEditing(false)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "更新資料失敗"
-      console.error("更新用戶資料失敗:", error)
+
       toast.error(errorMessage)
     } finally {
       setIsLoading(false)
@@ -650,7 +650,7 @@ export default function ProfileClient() {
         setEmailStep('verify')
         toast.success('驗證碼已發送到您的新郵箱')
       } catch (error) {
-        console.error('發送驗證碼失敗:', error)
+
         const errorMessage = error instanceof Error ? error.message : '發送驗證碼失敗，請稍後再試'
         toast.error('發送驗證碼失敗', {
           description: errorMessage

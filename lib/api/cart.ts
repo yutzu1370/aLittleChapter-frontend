@@ -14,7 +14,7 @@ export async function syncCartToBackendApi(cartItems: CartItemRequest[]): Promis
     
     // 如果清空失敗，記錄錯誤但繼續執行同步
     if (!clearResult.status) {
-      console.warn('清空後端購物車失敗:', clearResult.message);
+      
     }
     
     // 逐一發送每個購物車項目到後端
@@ -29,7 +29,7 @@ export async function syncCartToBackendApi(cartItems: CartItemRequest[]): Promis
     const failedRequests = results.filter(result => result.status === 'rejected');
     
     if (failedRequests.length > 0) {
-      console.error('部分購物車項目同步失敗:', failedRequests);
+   
       return {
         status: false,
         message: `${failedRequests.length} 個商品同步失敗`,
@@ -47,7 +47,7 @@ export async function syncCartToBackendApi(cartItems: CartItemRequest[]): Promis
       data: results
     };
   } catch (error) {
-    console.error('購物車同步失敗:', error);
+   
     return {
       status: false,
       message: '購物車同步失敗',
@@ -70,7 +70,7 @@ export async function addItemToBackendApi(item: CartItemRequest): Promise<ApiRes
   try {
     return await apiClient.post('/api/cart', item);
   } catch (error) {
-    console.error('加入商品到後端購物車失敗:', error);
+    
     return {
       status: false,
       message: '加入商品到後端購物車失敗',
@@ -83,7 +83,7 @@ export async function removeItemFromBackendApi(productId: number): Promise<ApiRe
   try {
     return await apiClient.delete(`/api/cart/${productId}`);
   } catch (error) {
-    console.error('從後端購物車刪除商品失敗:', error);
+
     return {
       status: false,
       message: '從後端購物車刪除商品失敗',
@@ -96,7 +96,7 @@ export async function updateCartItemQuantityApi(productId: number, quantity: num
   try {
     return await apiClient.put(`/api/cart/${productId}`, { quantity });
   } catch (error) {
-    console.error('更新後端購物車商品數量失敗:', error);
+
     return {
       status: false,
       message: '更新後端購物車商品數量失敗',

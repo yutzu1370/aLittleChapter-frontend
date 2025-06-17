@@ -12,11 +12,11 @@ export default function CategoryFilter() {
 
   // 監聽 activeCategory 變化，確保組件狀態同步
   useEffect(() => {
-    console.log('[CategoryFilter] activeCategory 變化:', activeCategory);
+    
     
     // 當 activeCategory 重置為 '全部作品' 時，確保 showAll 狀態也重置
     if (activeCategory === '全部作品') {
-      console.log('[CategoryFilter] 重置 showAll 狀態');
+
       setShowAll(false);
     }
   }, [activeCategory]);
@@ -25,7 +25,7 @@ export default function CategoryFilter() {
   const visibleCategories = showAll ? categories : categories.slice(0, 4);
   
   const handleCategoryClick = (category: string) => {
-    console.log('[CategoryFilter] 使用者點擊分類:', category);
+    
     setActiveCategory(category);
   };
   
