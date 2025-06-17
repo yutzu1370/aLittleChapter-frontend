@@ -3,9 +3,7 @@ import axios from "axios";
 // 關鍵字建議 API 回應格式
 export interface KeywordSuggestionsResponse {
   status: boolean;
-  data: {
-    suggestions: string[];
-  };
+  data: string[];
 }
 
 // 獲取關鍵字建議
@@ -14,37 +12,31 @@ export async function getKeywordSuggestionsApi(keyword: string): Promise<string[
   
   try {
     console.log('📡 [Keyword API] 準備發送請求到:', 'https://35.187.144.53.nip.io/webhook/suggest-keyword');
-    console.log('📦 [Keyword API] 請求參數:', { params: { keyword } });
+    console.log('📦 [Keyword API] 請求參數:', { keyword });
     
     const response = await axios.post('https://35.187.144.53.nip.io/webhook/suggest-keyword', {
-      params: { keyword }
+      keyword 
     });
     
     console.log('📡 [Keyword API] HTTP 狀態碼:', response.status);
     console.log('📦 [Keyword API] 完整回應物件:', response);
     console.log('📦 [Keyword API] 回應資料:', response.data);
-    console.log('📦 [Keyword API] 回應資料類型:', typeof response.data);
-    console.log('📦 [Keyword API] 回應資料 keys:', Object.keys(response.data || {}));
     
     if (response.status === 200) {
       console.log('✅ [Keyword API] HTTP 200 成功');
       
-      if (response.data && response.data.status) {
-        console.log('✅ [Keyword API] API status 為 true');
-        console.log('📋 [Keyword API] data 物件:', response.data.data);
-        
-        if (response.data.data && response.data.data.suggestions) {
-          console.log('✅ [Keyword API] 找到 suggestions 陣列:', response.data.data.suggestions);
-          console.log('📝 [Keyword API] 建議數量:', response.data.data.suggestions.length);
-          return response.data.data.suggestions;
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+        const firstItem = response.data[0]; // 取第一個物件
+        if (firstItem.status && Array.isArray(firstItem.data)) {
+          console.log('✅ [Keyword API] 找到建議陣列:', firstItem.data);
+          console.log('📝 [Keyword API] 建議數量:', firstItem.data.length);
+          return firstItem.data;
         } else {
-          console.log('❌ [Keyword API] 沒有找到 suggestions 陣列');
-          console.log('📋 [Keyword API] data.data:', response.data.data);
+          console.log('❌ [Keyword API] data 不是陣列或不存在');
           return [];
         }
       } else {
         console.log('❌ [Keyword API] API status 為 false 或不存在');
-        console.log('📋 [Keyword API] response.data.status:', response.data?.status);
         return [];
       }
     } else {

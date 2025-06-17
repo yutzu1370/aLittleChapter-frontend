@@ -251,7 +251,7 @@ export default function CheckoutPage() {
     // 計算金額
     const subtotal = getSubtotal()
     const addOnSubtotal = getAddOnSubtotal()
-    const discount = appliedDiscount?.discountAmount || 0
+    const discount = Math.round(appliedDiscount?.discountAmount || 0)
     const finalAmount = subtotal + addOnSubtotal + shippingFee - discount
     
     // 準備結帳資料
@@ -316,7 +316,7 @@ export default function CheckoutPage() {
   const calculateFinalTotal = () => {
     const subtotal = getSubtotal()
     const addOnSubtotal = getAddOnSubtotal()
-    const discount = appliedDiscount?.discountAmount || 0
+    const discount = Math.round(appliedDiscount?.discountAmount || 0)
     return subtotal + addOnSubtotal + shippingFee - discount
   }
 
@@ -689,7 +689,7 @@ export default function CheckoutPage() {
                     <div className="flex justify-between items-center text-[#509D94]">
                       <span className="text-sm">折扣 ({appliedDiscount.code})</span>
                       <span className="text-sm">
-                        <span className="font-jf-openhuninn">-${appliedDiscount.discountAmount.toLocaleString('zh-TW')}</span>
+                        <span className="font-jf-openhuninn">-${Math.round(appliedDiscount.discountAmount).toLocaleString('zh-TW')}</span>
                       </span>
                     </div>
                   )}

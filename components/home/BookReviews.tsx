@@ -252,24 +252,28 @@ export default function BookReviews() {
             centeredSlides={true}
             loop={true}
             autoplay={{
-              delay: 5000,
+              delay: 4000,
               disableOnInteraction: false,
             }}
+            slidesPerGroup={1}
             breakpoints={{
               320: {
                 slidesPerView: 1,
                 spaceBetween: 12,
                 centeredSlides: true,
+                slidesPerGroup: 1,
               },
               768: {
                 slidesPerView: 3,
                 spaceBetween: 16,
                 centeredSlides: true,
+                slidesPerGroup: 1,
               },
               1024: {
                 slidesPerView: 3,
                 spaceBetween: 20,
                 centeredSlides: true,
+                slidesPerGroup: 1,
               },
             }}
             className="!pb-6 sm:!pb-8 h-[400px] sm:h-[450px] lg:h-[550px] w-full max-w-6xl"
@@ -281,11 +285,11 @@ export default function BookReviews() {
                   <div className={`relative flex flex-col items-center transition-all duration-300 ${
                     isActive 
                       ? 'scale-100 opacity-100 z-20 h-full justify-center' 
-                      : 'scale-85 opacity-60 z-10 h-full'
+                      : 'scale-90 opacity-70 z-10 h-full'
                   }`}>
                     {/* 非活動卡片的透明白色覆蓋 */}
                     {!isActive && (
-                      <div className="absolute inset-0 bg-white bg-opacity-40 rounded-[32px] z-30 pointer-events-none" />
+                      <div className="absolute inset-0 bg-white bg-opacity-30 rounded-[32px] z-30 pointer-events-none" />
                     )}
                     
                     {/* 卡片背景 */}
@@ -362,7 +366,7 @@ export default function BookReviews() {
           </Swiper>
 
           {/* 裝飾性動物圖片 - 老鼠 - 隱藏在小螢幕 */}
-          <div className="hidden lg:block absolute left-[320px] bottom-0 z-30">
+          <div className="hidden lg:block absolute left-[280px] bottom-0 z-30">
             <Image
               src="/images/home/reviews_Mouse.png"
               alt="裝飾性老鼠圖片"
@@ -375,7 +379,7 @@ export default function BookReviews() {
           {/* Left Arrow Button */}
           <button
             onClick={handlePrevClick}
-            className="absolute -left-6 sm:-left-8 lg:-left-10 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
             aria-label="前一個評論"
             tabIndex={0}
             onKeyDown={(e) => {
@@ -391,7 +395,7 @@ export default function BookReviews() {
           {/* Right Arrow Button */}
           <button
             onClick={handleNextClick}
-            className="absolute -right-6 sm:-right-8 lg:-right-10 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
             aria-label="下一個評論"
             tabIndex={0}
             onKeyDown={(e) => {
