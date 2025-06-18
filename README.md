@@ -4,11 +4,11 @@
 
 # Little Chapter 前端前台
 
-![專案封面圖](https://fakeimg.pl/800x400/F3FAF8/2F726D?text=Little+Chapter&font=noto)
+![專案封面圖](https://storage.googleapis.com/little-chapter-book-imgs/home.jpg)
 
 > 此專案是 Little Chapter 親子繪本電商平台的前端前台系統，採用 Next.js 14 開發，提供現代化的購物體驗和響應式設計，讓家長能輕鬆為孩子選購合適的繪本。
 
-- [線上觀看連結](https://little-chapter.vercel.app/)
+- [線上觀看連結](DEMO連結)
 
 ## 功能特色
 
@@ -31,13 +31,10 @@
 - [x] 商品評價系統
 - [x] 響應式設計 (RWD)
 - [x] 聊天機器人客服
-- [x] 浮動操作按鈕
 
 ### 特色功能
-- [x] 本月亮點新書輪播
-- [x] 熱銷排行榜
-- [x] 套裝推薦系統
-- [x] 書籍好評展示
+- [x] AI關鍵字補足功能
+- [x] AI智能客服
 - [x] 互動式產品展示
 - [x] 多層次分類篩選
 
@@ -45,9 +42,9 @@
 
 > 展示主要功能頁面，讓使用者快速了解平台特色
 
-![首頁展示](https://fakeimg.pl/800x400/F3FAF8/2F726D?text=Homepage)
-![商品列表](https://fakeimg.pl/800x400/FEF5EE/E8652B?text=Product+List)
-![商品詳情](https://fakeimg.pl/800x400/FCE9D8/B4371A?text=Product+Detail)
+![首頁展示](https://a-little-chapter-frontend.vercel.app/)
+![商品列表](https://a-little-chapter-frontend.vercel.app/products)
+![購物車](https://a-little-chapter-frontend.vercel.app/cart)
 
 ## 安裝與設定
 
@@ -61,7 +58,7 @@ npm 版本建議為：`9.0.0` 以上
 ### 取得專案
 
 ```bash
-git clone https://github.com/little-chapter/frontend.git
+git clone https://github.com/yutzu1370/aLittleChapter-frontend.git
 ```
 
 ### 移動到專案目錄
@@ -78,7 +75,7 @@ npm install
 
 ### 環境變數設定
 
-請在終端機輸入 `cp .env.example .env.local` 來複製環境變數範例檔案，並依據 `.env.local` 內容調整相關欄位。
+請在終端機輸入 `cp .env.example .env` 來複製環境變數範例檔案，並依據 `.env` 內容調整相關欄位。
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=your_api_base_url
@@ -104,7 +101,6 @@ http://localhost:3000
 ```env
 NEXT_PUBLIC_API_BASE_URL= # 後端 API 基礎網址
 NEXT_PUBLIC_GOOGLE_CLIENT_ID= # Google OAuth 客戶端 ID
-NEXT_PUBLIC_SITE_URL= # 網站基礎網址
 ```
 
 ## 專案結構
@@ -183,15 +179,15 @@ little-chapter/
 ### 分支管理
 
 - **main** - 正式發布分支，僅合併穩定版本
-- **feature/RWD** - 主要開發分支，所有功能分支皆自此建立
+- **dev** - 主要開發分支，所有功能分支皆自此建立
 - **feature/\*** - 功能開發分支，命名如 `feature/shopping-cart`
 
 ### 開發流程
 
 1. **切換並更新開發分支**
    ```bash
-   git checkout feature/RWD
-   git pull origin feature/RWD
+   git checkout dev
+   git pull origin dev
    ```
 
 2. **建立功能分支**
@@ -207,15 +203,15 @@ little-chapter/
 
 4. **合併回開發分支**
    ```bash
-   git checkout feature/RWD
+   git checkout dev
    git merge feature/your-feature-name
-   git push origin feature/RWD
+   git push origin dev
    ```
 
 5. **發布正式版本**
    ```bash
    git checkout main
-   git merge feature/RWD
+   git merge dev
    git push origin main
    ```
 
@@ -223,7 +219,7 @@ little-chapter/
 
 此專案使用 Vercel 進行自動部署：
 
-- **開發環境**：自動部署 `feature/RWD` 分支
+- **開發環境**：自動部署 `dev` 分支
 - **正式環境**：自動部署 `main` 分支
 
 當專案 merge 到 main 時會自動執行以下動作：
@@ -254,9 +250,9 @@ little-chapter/
 
 如有任何問題或建議，歡迎聯絡開發團隊：
 
-- **專案負責人**：[GitHub](https://github.com/little-chapter)
-- **技術支援**：[Issues](https://github.com/little-chapter/frontend/issues)
-- **官方網站**：[Little Chapter](https://little-chapter.vercel.app/)
+- **專案負責人**：[GitHub](https://github.com/yutzu1370)
+- **技術支援**：[Issues](https://github.com/yutzu1370)
+- **官方網站**：[A Little Chapter](https://a-little-chapter-frontend.vercel.app/)
 
 ---
 
