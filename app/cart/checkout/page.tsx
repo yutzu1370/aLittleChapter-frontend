@@ -333,17 +333,17 @@ export default function CheckoutPage() {
     <main className="min-h-screen bg-white font-noto-sans-tc">
       <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 個人資料表單 */}
-          <div className="md:col-span-2">
-            <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm">
-              <h1 className="text-3xl font-medium text-teal-800 mb-6">寄送資料</h1>
+          <div className="lg:col-span-2">
+            <div className="border border-gray-200 bg-white rounded-3xl p-4 sm:p-6 mb-8 shadow-sm">
+              <h1 className="text-2xl sm:text-3xl font-medium text-teal-800 mb-6">寄送資料</h1>
               
               <form id="shipping-form" onSubmit={handleSubmit} className="font-noto-sans-tc">
                 <div className="space-y-6">
                   {/* 收件人 */}
-                  <div className="flex items-center">
-                    <label htmlFor="name" className="text-xl whitespace-nowrap w-24 flex items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                    <label htmlFor="name" className="text-lg sm:text-xl whitespace-nowrap w-full sm:w-24 flex items-center">
                       收件人
                       <span className="text-red-500 ml-1">*</span>
                     </label>
@@ -353,7 +353,7 @@ export default function CheckoutPage() {
                       type="text" 
                       placeholder="輸入姓名" 
                       required 
-                      className="w-[calc(100%-6rem)] rounded-full border-2 border-gray-300 p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
+                      className="w-full sm:w-[calc(100%-6rem)] rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                       style={{
                         outline: 'none'
                       }}
@@ -367,12 +367,12 @@ export default function CheckoutPage() {
                   </div>
                 
                   {/* 電話 */}
-                  <div className="flex items-center">
-                    <label htmlFor="phone" className="text-xl whitespace-nowrap w-24 flex items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                    <label htmlFor="phone" className="text-lg sm:text-xl whitespace-nowrap w-full sm:w-24 flex items-center">
                       電話
                       <span className="text-red-500 ml-1">*</span>
                     </label>
-                    <div className="w-[calc(100%-6rem)]">
+                    <div className="w-full sm:w-[calc(100%-6rem)]">
                       <Input 
                         id="phone" 
                         name="phone"
@@ -380,7 +380,7 @@ export default function CheckoutPage() {
                         placeholder="輸入電話" 
                         required 
                         maxLength={10}
-                        className="w-full rounded-full border-2 border-gray-300 p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
+                        className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                         style={{
                           outline: 'none'
                         }}
@@ -398,65 +398,69 @@ export default function CheckoutPage() {
                         }}
                       />
                       {phoneError && (
-                        <p className="text-red-500 text-sm mt-1 ml-4">{phoneError}</p>
+                        <p className="text-red-500 text-sm mt-1 ml-0 sm:ml-4">{phoneError}</p>
                       )}
                     </div>
                   </div>
                   
                   {/* 地址 */}
-                  <div className="flex items-center">
-                    <label className="text-xl whitespace-nowrap w-24 flex items-center ">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                    <label className="text-lg sm:text-xl whitespace-nowrap w-full sm:w-24 flex items-center">
                       地址
                       <span className="text-red-500 ml-1">*</span>
                     </label>
-                    <div className="flex gap-4 w-[calc(100%-6rem)]">
-                      <div className="relative w-[130px]">
-                        <select 
-                          name="city" 
-                          value={selectedCity}
-                          onChange={(e) => setSelectedCity(e.target.value)}
-                          className={`appearance-none w-full rounded-full border-2 border-gray-300 px-4 py-2.5 text-base pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:border-transparent font-noto-sans-tc ${selectedCity ? 'text-black' : 'text-gray-600'}`}
-                        >
-                          <option value="">選擇縣市</option>
-                          {locationData?.children.map((city) => (
-                            <option key={city.name} value={city.name}>
-                              {city.name}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1L7 7L13 1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
+                    <div className="w-full sm:w-[calc(100%-6rem)] space-y-3 sm:space-y-0">
+                      {/* 縣市和鄉鎮區選擇 - 手機版堆疊 */}
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <div className="relative w-full sm:w-[130px]">
+                          <select 
+                            name="city" 
+                            value={selectedCity}
+                            onChange={(e) => setSelectedCity(e.target.value)}
+                            className={`appearance-none w-full rounded-full border-2 border-gray-300 px-4 py-2.5 text-base pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:border-transparent font-noto-sans-tc ${selectedCity ? 'text-black' : 'text-gray-600'}`}
+                          >
+                            <option value="">選擇縣市</option>
+                            {locationData?.children.map((city) => (
+                              <option key={city.name} value={city.name}>
+                                {city.name}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M1 1L7 7L13 1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                        </div>
+                        
+                        <div className="relative w-full sm:w-[140px]">
+                          <select 
+                            name="district"
+                            value={selectedDistrict}
+                            onChange={(e) => setSelectedDistrict(e.target.value)}
+                            className={`appearance-none w-full rounded-full border-2 border-gray-300 px-4 py-2.5 text-base pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:border-transparent font-noto-sans-tc ${selectedDistrict ? 'text-black' : 'text-gray-600'}`}
+                            disabled={!selectedCity}
+                          >
+                            <option value="">選擇鄉鎮區</option>
+                            {districts.map((district) => (
+                              <option key={district.name} value={district.name}>
+                                {district.name}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M1 1L7 7L13 1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
                         </div>
                       </div>
                       
-                      <div className="relative w-[140px]">
-                        <select 
-                          name="district"
-                          value={selectedDistrict}
-                          onChange={(e) => setSelectedDistrict(e.target.value)}
-                          className={`appearance-none w-full rounded-full border-2 border-gray-300 px-4 py-2.5 text-base pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:border-transparent font-noto-sans-tc ${selectedDistrict ? 'text-black' : 'text-gray-600'}`}
-                          disabled={!selectedCity}
-                        >
-                          <option value="">選擇鄉鎮區</option>
-                          {districts.map((district) => (
-                            <option key={district.name} value={district.name}>
-                              {district.name}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1L7 7L13 1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                      </div>
-                      
+                      {/* 詳細地址 */}
                       <Input 
                         name="address" 
                         placeholder="輸入詳細地址" 
-                        className="flex-1 rounded-full border-2 border-gray-300 p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
+                        className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                         style={{
                           outline: 'none'
                         }}
@@ -472,19 +476,19 @@ export default function CheckoutPage() {
                   </div>
                   
                   {/* Email */}
-                  <div className="flex items-center">
-                    <label htmlFor="email" className="text-xl whitespace-nowrap w-24 flex items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                    <label htmlFor="email" className="text-lg sm:text-xl whitespace-nowrap w-full sm:w-24 flex items-center">
                       E-mail
                       <span className="text-red-500 ml-1">*</span>
                     </label>
-                    <div className="w-[calc(100%-6rem)]">
+                    <div className="w-full sm:w-[calc(100%-6rem)]">
                       <Input 
                         id="email" 
                         name="email" 
                         type="email" 
                         placeholder="輸入E-mail信箱" 
                         required 
-                        className="w-full rounded-full border-2 border-gray-300 p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
+                        className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                         style={{
                           outline: 'none'
                         }}
@@ -500,120 +504,122 @@ export default function CheckoutPage() {
                         }}
                       />
                       {emailError && (
-                        <p className="text-red-500 text-sm mt-1 ml-4">{emailError}</p>
+                        <p className="text-red-500 text-sm mt-1 ml-0 sm:ml-4">{emailError}</p>
                       )}
                     </div>
                   </div>
                   
                   {/* 發票類型 */}
-                  <div className="flex items-center">
-                    <label htmlFor="invoiceType" className="text-xl whitespace-nowrap w-24 flex items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                    <label htmlFor="invoiceType" className="text-lg sm:text-xl whitespace-nowrap w-full sm:w-24 flex items-center">
                       發票類型
                       <span className="text-red-500 ml-1">*</span>
                     </label>
-                    <div className="flex gap-4 w-[calc(100%-6rem)]">
-                      <div className="relative w-[280px]">
-                        <select 
-                          id="invoiceType"
-                          name="invoiceType"
-                          value={deviceType} 
-                          onChange={(e) => {
-                            setDeviceType(e.target.value)
-                            if (invoiceTypeError) setInvoiceTypeError("")
-                            // 當改變發票類型時，清空手機條碼
-                            if (e.target.value !== "電子發票") {
-                              setMobileBarcode("")
-                              setMobileBarcodeError("")
-                            }
-                          }}
-                          className={`appearance-none w-full rounded-full border-2 border-gray-300 px-4 py-2.5 text-base pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:border-transparent font-noto-sans-tc ${deviceType ? 'text-black' : 'text-gray-600'}`}
-                        >
-                          <option value="">請選擇</option>
-                          <option value="電子發票">電子發票-請填寫手機條碼載具</option>
-                          <option value="紙本發票">紙本發票-同寄送地址</option>
-                        </select>
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M1 1L7 7L13 1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        </div>
-                        {invoiceTypeError && (
-                          <p className="text-red-500 text-sm mt-1 ml-4">{invoiceTypeError}</p>
-                        )}
-                      </div>
-                      
-                      {/* 手機條碼輸入欄 - 與選項在同一行 */}
-                      {deviceType === "電子發票" && (
-                        <div className="flex-1">
-                          <Input 
-                            name="mobileBarcode" 
-                            value={mobileBarcode}
-                            placeholder="首碼為/加7碼英數字共8碼" 
-                            maxLength={8}
-                            className="w-full rounded-full border-2 border-gray-300 p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
-                            style={{
-                              outline: 'none'
-                            }}
-                            onFocus={(e) => {
-                              e.target.style.borderColor = '#f59e0b';
-                            }}
-                            onBlur={(e) => {
-                              e.target.style.borderColor = '#d1d5db';
-                              validateMobileBarcode(mobileBarcode);
-                            }}
-                            onInput={(e) => {
-                              const target = e.target as HTMLInputElement;
-                              const inputValue = target.value;
-                              
-                              // 如果輸入為空，直接設置
-                              if (!inputValue) {
-                                setMobileBarcode("");
-                                return;
-                              }
-                              
-                              let processedValue = inputValue;
-                              
-                              // 移除所有不允許的字符
-                              processedValue = processedValue.replace(/[^\/a-zA-Z0-9.\-+]/g, '');
-                              
-                              // 轉換為大寫
-                              processedValue = processedValue.toUpperCase();
-                              
-                              // 如果不是以 / 開頭，自動加上
-                              if (processedValue && !processedValue.startsWith('/')) {
-                                processedValue = '/' + processedValue.replace(/\//g, '');
-                              }
-                              
-                              // 限制長度
-                              if (processedValue.length > 8) {
-                                processedValue = processedValue.substring(0, 8);
-                              }
-                              
-                              setMobileBarcode(processedValue);
-                              
-                              if (mobileBarcodeError) {
-                                validateMobileBarcode(processedValue);
+                    <div className="w-full sm:w-[calc(100%-6rem)] space-y-3 sm:space-y-0">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <div className="relative w-full sm:w-[280px]">
+                          <select 
+                            id="invoiceType"
+                            name="invoiceType"
+                            value={deviceType} 
+                            onChange={(e) => {
+                              setDeviceType(e.target.value)
+                              if (invoiceTypeError) setInvoiceTypeError("")
+                              // 當改變發票類型時，清空手機條碼
+                              if (e.target.value !== "電子發票") {
+                                setMobileBarcode("")
+                                setMobileBarcodeError("")
                               }
                             }}
-                            onChange={() => {
-                              // 空的 onChange 以滿足 React 的要求
-                            }}
-                          />
-                          {mobileBarcodeError && (
-                            <p className="text-red-500 text-sm mt-1 ml-4">{mobileBarcodeError}</p>
+                            className={`appearance-none w-full rounded-full border-2 border-gray-300 px-4 py-2.5 text-base pr-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:border-transparent font-noto-sans-tc ${deviceType ? 'text-black' : 'text-gray-600'}`}
+                          >
+                            <option value="">請選擇</option>
+                            <option value="電子發票">電子發票-請填寫手機條碼載具</option>
+                            <option value="紙本發票">紙本發票-同寄送地址</option>
+                          </select>
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M1 1L7 7L13 1" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                          {invoiceTypeError && (
+                            <p className="text-red-500 text-sm mt-1 ml-0 sm:ml-4">{invoiceTypeError}</p>
                           )}
                         </div>
-                      )}
+                        
+                        {/* 手機條碼輸入欄 - 手機版下方顯示 */}
+                        {deviceType === "電子發票" && (
+                          <div className="w-full sm:flex-1">
+                            <Input 
+                              name="mobileBarcode" 
+                              value={mobileBarcode}
+                              placeholder="首碼為/加7碼英數字共8碼" 
+                              maxLength={8}
+                              className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
+                              style={{
+                                outline: 'none'
+                              }}
+                              onFocus={(e) => {
+                                e.target.style.borderColor = '#f59e0b';
+                              }}
+                              onBlur={(e) => {
+                                e.target.style.borderColor = '#d1d5db';
+                                validateMobileBarcode(mobileBarcode);
+                              }}
+                              onInput={(e) => {
+                                const target = e.target as HTMLInputElement;
+                                const inputValue = target.value;
+                                
+                                // 如果輸入為空，直接設置
+                                if (!inputValue) {
+                                  setMobileBarcode("");
+                                  return;
+                                }
+                                
+                                let processedValue = inputValue;
+                                
+                                // 移除所有不允許的字符
+                                processedValue = processedValue.replace(/[^\/a-zA-Z0-9.\-+]/g, '');
+                                
+                                // 轉換為大寫
+                                processedValue = processedValue.toUpperCase();
+                                
+                                // 如果不是以 / 開頭，自動加上
+                                if (processedValue && !processedValue.startsWith('/')) {
+                                  processedValue = '/' + processedValue.replace(/\//g, '');
+                                }
+                                
+                                // 限制長度
+                                if (processedValue.length > 8) {
+                                  processedValue = processedValue.substring(0, 8);
+                                }
+                                
+                                setMobileBarcode(processedValue);
+                                
+                                if (mobileBarcodeError) {
+                                  validateMobileBarcode(processedValue);
+                                }
+                              }}
+                              onChange={() => {
+                                // 空的 onChange 以滿足 React 的要求
+                              }}
+                            />
+                            {mobileBarcodeError && (
+                              <p className="text-red-500 text-sm mt-1 ml-0 sm:ml-4">{mobileBarcodeError}</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
                   {/* 付款方式 */}
-                  <div className="flex items-center">
-                    <label htmlFor="paymentMethod" className="text-xl whitespace-nowrap w-24 flex items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                    <label htmlFor="paymentMethod" className="text-lg sm:text-xl whitespace-nowrap w-full sm:w-24 flex items-center">
                       付款方式
                       <span className="text-red-500 ml-1">*</span>
                     </label>
-                    <div className="relative w-[calc(100%-6rem)]">
+                    <div className="relative w-full sm:w-[calc(100%-6rem)]">
                       <select 
                         id="paymentMethod"
                         name="paymentMethod"
@@ -635,19 +641,19 @@ export default function CheckoutPage() {
                         </svg>
                       </div>
                       {paymentMethodError && (
-                        <p className="text-red-500 text-sm mt-1 ml-4">{paymentMethodError}</p>
+                        <p className="text-red-500 text-sm mt-1 ml-0 sm:ml-4">{paymentMethodError}</p>
                       )}
                     </div>
                   </div>
                   
                   {/* 備註 */}
-                  <div className="flex items-start">
-                    <label htmlFor="note" className="text-xl w-24 pt-2">備註</label>
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-0">
+                    <label htmlFor="note" className="text-lg sm:text-xl w-full sm:w-24 pt-0 sm:pt-2">備註</label>
                     <Textarea 
                       id="note" 
                       name="note"
                       placeholder="輸入備註內容" 
-                      className="w-[calc(100%-6rem)] rounded-xl border-2 border-gray-300 p-4 text-base min-h-[120px] font-noto-sans-tc placeholder:text-gray-600"
+                      className="w-full sm:w-[calc(100%-6rem)] rounded-xl border-2 border-gray-300 p-4 text-base min-h-[120px] font-noto-sans-tc placeholder:text-gray-600"
                       style={{
                         outline: 'none'
                       }}
@@ -665,10 +671,10 @@ export default function CheckoutPage() {
           </div>
           
           {/* 總金額區塊 */}
-          <div className="md:col-span-1">
-            <div className="sticky top-24">
-              <div className="border border-gray-200 rounded-3xl p-6 bg-white shadow-sm font-noto-sans-tc">
-                <h2 className="text-xl font-medium text-teal-800 mb-4">總金額</h2>
+          <div className="lg:col-span-1">
+            <div className="lg:sticky lg:top-24">
+              <div className="border border-gray-200 rounded-3xl p-4 sm:p-6 bg-white shadow-sm font-noto-sans-tc">
+                <h2 className="text-lg sm:text-xl font-medium text-teal-800 mb-4">總金額</h2>
                 
                 <div className="flex flex-col gap-3">
                   <div className="flex justify-between items-center">
@@ -713,9 +719,9 @@ export default function CheckoutPage() {
                 <FancyButton 
                   type="submit"
                   form="shipping-form"
-                  className="w-full text-lg font-noto-sans-tc" 
+                  className="w-full text-base sm:text-lg font-noto-sans-tc" 
                   hideIcons
-                  rightIcon={<ArrowRightCircle className="w-8 h-8" strokeWidth={2.5} />}
+                  rightIcon={<ArrowRightCircle className="w-6 h-6 sm:w-8 sm:h-8" strokeWidth={2.5} />}
                 >
                   確認付款
                 </FancyButton>

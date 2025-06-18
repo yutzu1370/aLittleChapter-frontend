@@ -60,7 +60,7 @@ export default function AuthWithGoogleButton({
               {
                 theme: 'outline',
                 size: 'large',
-                width: 384,  // 增加寬度以匹配上方按鈕
+                width: 320,  // 減少寬度以適應手機版
                 shape: 'pill',
                 text: isSignup ? 'signup_with' : 'signin_with',
                 logo_alignment: 'left'
@@ -133,8 +133,8 @@ export default function AuthWithGoogleButton({
       {/* Google 按鈕容器 */}
       <div 
         ref={googleButtonRef}
-        className="flex justify-center"
-        style={{ minHeight: '50px', minWidth: '384px' }}
+        className="flex justify-center w-full max-w-[320px]"
+        style={{ minHeight: '50px' }}
       />
     </div>
   );

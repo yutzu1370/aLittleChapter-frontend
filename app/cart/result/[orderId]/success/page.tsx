@@ -69,12 +69,12 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
       {/* 引入客戶端組件來清空購物車和折扣碼 */}
       <CartCleaner />
       
-      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8 animate-spring-up">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6 sm:p-8 animate-spring-up">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
-            <div className="relative w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center">
               <svg 
-                className="w-12 h-12 text-green-500" 
+                className="w-10 h-10 sm:w-12 sm:h-12 text-green-500" 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -88,54 +88,54 @@ export default async function OrderSuccessPage({ params, searchParams }: OrderSu
               </svg>
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">付款成功</h1>
-          <p className="text-gray-600">感謝您的訂購！我們已收到您的付款</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">付款成功</h1>
+          <p className="text-sm sm:text-base text-gray-600">感謝您的訂購！我們已收到您的付款</p>
         </div>
         
-        <div className="space-y-4 my-6 text-gray-700 bg-orange-50 p-4 rounded-lg">
+        <div className="space-y-3 sm:space-y-4 my-6 text-gray-700 bg-orange-50 p-4 rounded-lg">
           <div className="flex justify-between">
-            <span className="text-gray-500">訂單編號：</span>
-            <span className="font-medium">{orderNum}</span>
+            <span className="text-sm text-gray-500">訂單編號：</span>
+            <span className="text-sm font-medium break-all">{orderNum}</span>
           </div>
           
           <div className="flex justify-between">
-            <span className="text-gray-500">交易序號：</span>
-            <span className="font-medium">{serialNum}</span>
+            <span className="text-sm text-gray-500">交易序號：</span>
+            <span className="text-sm font-medium break-all">{serialNum}</span>
           </div>
           
           <div className="flex justify-between">
-            <span className="text-gray-500">交易金額：</span>
-            <span className="font-medium text-[#E8652B]">{formatAmount(price)}</span>
+            <span className="text-sm text-gray-500">交易金額：</span>
+            <span className="text-sm font-medium text-[#E8652B]">{formatAmount(price)}</span>
           </div>
           
           <div className="flex justify-between">
-            <span className="text-gray-500">支付方式：</span>
-            <span className="font-medium">{formatPaymentMethod(type || '')}</span>
+            <span className="text-sm text-gray-500">支付方式：</span>
+            <span className="text-sm font-medium">{formatPaymentMethod(type || '')}</span>
           </div>
           
           <div className="flex justify-between">
-            <span className="text-gray-500">交易時間：</span>
-            <span className="font-medium">{getCurrentTime()}</span>
+            <span className="text-sm text-gray-500">交易時間：</span>
+            <span className="text-sm font-medium">{getCurrentTime()}</span>
           </div>
         </div>
         
         <div className="border-t border-gray-200 pt-4 pb-2">
-          <div className="text-center text-gray-600 text-sm">
+          <div className="text-center text-gray-600 text-xs sm:text-sm">
             <p>訂單詳細資訊請至會員中心查看</p>
             <p className="mt-1">我們將盡快為您處理並寄出商品</p>
           </div>
         </div>
         
-        <div className="mt-8 flex flex-col space-y-3">
+        <div className="mt-6 sm:mt-8 flex flex-col space-y-3">
           <Link 
             href="/account/orders" 
-            className="w-full text-center py-3 px-4 rounded-full bg-[#E8652B] text-white font-semibold shadow-[4px_6px_0px_#74281A] hover:bg-[#d55a24] transition duration-200"
+            className="w-full text-center py-3 px-4 rounded-full bg-[#E8652B] text-white font-semibold shadow-[4px_6px_0px_#74281A] hover:bg-[#d55a24] transition duration-200 text-sm sm:text-base"
           >
             查看訂單詳情
           </Link>
           <Link 
             href="/products" 
-            className="w-full text-center py-3 px-4 rounded-full border-2 border-[#F8D0B0] text-gray-700 font-semibold hover:bg-orange-50 transition duration-200"
+            className="w-full text-center py-3 px-4 rounded-full border-2 border-[#F8D0B0] text-gray-700 font-semibold hover:bg-orange-50 transition duration-200 text-sm sm:text-base"
           >
             繼續購物
           </Link>

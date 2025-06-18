@@ -262,7 +262,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[520px] max-h-[90vh] w-[85vw] p-3 pb-4 gap-2 bg-white shadow-lg border-[1px] border-[#F8D0B0] rounded-[22px] overflow-y-auto flex flex-col">
+      <DialogContent className="max-w-[520px] max-h-[95vh] w-[95vw] sm:w-[85vw] p-3 pb-4 gap-2 bg-white shadow-lg border-[1px] border-[#F8D0B0] rounded-[22px] overflow-y-auto flex flex-col">
         <DialogTitle className="sr-only">{getModalTitle()}</DialogTitle>
         
         <div className="flex flex-col items-center sticky top-0 bg-white pt-2 pb-1 z-10 mb-2">
@@ -287,7 +287,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.3 }}
-          className="overflow-y-auto pr-3 pl-3 flex-1 min-h-[230px]"
+          className="overflow-y-auto px-2 sm:px-3 flex-1 min-h-[230px]"
         >
           {activeTab === "login" && (
             <LoginForm 
