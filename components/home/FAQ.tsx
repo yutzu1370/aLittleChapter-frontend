@@ -70,7 +70,7 @@ export default function FAQ() {
             {faqs.map((faq) => (
               <div key={faq.id} className="border-b border-gray-200 last:border-b-0 py-2 sm:py-2">
                 <button 
-                  className="w-full flex justify-between items-start py-2 sm:py-2 text-left focus:outline-none focus:ring-2 focus:ring-[#2F726D] focus:ring-opacity-50 rounded-lg"
+                  className="w-full flex justify-between items-start py-2 sm:py-2 text-left   focus:ring-[#2F726D] focus:ring-opacity-50 rounded-lg"
                   onClick={() => toggleFaq(faq.id)}
                 >
                   <span

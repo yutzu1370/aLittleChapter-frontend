@@ -135,26 +135,32 @@ export default function AccountLayout({
     <>
       <Header />
       <div className="pt-28 pb-20 min-h-screen bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex gap-2 relative overflow-x-auto">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "px-8 py-3 rounded-t-2xl text-lg font-medium relative min-w-fit whitespace-nowrap",
-                  pathname.includes(item.href)
-                    ? "bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10"
-                    : "bg-[#FCE9D8] text-gray-600 hover:bg-[#FCE9D8]/80"
-                )}
-              >
-                {item.label}{item.count ? `(${item.count})` : ""}
-              </Link>
-            ))}
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+          {/* 優化 tabs 區域的手機版 RWD */}
+          <div className="flex gap-1 sm:gap-2 relative overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1 sm:gap-2 min-w-max">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "px-3 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-t-xl sm:rounded-t-2xl text-sm sm:text-base lg:text-lg font-medium relative whitespace-nowrap flex-shrink-0",
+                    pathname.includes(item.href)
+                      ? "bg-white border-2 sm:border-4 border-[#F8D0B0] border-b-white text-amber-900 z-10"
+                      : "bg-[#FCE9D8] text-gray-600 hover:bg-[#FCE9D8]/80"
+                  )}
+                >
+                  {item.label}{item.count ? `(${item.count})` : ""}
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0] relative -mt-1 shadow-sm ">
-            {children}
+          {/* 優化內容區域的手機版 RWD */}
+          <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-b-xl sm:rounded-b-2xl rounded-tr-xl sm:rounded-tr-2xl border-2 sm:border-4 border-[#F8D0B0] relative -mt-1 shadow-sm overflow-hidden">
+            <div className="w-full overflow-x-hidden">
+              {children}
+            </div>
           </div>
         </div>
       </div>

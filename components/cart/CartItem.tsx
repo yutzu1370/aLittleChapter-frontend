@@ -196,30 +196,32 @@ const CartItem = ({ item }: CartItemProps) => {
   };
 
   return (
-    <div className={`flex items-center py-6 border-b border-gray-200 relative ${
+    <div className={`flex flex-col sm:flex-row sm:items-center py-4 sm:py-6 border-b border-gray-200 relative gap-3 sm:gap-0 ${
       isOutOfStock ? 'bg-gray-200' : ''
     }`}>
       {/* 缺貨遮罩 */}
       {isOutOfStock && (
         <div className="absolute inset-0 bg-white bg-opacity-30 pointer-events-none z-10"></div>
       )}
-      {/* 勾選框 */}
-      <div className="w-[40px] ">
-        <Checkbox 
-          checked={isSelected}
-          onCheckedChange={() => toggleSelect(productId)}
-          disabled={isOutOfStock}
-          className={`h-5 w-5 ${
-            isOutOfStock 
-              ? 'border-gray-300 opacity-50 cursor-not-allowed' 
-              : 'border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white'
-          }`}
-        />
-      </div>
 
-      {/* 商品資訊 */}
-      <div className="flex flex-1 items-center gap-4">
-        <div className={`aspect-square relative w-[168px] rounded-xl overflow-hidden border-4 bg-gray-50 mr-4 flex items-center justify-center ${
+      {/* 手機版：勾選框和商品資訊在同一行 */}
+      <div className="flex items-center gap-3 sm:gap-4 flex-1">
+        {/* 勾選框 */}
+        <div className="flex-shrink-0">
+          <Checkbox 
+            checked={isSelected}
+            onCheckedChange={() => toggleSelect(productId)}
+            disabled={isOutOfStock}
+            className={`h-5 w-5 ${
+              isOutOfStock 
+                ? 'border-gray-300 opacity-50 cursor-not-allowed' 
+                : 'border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white'
+            }`}
+          />
+        </div>
+
+        {/* 商品圖片 */}
+        <div className={`aspect-square relative w-16 h-16 sm:w-[120px] sm:h-[120px] lg:w-[168px] lg:h-[168px] rounded-lg sm:rounded-xl overflow-hidden border-2 sm:border-4 bg-gray-50 flex items-center justify-center flex-shrink-0 ${
           isOutOfStock ? 'border-gray-200' : 'border-gray-300'
         }`}>
           <div className="w-[88%] h-[88%] relative">
@@ -227,50 +229,152 @@ const CartItem = ({ item }: CartItemProps) => {
               src={imageUrl || "/images/books/placeholder.jpg"}
               alt={name}
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 120px"
+              sizes="(max-width: 640px) 64px, (max-width: 1024px) 120px, 168px"
               className={`object-cover rounded-lg ${isOutOfStock ? 'grayscale opacity-60' : ''}`}
             />
             {isOutOfStock && (
               <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
-                <span className="text-white font-bold text-sm bg-red-600 px-2 py-1 rounded">
+                <span className="text-white font-bold text-xs sm:text-sm bg-red-600 px-1 sm:px-2 py-1 rounded">
                   缺貨
                 </span>
               </div>
             )}
           </div>
         </div>
-        <div className="flex flex-col">
-          <h3 className={`text-base font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
+
+        {/* 商品資訊 */}
+        <div className="flex flex-col flex-1 min-w-0">
+          <h3 className={`text-sm sm:text-base font-medium line-clamp-2 ${isOutOfStock ? 'text-gray-400' : ''}`}>
             {name}
           </h3>
-          <div className={`text-sm ${
+          <div className={`text-xs sm:text-sm mt-1 ${
             stockQuantity === 0 
               ? 'text-red-600 font-medium' 
               : 'text-green-800'
           }`}>
             {stockQuantity > 0 ? `僅剩 ${stockQuantity} 本` : "缺貨中"}
           </div>
+          
+          {/* 手機版顯示價格 */}
+          <div className="sm:hidden mt-2">
+            <div className="flex flex-col">
+              <span className={`text-sm font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
+                <span className="font-jf-openhuninn">${discountPrice.toLocaleString('zh-TW')}</span>
+              </span>
+              {price !== discountPrice && (
+                <span className={`text-xs line-through ${isOutOfStock ? 'text-gray-300' : 'text-gray-500'}`}>
+                  <span className="font-jf-openhuninn">${price.toLocaleString('zh-TW')}</span>
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 價格 */}
-      <div className="w-[110px]">
-        <div className="flex flex-col">
-          <span className={`text-base font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
-            <span className="font-jf-openhuninn">${discountPrice.toLocaleString('zh-TW')}</span>
-          </span>
-          {price !== discountPrice && (
-            <span className={`text-xs line-through ${isOutOfStock ? 'text-gray-300' : 'text-gray-500'}`}>
-              <span className="font-jf-openhuninn">${price.toLocaleString('zh-TW')}</span>
+      {/* 桌面版：價格、數量控制、小計在同一行 */}
+      <div className="hidden sm:flex sm:items-center sm:gap-4">
+        {/* 價格 */}
+        <div className="w-[110px]">
+          <div className="flex flex-col">
+            <span className={`text-base font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
+              <span className="font-jf-openhuninn">${discountPrice.toLocaleString('zh-TW')}</span>
             </span>
-          )}
+            {price !== discountPrice && (
+              <span className={`text-xs line-through ${isOutOfStock ? 'text-gray-300' : 'text-gray-500'}`}>
+                <span className="font-jf-openhuninn">${price.toLocaleString('zh-TW')}</span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* 數量控制 */}
+        <div className="w-[120px]">
+          <div className="flex flex-col items-center gap-2">
+            <div className={`flex items-center border-4 rounded-full p-1 bg-white ${
+              isOutOfStock 
+                ? 'border-gray-300 opacity-50' 
+                : 'border-[#F8D0B0]'
+            }`}>
+              <button 
+                onClick={handleDecrease}
+                disabled={isOutOfStock}
+                className={`w-8 h-8 flex items-center justify-center ${
+                  isOutOfStock 
+                    ? 'text-gray-300 cursor-not-allowed' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <input
+                type="number"
+                value={quantity}
+                onChange={handleQuantityChange}
+                onBlur={handleQuantityBlur}
+                min="1"
+                max={stockQuantity}
+                disabled={isOutOfStock}
+                readOnly={isOutOfStock}
+                className={`w-10 text-center font-medium bg-transparent border-none outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+                  isOutOfStock 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : ''
+                }`}
+              />
+              <button 
+                onClick={handleIncrease}
+                disabled={isOutOfStock}
+                className={`w-8 h-8 flex items-center justify-center ${
+                  isOutOfStock 
+                    ? 'text-gray-300 cursor-not-allowed' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="flex gap-2">
+              <button 
+                onClick={handleToggleFavorite}
+                className={`inline-flex items-center text-xs transition-colors relative z-20 ${
+                  isAuthenticated && isFavoriteProduct 
+                    ? 'text-red-500 hover:text-red-600' 
+                    : 'text-amber-600 hover:text-amber-700'
+                }`}
+                aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
+              >
+                <Heart 
+                  className={`w-4 h-4 mr-1 ${
+                    isAuthenticated && isFavoriteProduct ? 'fill-current' : ''
+                  }`} 
+                />
+                {isAuthenticated && isFavoriteProduct ? '已收藏' : '收藏'}
+              </button>
+              <button 
+                onClick={handleRemoveItem}
+                className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700 relative z-20"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                移除
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 小計 */}
+        <div className="w-[100px] text-right">
+          <span className={`text-lg font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
+            <span className="font-jf-openhuninn">${(discountPrice * quantity).toLocaleString('zh-TW')}</span>
+          </span>
         </div>
       </div>
 
-      {/* 數量控制 */}
-      <div className="w-[120px]">
-        <div className="flex flex-col items-center gap-2">
-          <div className={`flex items-center border-4 rounded-full p-1 bg-white ${
+      {/* 手機版：數量控制和操作按鈕 */}
+      <div className="sm:hidden flex items-center justify-between gap-3">
+        {/* 數量控制 */}
+        <div className="flex items-center">
+          <div className={`flex items-center border-2 rounded-full p-1 bg-white ${
             isOutOfStock 
               ? 'border-gray-300 opacity-50' 
               : 'border-[#F8D0B0]'
@@ -278,13 +382,13 @@ const CartItem = ({ item }: CartItemProps) => {
             <button 
               onClick={handleDecrease}
               disabled={isOutOfStock}
-              className={`w-8 h-8 flex items-center justify-center ${
+              className={`w-6 h-6 flex items-center justify-center ${
                 isOutOfStock 
                   ? 'text-gray-300 cursor-not-allowed' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="w-3 h-3" />
             </button>
             <input
               type="number"
@@ -295,7 +399,7 @@ const CartItem = ({ item }: CartItemProps) => {
               max={stockQuantity}
               disabled={isOutOfStock}
               readOnly={isOutOfStock}
-              className={`w-10 text-center font-medium bg-transparent border-none outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
+              className={`w-8 text-center text-sm font-medium bg-transparent border-none outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${
                 isOutOfStock 
                   ? 'text-gray-400 cursor-not-allowed' 
                   : ''
@@ -304,49 +408,50 @@ const CartItem = ({ item }: CartItemProps) => {
             <button 
               onClick={handleIncrease}
               disabled={isOutOfStock}
-              className={`w-8 h-8 flex items-center justify-center ${
+              className={`w-6 h-6 flex items-center justify-center ${
                 isOutOfStock 
                   ? 'text-gray-300 cursor-not-allowed' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
-          
-          <div className="flex gap-2">
-            <button 
-              onClick={handleToggleFavorite}
-              className={`inline-flex items-center text-xs transition-colors relative z-20 ${
-                isAuthenticated && isFavoriteProduct 
-                  ? 'text-red-500 hover:text-red-600' 
-                  : 'text-amber-600 hover:text-amber-700'
-              }`}
-              aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
-            >
-              <Heart 
-                className={`w-4 h-4 mr-1 ${
-                  isAuthenticated && isFavoriteProduct ? 'fill-current' : ''
-                }`} 
-              />
-              {isAuthenticated && isFavoriteProduct ? '已收藏' : '收藏'}
-            </button>
-            <button 
-              onClick={handleRemoveItem}
-              className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700 relative z-20"
-            >
-              <Trash2 className="w-4 h-4 mr-1" />
-              移除
+              <Plus className="w-3 h-3" />
             </button>
           </div>
         </div>
-      </div>
 
-      {/* 小計 */}
-      <div className="w-[100px] text-right">
-        <span className={`text-lg font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
-          <span className="font-jf-openhuninn">${(discountPrice * quantity).toLocaleString('zh-TW')}</span>
-        </span>
+        {/* 操作按鈕 */}
+        <div className="flex gap-3">
+          <button 
+            onClick={handleToggleFavorite}
+            className={`inline-flex items-center text-xs transition-colors relative z-20 ${
+              isAuthenticated && isFavoriteProduct 
+                ? 'text-red-500 hover:text-red-600' 
+                : 'text-amber-600 hover:text-amber-700'
+            }`}
+            aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
+          >
+            <Heart 
+              className={`w-4 h-4 mr-1 ${
+                isAuthenticated && isFavoriteProduct ? 'fill-current' : ''
+              }`} 
+            />
+            {isAuthenticated && isFavoriteProduct ? '已收藏' : '收藏'}
+          </button>
+          <button 
+            onClick={handleRemoveItem}
+            className="inline-flex items-center text-xs text-amber-600 hover:text-amber-700 relative z-20"
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+            移除
+          </button>
+        </div>
+
+        {/* 小計 */}
+        <div className="text-right">
+          <span className={`text-base font-medium ${isOutOfStock ? 'text-gray-400' : ''}`}>
+            <span className="font-jf-openhuninn">${(discountPrice * quantity).toLocaleString('zh-TW')}</span>
+          </span>
+        </div>
       </div>
       
       {/* Auth Modal */}

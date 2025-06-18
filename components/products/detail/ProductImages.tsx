@@ -13,9 +13,9 @@ export default function ProductImages({ images, productName }: ProductImagesProp
   const [mainImage, setMainImage] = useState(images[0] || "/images/books/placeholder.jpg");
 
   return (
-    <div className="w-full md:w-[480px] flex-shrink-0">
+    <div className="w-full md:w-[480px] flex-shrink-0 mb-6 md:mb-0">
       {/* 主圖片顯示區域 */}
-      <div className="bg-white rounded-3xl overflow-hidden mb-6">
+      <div className="bg-white rounded-3xl overflow-hidden mb-4 sm:mb-6">
         <div className="relative w-full aspect-square">
           <Image 
             src={mainImage} 
@@ -23,16 +23,17 @@ export default function ProductImages({ images, productName }: ProductImagesProp
             fill
             className="object-cover rounded-3xl"
             priority
+            sizes="(max-width: 768px) 100vw, 480px"
           />
         </div>
       </div>
       
-      {/* 縮圖選擇區域 - 最多顯示 6 張圖片 */}
-      <div className="grid grid-cols-6 gap-2 pt-5">
+      {/* 縮圖選擇區域 - 響應式網格 */}
+      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-3 sm:pt-5">
         {images.slice(0, 6).map((img, idx) => (
           <div 
             key={idx} 
-            className={`cursor-pointer relative aspect-square rounded-lg overflow-hidden border-4 ${
+            className={`cursor-pointer relative aspect-square rounded-lg overflow-hidden border-2 sm:border-4 transition-colors ${
               mainImage === img ? 'border-[#b1ded6]' : 'border-transparent'
             }`}
             onClick={() => setMainImage(img)}
@@ -42,6 +43,7 @@ export default function ProductImages({ images, productName }: ProductImagesProp
               alt={`${productName} thumbnail ${idx + 1}`} 
               fill
               className="object-cover"
+              sizes="(max-width: 640px) 25vw, (max-width: 768px) 16vw, 80px"
             />
           </div>
         ))}

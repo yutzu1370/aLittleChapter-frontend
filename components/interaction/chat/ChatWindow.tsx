@@ -95,21 +95,21 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
   }
 
   return (
-    <div className="fixed bottom-28 right-6 w-[400px] h-[calc(100vh-240px)] max-h-[600px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col z-50">
+    <div className="fixed bottom-20 sm:bottom-28 right-2 sm:right-6 w-[calc(100vw-16px)] max-w-[400px] h-[calc(100vh-160px)] sm:h-[calc(100vh-240px)] max-h-[600px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col z-50">
       {/* 聊天室標題 */}
-      <div className="w-full h-20 bg-[#2F726D] rounded-t-xl px-6 py-2 flex items-center justify-between">
-        <h3 className="text-white font-semibold text-lg">小小篇章客服中心</h3>
+      <div className="w-full h-16 sm:h-20 bg-[#2F726D] rounded-t-xl px-4 sm:px-6 py-2 flex items-center justify-between">
+        <h3 className="text-white font-semibold text-base sm:text-lg">小小篇章客服中心</h3>
         <button onClick={onClose} className="text-white hover:bg-[#1d5854] p-2 rounded-full transition-colors">
           <X className="w-5 h-5" />
         </button>
       </div>
 
       {/* 聊天內容區 */}
-      <div ref={chatContainerRef} className="flex-1 bg-white p-4 overflow-y-auto flex flex-col gap-4">
+      <div ref={chatContainerRef} className="flex-1 bg-white p-3 sm:p-4 overflow-y-auto flex flex-col gap-3 sm:gap-4">
         {messages.map((message) => (
           <div key={message.id} className={`flex ${message.isUser ? "justify-end" : "justify-start"} gap-2`}>
             {!message.isUser && (
-              <div className="w-10 h-10">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
                 <Image
                   src="/images/chat/default_chatbot.png"
                   alt="Chatbot"
@@ -120,15 +120,15 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                 />
               </div>
             )}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 max-w-[75%] sm:max-w-[300px]">
               <div
-                className={`px-4 py-3 max-w-[300px] ${
+                className={`px-3 sm:px-4 py-2 sm:py-3 ${
                   message.isUser
                     ? "bg-[#F3FAF8] rounded-l-2xl rounded-br-2xl ml-auto"
                     : "bg-[#F6F6F6] rounded-r-2xl rounded-bl-2xl"
                 }`}
               >
-                <p className="text-gray-900">{message.text}</p>
+                <p className="text-gray-900 text-sm sm:text-base break-words">{message.text}</p>
               </div>
               <span className="text-xs text-gray-500">{message.timestamp}</span>
             </div>
@@ -138,7 +138,7 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
         {/* 載入指示器 */}
         {isLoading && (
           <div className="flex justify-start gap-2">
-            <div className="w-10 h-10">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
               <Image
                 src="/images/chat/default_chatbot.png"
                 alt="Chatbot"
@@ -148,7 +148,7 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
                 className="rounded-full"
               />
             </div>
-            <div className="bg-[#F6F6F6] rounded-r-2xl rounded-bl-2xl px-4 py-3">
+            <div className="bg-[#F6F6F6] rounded-r-2xl rounded-bl-2xl px-3 sm:px-4 py-2 sm:py-3">
               <div className="flex gap-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -160,12 +160,12 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
       </div>
 
       {/* 客服時間提示 */}
-      <div className="w-full h-10 bg-[#FEF5EE] border-y border-[#F8D0B0] flex items-center justify-center">
-        <p className="text-[#B4371A]">客服時間：週一至週五09:00~18:00</p>
+      <div className="w-full h-8 sm:h-10 bg-[#FEF5EE] border-y border-[#F8D0B0] flex items-center justify-center px-2">
+        <p className="text-[#B4371A] text-xs sm:text-sm text-center">客服時間：週一至週五09:00~18:00</p>
       </div>
 
       {/* 輸入區域 */}
-      <div className="w-full bg-white p-4">
+      <div className="w-full bg-white p-3 sm:p-4">
         <div className="flex items-center gap-2">
           <input
             type="text"
@@ -174,14 +174,14 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
             onKeyPress={handleKeyPress}
             placeholder="請輸入您的問題..."
             disabled={isLoading}
-            className="flex-1 h-14 px-4 py-3 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B] disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="flex-1 h-12 sm:h-14 px-3 sm:px-4 py-2 sm:py-3 border-2 border-[#F8D0B0] rounded-full focus:outline-none focus:border-[#E8652B] disabled:bg-gray-100 disabled:cursor-not-allowed text-sm sm:text-base"
           />
           <button
             onClick={handleSendMessage}
             disabled={isLoading || inputText.trim() === ""}
-            className="w-10 h-10 bg-[#E8652B] rounded-full flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-[#E8652B] rounded-full flex items-center justify-center disabled:bg-gray-400 disabled:cursor-not-allowed flex-shrink-0"
           >
-            <Send className="w-5 h-5 text-white" />
+            <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </button>
         </div>
       </div>

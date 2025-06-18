@@ -188,16 +188,16 @@ export default function CouponsClient() {
           可使用的折扣碼
         </h3>
         {activeCoupons.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4">
             {activeCoupons.map((coupon) => (
               <CouponCard key={coupon.id} coupon={coupon} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 sm:py-10 bg-gray-50 rounded-lg">
-            <Ticket className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" />
-            <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900">尚無可用折扣碼</h3>
-            <p className="mt-1 text-sm text-gray-500">您目前沒有任何可使用的折扣碼。</p>
+          <div className="text-center py-6 sm:py-8 lg:py-10 bg-gray-50 rounded-lg">
+            <Ticket className="mx-auto h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm sm:text-base lg:text-lg font-medium text-gray-900">尚無可用折扣碼</h3>
+            <p className="mt-1 text-xs sm:text-sm text-gray-500">您目前沒有任何可使用的折扣碼。</p>
           </div>
         )}
       </div>
@@ -209,7 +209,7 @@ export default function CouponsClient() {
             <X className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-gray-400" />
             已使用的折扣碼
           </h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4">
             {usedCoupons.map((coupon) => (
               <CouponCard key={coupon.id} coupon={coupon} />
             ))}

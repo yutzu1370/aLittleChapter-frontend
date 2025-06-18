@@ -248,7 +248,7 @@ export default function BookReviews() {
           <Swiper
             modules={[Navigation, Autoplay]}
             spaceBetween={16}
-            slidesPerView={3}
+            slidesPerView={1}
             centeredSlides={true}
             loop={true}
             autoplay={{
@@ -276,7 +276,7 @@ export default function BookReviews() {
                 slidesPerGroup: 1,
               },
             }}
-            className="!pb-6 sm:!pb-8 h-[400px] sm:h-[450px] lg:h-[550px] w-full max-w-6xl"
+            className="!pb-6 sm:!pb-8 h-[450px] sm:h-[450px] lg:h-[550px] w-full max-w-6xl"
             ref={swiperRef}
           >
             {reviews.map((review) => (
@@ -306,8 +306,8 @@ export default function BookReviews() {
                     {/* 評分星星 */}
                     <div className={`absolute ${
                       isActive 
-                        ? 'top-3 sm:top-4 lg:top-5' 
-                        : 'top-2 sm:top-3 lg:top-4'
+                        ? 'top-4 sm:top-4 lg:top-5' 
+                        : 'top-3 sm:top-3 lg:top-4'
                     } left-1/2 transform -translate-x-1/2 z-10`}>
                       {renderStars(review.rating, isActive ? "md" : "sm")}
                     </div>
@@ -315,8 +315,8 @@ export default function BookReviews() {
                     {/* 書籍圖片 */}
                     <div className={`${
                       isActive 
-                        ? 'mt-12 sm:mt-14 lg:mt-16 w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px]' 
-                        : 'mt-8 sm:mt-10 lg:mt-12 w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px]'
+                        ? 'mt-14 sm:mt-14 lg:mt-16 w-[100px] h-[100px] sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px]' 
+                        : 'mt-10 sm:mt-10 lg:mt-12 w-[80px] h-[80px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px]'
                     } relative bg-white border-2 sm:border-3 lg:border-3 border-[#EC824B] rounded-[8px] sm:rounded-[10px] lg:rounded-[12px] p-1 z-10`}>
                       <Image
                         src={review.image}
@@ -330,23 +330,23 @@ export default function BookReviews() {
                     {/* 書籍標題 */}
                     <h3 className={`${
                       isActive 
-                        ? 'mt-2 sm:mt-3 lg:mt-4 text-base sm:text-lg lg:text-xl' 
-                        : 'mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg'
-                    } font-['jf-openhuninn-2.0'] z-10 text-center px-3 sm:px-4 lg:px-6 line-clamp-2`}>
+                        ? 'mt-3 sm:mt-3 lg:mt-4 text-lg sm:text-lg lg:text-xl' 
+                        : 'mt-2 sm:mt-2 text-base sm:text-base lg:text-lg'
+                    } font-['jf-openhuninn-2.0'] z-10 text-center px-4 sm:px-4 lg:px-6 line-clamp-2`}>
                       {review.title}
                     </h3>
                     
                     {/* 評論內容 */}
                     <div className={`${
                       isActive 
-                        ? 'px-6 py-1 sm:px-8 lg:px-10 mt-2 sm:mt-3 lg:mt-4 flex-1 flex flex-col justify-center max-w-[280px] sm:max-w-[320px] lg:max-w-[360px]' 
-                        : 'px-4 py-1 sm:px-6 lg:px-8 mt-1 sm:mt-2 flex-1 flex flex-col justify-center max-w-[200px] sm:max-w-[240px] lg:max-w-[280px]'
+                        ? 'px-6 py-1 sm:px-8 lg:px-10 mt-3 sm:mt-3 lg:mt-4 flex-1 flex flex-col justify-center max-w-[320px] sm:max-w-[320px] lg:max-w-[360px]' 
+                        : 'px-4 py-1 sm:px-6 lg:px-8 mt-2 sm:mt-2 flex-1 flex flex-col justify-center max-w-[240px] sm:max-w-[240px] lg:max-w-[280px]'
                     } z-10 w-full`}>
                       <p className={`${
                         isActive 
-                          ? 'text-xs sm:text-sm lg:text-sm' 
+                          ? 'text-sm sm:text-sm lg:text-sm' 
                           : 'text-xs sm:text-xs lg:text-xs'
-                      } tracking-wide leading-relaxed text-center text-gray-700 line-clamp-3 overflow-hidden`}>
+                      } tracking-wide leading-relaxed text-center text-gray-700 line-clamp-4 overflow-hidden`}>
                         {review.content}
                       </p>
                     </div>
@@ -354,8 +354,8 @@ export default function BookReviews() {
                     {/* 用戶資訊 */}
                     <div className={`${
                       isActive 
-                        ? 'mb-2 sm:mb-4 lg:mb-6 mt-2 sm:mt-3' 
-                        : 'mb-1 sm:mb-2 lg:mb-4 mt-1 sm:mt-2'
+                        ? 'mb-3 sm:mb-4 lg:mb-6 mt-2 sm:mt-3' 
+                        : 'mb-2 sm:mb-2 lg:mb-4 mt-1 sm:mt-2'
                     } z-10 flex justify-center`}>
                       {renderUserIcon(review, isActive ? "md" : "sm")}
                     </div>

@@ -437,7 +437,7 @@ export default function Header() {
                 
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-[#E8652B] text-white px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-orange-600 transition-colors shadow-[2px_3px_0px_#74281A] sm:shadow-[3px_4px_0px_#74281A] lg:shadow-[4px_6px_0px_#74281A] flex-shrink-0"
+                  className="bg-[#E8652B] text-white px-2 py-1.5 sm:px-3 sm:py-2 lg:px-6 lg:py-3 rounded-full text-xs sm:text-sm font-semibold hover:bg-orange-600 transition-colors shadow-[2px_3px_0px_#74281A] sm:shadow-[3px_4px_0px_#74281A] lg:shadow-[4px_6px_0px_#74281A] flex-shrink-0 whitespace-nowrap"
                 >
                   登入/註冊
                 </button>

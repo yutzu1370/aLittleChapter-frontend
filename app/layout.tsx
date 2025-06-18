@@ -34,6 +34,12 @@ const notoSansTC = Noto_Sans_TC({
 export const metadata: Metadata = {
   title: "Little Chapter - 兒童書籍電商平台",
   description: "專為兒童打造的優質閱讀體驗",
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 }
 
 // Stagewise 配置

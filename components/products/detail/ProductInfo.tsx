@@ -202,18 +202,18 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
   };
 
   return (
-    <div className="w-full md:w-[984px] flex-1 pl-8">
+    <div className="w-full flex-1 pl-0 md:pl-8">
       {/* 標題與收藏分享按鈕 */}
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center gap-4 flex-1">
-          <h1 className="text-3xl md:text-4xl font-bold text-emerald-800 font-jf-openhuninn">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-3">
+        <div className="flex flex-col gap-3 flex-1">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-emerald-800 font-jf-openhuninn">
             {product.name}
           </h1>
           {/* Category and Age Range Tags */}
           {(category || ageRange) && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {category && (
-                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58] ">
+                <span className="px-3 py-1 rounded-full text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
                   {category}
                 </span>
               )}
@@ -225,9 +225,9 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
             </div>
           )}
         </div>
-        <div className="flex gap-2 ml-4">
+        <div className="flex gap-2 justify-center sm:justify-end">
           <button 
-            className={`p-3 rounded-full border-2 bg-white shadow-md transition-all ${
+            className={`p-2 sm:p-3 rounded-full border-2 bg-white shadow-md transition-all ${
               isAuthenticated && isFavoriteProduct 
                 ? 'border-red-500 bg-red-50 hover:bg-red-100' 
                 : 'border-orange-500 hover:bg-orange-50'
@@ -236,7 +236,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
             aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
           >
             <Heart 
-              className={`h-6 w-6 ${
+              className={`h-5 w-5 sm:h-6 sm:w-6 ${
                 isAuthenticated && isFavoriteProduct 
                   ? 'text-red-500 fill-current' 
                   : 'text-orange-500'
@@ -244,10 +244,10 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
             />
           </button>
           <button 
-            className="p-3 rounded-full border-2 border-orange-500 bg-white shadow-md hover:bg-orange-50"
+            className="p-2 sm:p-3 rounded-full border-2 border-orange-500 bg-white shadow-md hover:bg-orange-50"
             onClick={handleShare}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>
           </button>
@@ -255,14 +255,14 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       </div>
 
       {/* 分隔線 */}
-      <div className="w-full h-px bg-gray-300 my-6"></div>
+      <div className="w-full h-px bg-gray-300 my-4 sm:my-6"></div>
 
       {/* 價格區塊 */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div className="flex items-end gap-2 mb-1">
-          <span className="text-2xl font-bold text-orange-500">NT$ {product.price}</span>
+          <span className="text-xl sm:text-2xl font-bold text-orange-500">NT$ {product.price}</span>
           {product.discountPrice && (
-            <span className="text-gray-500 line-through">原價 NT$ {product.originalPrice}</span>
+            <span className="text-gray-500 line-through text-sm sm:text-base">原價 NT$ {product.originalPrice}</span>
           )}
         </div>
         {/* 庫存資訊 */}
@@ -276,14 +276,14 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       </div>
 
       {/* 數量選擇和加入購物車 */}
-      <div className="flex flex-col sm:flex-row gap-4 items-stretch">
-        <div className="flex items-center h-12 border-4 border-[#F8D0B0] rounded-full overflow-hidden w-[250px]">
+      <div className="flex flex-col gap-3 sm:gap-4 items-stretch">
+        <div className="flex items-center h-12 border-4 border-[#F8D0B0] rounded-full overflow-hidden w-full max-w-[250px] mx-auto sm:mx-0">
           <button 
             onClick={decreaseQuantity}
-            className="bg-white h-full w-12 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            className="bg-white h-full w-12 flex items-center justify-center hover:bg-gray-50 transition-colors flex-shrink-0"
             disabled={quantity <= 1}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
             </svg>
           </button>
@@ -297,16 +297,16 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
           />
           <button 
             onClick={increaseQuantity}
-            className="bg-white h-full w-12 flex items-center justify-center hover:bg-gray-50 transition-colors"
+            className="bg-white h-full w-12 flex items-center justify-center hover:bg-gray-50 transition-colors flex-shrink-0"
             disabled={quantity >= product.stockQuantity}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
         </div>
         <button 
-          className={`w-[250px] text-white rounded-full px-8 py-3 font-semibold flex items-center justify-center gap-2 transition-all ${
+          className={`w-full max-w-[250px] mx-auto sm:mx-0 text-white rounded-full px-6 sm:px-8 py-3 font-semibold flex items-center justify-center gap-2 transition-all ${
             product.stockQuantity === 0 || isAddingToCart
               ? 'bg-gray-400 cursor-not-allowed' 
               : 'bg-orange-500 shadow-[2px_3px_0px_0px_rgba(116,40,26,1)] hover:translate-y-1 hover:shadow-[1px_1px_0px_0px_rgba(116,40,26,1)]'
@@ -321,7 +321,7 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
             </>
           ) : (
             <>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               {product.stockQuantity === 0 ? '缺貨中' : '加入購物車'}
@@ -331,59 +331,61 @@ export default function ProductInfo({ product, category, ageRange }: ProductInfo
       </div>
 
       {/* 標籤選項 */}
-      <div className="mt-8">
-        <div className="flex gap-2 relative">
-          <button 
-            className={`px-8 py-3 rounded-t-2xl text-lg font-medium relative ${activeTab === 'author' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
-            onClick={() => setActiveTab('author')}
-          >
-            作者
-          </button>
-          <button 
-            className={`px-8 py-3 rounded-t-2xl text-lg font-medium relative ${activeTab === 'publisher' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
-            onClick={() => setActiveTab('publisher')}
-          >
-            出版
-          </button>
-          <button 
-            className={`px-8 py-3 rounded-t-2xl text-lg font-medium relative ${activeTab === 'specs' ? 'bg-white border-4 border-b-0 border-[#F8D0B0] text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
-            onClick={() => setActiveTab('specs')}
-          >
-            規格
-          </button>
+      <div className="mt-6 sm:mt-8">
+        <div className="flex gap-1 sm:gap-2 relative overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1 sm:gap-2 min-w-max">
+            <button 
+              className={`px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-t-xl sm:rounded-t-2xl text-sm sm:text-base lg:text-lg font-medium relative whitespace-nowrap flex-shrink-0 ${activeTab === 'author' ? 'bg-white border-2 sm:border-4 border-[#F8D0B0] border-b-white text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
+              onClick={() => setActiveTab('author')}
+            >
+              作者
+            </button>
+            <button 
+              className={`px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-t-xl sm:rounded-t-2xl text-sm sm:text-base lg:text-lg font-medium relative whitespace-nowrap flex-shrink-0 ${activeTab === 'publisher' ? 'bg-white border-2 sm:border-4 border-[#F8D0B0] border-b-white text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
+              onClick={() => setActiveTab('publisher')}
+            >
+              出版
+            </button>
+            <button 
+              className={`px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-t-xl sm:rounded-t-2xl text-sm sm:text-base lg:text-lg font-medium relative whitespace-nowrap flex-shrink-0 ${activeTab === 'specs' ? 'bg-white border-2 sm:border-4 border-[#F8D0B0] border-b-white text-amber-900 z-10' : 'bg-[#FCE9D8] text-gray-600'}`}
+              onClick={() => setActiveTab('specs')}
+            >
+              規格
+            </button>
+          </div>
         </div>
-        <div className="bg-white p-8 rounded-b-2xl rounded-tr-2xl border-4 border-[#F8D0B0] relative -mt-1">
+        <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-b-2xl rounded-tr-2xl border-2 sm:border-4 border-[#F8D0B0] relative -mt-1">
           {activeTab === 'author' && (
-            <div className="space-y-4">
-              <p className="text-gray-800">
+            <div className="space-y-3 sm:space-y-4">
+              <p className="text-gray-800 text-sm sm:text-base">
                 <strong>作者：{product.author}</strong><br />
                 善於觀察小動物與大自然，擅長用溫暖筆觸編織勇氣與成長的小故事。
               </p>
-              <p className="text-gray-800">
+              <p className="text-gray-800 text-sm sm:text-base">
                 <strong>繪者：{product.illustrator}</strong><br />
                 專攻粉蠟筆插畫，擅長打造溫柔夢幻的森林世界，讓每個故事都像童話般展開。
               </p>
             </div>
           )}
           {activeTab === 'publisher' && (
-            <div className="space-y-4">
-              <p className="text-gray-800">
+            <div className="space-y-3 sm:space-y-4">
+              <p className="text-gray-800 text-sm sm:text-base">
                 <strong>出版社：{product.publisher}</strong><br />
               </p>
-              <p className="text-gray-800">
+              <p className="text-gray-800 text-sm sm:text-base">
                 <strong>出版日期：{product.publishDate}</strong><br />
               </p>
             </div>
           )}
           {activeTab === 'specs' && (
-            <div className="space-y-4">
-              <p className="text-gray-800">
+            <div className="space-y-3 sm:space-y-4">
+              <p className="text-gray-800 text-sm sm:text-base">
                 <strong>ISBN：{product.isbn}</strong><br />
               </p>
-              <p className="text-gray-800">
+              <p className="text-gray-800 text-sm sm:text-base">
                 <strong>頁數：{product.pageCount}</strong><br />
               </p>
-              <p className="text-gray-800">
+              <p className="text-gray-800 text-sm sm:text-base">
                 <strong>商品編號：{product.productId}</strong><br />
               </p>
             </div>

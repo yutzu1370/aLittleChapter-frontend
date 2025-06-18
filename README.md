@@ -1,126 +1,264 @@
+
+
+> Little Chapter 是一個專為親子設計的繪本電商平台，提供年齡分齡推薦、互動式購物體驗，以及豐富的繪本內容，協助家長為孩子挑選最適合的繪本。
+
 # Little Chapter 前端前台
 
-親子繪本電商平台 Little Chapter 前端前台，提供繪本商品瀏覽、年齡分齡推薦、購物車、會員註冊登入等功能，協助家長為孩子挑選合適的繪本。
+![專案封面圖](https://fakeimg.pl/800x400/F3FAF8/2F726D?text=Little+Chapter&font=noto)
 
----
+> 此專案是 Little Chapter 親子繪本電商平台的前端前台系統，採用 Next.js 14 開發，提供現代化的購物體驗和響應式設計，讓家長能輕鬆為孩子選購合適的繪本。
 
-## 技術棧
+- [線上觀看連結](https://little-chapter.vercel.app/)
 
-- 框架：Next.js (React Server Components, SSR/SSG)
-- 語言：TypeScript
-- 樣式：Tailwind CSS、Shadcn UI、Radix UI
-- 圖片優化：Next.js Image (WebP, lazy loading)
-- 狀態管理：React Context（僅限必要）、RSC/SSR 優先
-- API 串接：RESTful API（與後端協作）
-- 版本控制：Git + GitHub
+## 功能特色
 
----
+測試帳號密碼 **（僅供測試使用）**
 
-## 開發環境設定
+```bash
+帳號： test@example.com
+密碼： test123
+```
 
-1. **取得程式碼**
-   ```bash
-   git clone <遠端倉庫網址>
-   cd <專案資料夾>
-   ```
+### 核心功能
+- [x] 會員註冊/登入系統
+- [x] 商品瀏覽與搜尋
+- [x] 年齡分齡推薦系統
+- [x] 購物車功能
+- [x] 訂單管理
+- [x] 收藏清單
+- [x] 折扣碼系統
+- [x] 會員通知中心
+- [x] 商品評價系統
+- [x] 響應式設計 (RWD)
+- [x] 聊天機器人客服
+- [x] 浮動操作按鈕
 
-2. **安裝依賴**
-   ```bash
-   npm install
-   ```
+### 特色功能
+- [x] 本月亮點新書輪播
+- [x] 熱銷排行榜
+- [x] 套裝推薦系統
+- [x] 書籍好評展示
+- [x] 互動式產品展示
+- [x] 多層次分類篩選
 
-3. **設定環境變數**
-   - 複製 `.env.example` 為 `.env.local`，填入 API 端點等必要參數。
+## 畫面展示
 
-4. **啟動開發伺服器**
-   ```bash
-   npm run dev
-   ```
-   - 預設於 [http://localhost:3000](http://localhost:3000) 提供服務。
+> 展示主要功能頁面，讓使用者快速了解平台特色
 
----
+![首頁展示](https://fakeimg.pl/800x400/F3FAF8/2F726D?text=Homepage)
+![商品列表](https://fakeimg.pl/800x400/FEF5EE/E8652B?text=Product+List)
+![商品詳情](https://fakeimg.pl/800x400/FCE9D8/B4371A?text=Product+Detail)
+
+## 安裝與設定
+
+> 請確保您的開發環境符合以下要求
+
+以下將引導您如何在本地環境中設定此專案。
+
+Node.js 版本建議為：`18.17.0` 以上
+npm 版本建議為：`9.0.0` 以上
+
+### 取得專案
+
+```bash
+git clone https://github.com/little-chapter/frontend.git
+```
+
+### 移動到專案目錄
+
+```bash
+cd frontend
+```
+
+### 安裝套件
+
+```bash
+npm install
+```
+
+### 環境變數設定
+
+請在終端機輸入 `cp .env.example .env.local` 來複製環境變數範例檔案，並依據 `.env.local` 內容調整相關欄位。
+
+```env
+NEXT_PUBLIC_API_BASE_URL=your_api_base_url
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+```
+
+### 運行專案
+
+```bash
+npm run dev
+```
+
+### 開啟專案
+
+在瀏覽器網址列輸入以下即可看到畫面
+
+```bash
+http://localhost:3000
+```
+
+## 環境變數說明
+
+```env
+NEXT_PUBLIC_API_BASE_URL= # 後端 API 基礎網址
+NEXT_PUBLIC_GOOGLE_CLIENT_ID= # Google OAuth 客戶端 ID
+NEXT_PUBLIC_SITE_URL= # 網站基礎網址
+```
 
 ## 專案結構
 
+```
+little-chapter/
+├── app/                    # Next.js 13+ App Router
+│   ├── about/             # 關於我們頁面
+│   ├── account/           # 會員中心相關頁面
+│   ├── cart/              # 購物車相關頁面
+│   ├── products/          # 商品相關頁面
+│   ├── globals.css        # 全域樣式
+│   ├── layout.tsx         # 根布局
+│   └── page.tsx           # 首頁
+├── components/            # React 組件
+│   ├── account/           # 會員中心組件
+│   ├── auth/              # 認證相關組件
+│   ├── cart/              # 購物車組件
+│   ├── home/              # 首頁組件
+│   ├── interaction/       # 互動組件
+│   ├── layout/            # 布局組件
+│   ├── products/          # 商品組件
+│   └── ui/                # 基礎 UI 組件
+├── hooks/                 # 自定義 React Hooks
+├── lib/                   # 工具函數與配置
+│   ├── api/               # API 呼叫函數
+│   ├── store/             # 狀態管理 (Zustand)
+│   ├── types/             # TypeScript 型別定義
+│   └── utils/             # 工具函數
+├── public/                # 靜態資源
+│   ├── images/            # 圖片資源
+│   └── fonts/             # 字體檔案
+└── docs/                  # 專案文件
+```
+
+## 專案技術
+
+### 核心技術
+- **Next.js** v14.2.5 - React 全端框架
+- **React** v18.3.1 - 前端函式庫
+- **TypeScript** v5.5.4 - 型別安全的 JavaScript
+- **Tailwind CSS** v3.4.1 - 原子化 CSS 框架
+
+### UI 與樣式
+- **Shadcn UI** - 現代化 UI 組件庫
+- **Radix UI** - 無障礙 UI 基礎組件
+- **Lucide React** - 圖示庫
+- **Swiper** v11.1.14 - 輪播組件
+
+### 狀態管理與工具
+- **Zustand** v4.5.5 - 輕量級狀態管理
+- **React Hook Form** v7.53.0 - 表單處理
+- **Sonner** v1.5.0 - 通知系統
+
+### 開發工具
+- **ESLint** - 程式碼檢查
+- **PostCSS** - CSS 後處理器
+- **Autoprefixer** - CSS 前綴自動添加
+
+## 第三方服務
+
+- **Google OAuth** - 第三方登入
+- **RESTful API** - 後端資料串接
+- **Vercel** - 部署平台
+
 ## 開發指令
 
-- `npm run start` - 使用 Docker 啟動 PostgreSQL 資料庫
-- `npm run restart` - 重建並重啟 Docker 容器
-- `npm run stop` - 停止 Docker 容器
-- `npm run clean` - 停止並移除 Docker 容器和資料卷
-- `npm run dev` - 使用 nodemon 啟動開發環境的應用程式
-
-
-## API 串接
-
-- 所有資料皆透過 RESTful API 向後端取得，API 端點請參考 `.env.local` 設定。
-- 範例：取得繪本列表
-  ```ts
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/books`);
-  const books = await res.json();
-  ```
-
-## UI 樣式與設計
-
-- 採用 Tailwind CSS + Shadcn UI + Radix UI，確保響應式、可存取性與一致性。
-- 行動優先設計，優化 Web Vitals（LCP、CLS、FID）。
-- 圖片皆使用 Next.js `<Image />` 元件，支援 WebP、lazy loading。
-
-## 常用指令
-
-- `npm run dev`：啟動開發伺服器
-- `npm run build`：打包專案
-- `npm run start`：啟動正式伺服器
-- `npm run lint`：程式碼檢查
-- `npm run format`：自動格式化
+- `npm run dev` - 啟動開發伺服器
+- `npm run build` - 建置專案
+- `npm run start` - 啟動正式伺服器
+- `npm run lint` - 執行 ESLint 檢查
+- `npm run lint:fix` - 自動修復 ESLint 錯誤
 
 ## Git Flow 協作流程
 
 ### 分支管理
 
-- **main**：正式發布分支，僅合併穩定版本。
-- **dev**：主要開發分支，所有功能分支皆自此建立。
-- **feature/**：功能開發分支，命名如 `feature/xxx`。
+- **main** - 正式發布分支，僅合併穩定版本
+- **feature/RWD** - 主要開發分支，所有功能分支皆自此建立
+- **feature/\*** - 功能開發分支，命名如 `feature/shopping-cart`
 
 ### 開發流程
 
-1. **切換並更新 dev 分支**
+1. **切換並更新開發分支**
    ```bash
-   git checkout dev
-   git pull origin dev
+   git checkout feature/RWD
+   git pull origin feature/RWD
    ```
 
 2. **建立功能分支**
    ```bash
-   git checkout -b feature/你的功能名稱
+   git checkout -b feature/your-feature-name
    ```
 
 3. **開發與提交**
    ```bash
    git add .
-   git commit -m "feat: 新增xxx功能"
+   git commit -m "feat: 新增購物車功能"
    ```
 
-4. **合併回 dev 分支**
+4. **合併回開發分支**
    ```bash
-   git checkout dev
-   git merge feature/你的功能名稱
-   git push origin dev
+   git checkout feature/RWD
+   git merge feature/your-feature-name
+   git push origin feature/RWD
    ```
 
-5. **如需發布正式版，將 dev 合併到 main**
+5. **發布正式版本**
    ```bash
    git checkout main
-   git merge dev
+   git merge feature/RWD
    git push origin main
    ```
 
+## 部署說明
+
+此專案使用 Vercel 進行自動部署：
+
+- **開發環境**：自動部署 `feature/RWD` 分支
+- **正式環境**：自動部署 `main` 分支
+
+當專案 merge 到 main 時會自動執行以下動作：
+- 建立 Node.js 環境
+- 安裝相依套件
+- 執行 TypeScript 編譯
+- 執行 ESLint 掃描
+- 建置 Next.js 專案
+- 部署到 Vercel
+
+## 性能優化
+
+- **圖片優化**：使用 Next.js Image 組件，支援 WebP 格式和 lazy loading
+- **程式碼分割**：利用 Next.js 自動程式碼分割功能
+- **SSR/SSG**：適當使用伺服器端渲染和靜態生成
+- **響應式設計**：行動優先的 RWD 設計
+
+## 開發規範
+
+- 遵循 TypeScript 嚴格模式
+- 使用 ESLint 和 Prettier 確保程式碼品質
+- 組件採用函數式組件和 Hooks
+- 優先使用 RSC (React Server Components)
+- API 呼叫統一放在 `/lib/api` 目錄
+- 型別定義統一放在 `/lib/types` 目錄
+
+## 聯絡資訊
+
+如有任何問題或建議，歡迎聯絡開發團隊：
+
+- **專案負責人**：[GitHub](https://github.com/little-chapter)
+- **技術支援**：[Issues](https://github.com/little-chapter/frontend/issues)
+- **官方網站**：[Little Chapter](https://little-chapter.vercel.app/)
+
 ---
 
-## 其他注意事項
-
-- 請遵循專案 TypeScript 介面、模組化、無重複程式碼原則。
-- 客製元件請放於 `/components`，共用型態請放於 `/types`。
-- 優先使用 RSC/SSR，減少 useEffect 與 client state。
-- UI 風格與元件請統一使用 Tailwind、Shadcn、Radix。
+**Little Chapter** - 讓每個孩子都能找到屬於自己的故事 📚✨
 

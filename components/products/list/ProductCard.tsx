@@ -173,11 +173,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
           
           {/* 購買/收藏按鈕 */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 flex items-end justify-center gap-2 p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-24 flex items-end justify-center gap-2 p-4 sm:p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <motion.button 
               whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
               whileTap={{ scale: 0.95 }}
-              className="flex-1 h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[4px_6px_0px_#74281A] transition-colors duration-100"
+              className="flex-1 h-10 sm:h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] transition-colors duration-100 text-sm sm:text-base"
               onClick={handleAddToCart}
             >
               加入購物車
@@ -185,16 +185,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className={`w-12 h-12 bg-white border-2 ${
+              className={`w-10 h-10 sm:w-12 sm:h-12 bg-white border-2 ${
                 isAuthenticated && isFavoriteProduct 
                   ? "border-[#E8652B] bg-[#FEF5EE]" 
                   : "border-[#E8652B]"
-              } rounded-full flex items-center justify-center shadow-[4px_6px_0px_#74281A]`}
+              } rounded-full flex items-center justify-center shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A]`}
               onClick={handleToggleFavorite}
               aria-label={isAuthenticated && isFavoriteProduct ? "從收藏移除" : "加入收藏"}
             >
               <Heart 
-                className={`w-6 h-6 ${
+                className={`w-5 h-5 sm:w-6 sm:h-6 ${
                   isAuthenticated && isFavoriteProduct 
                     ? "text-[#E8652B] fill-[#E8652B]" 
                     : "text-[#E8652B]"
