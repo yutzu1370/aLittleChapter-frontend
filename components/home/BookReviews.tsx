@@ -174,7 +174,7 @@ export default function BookReviews() {
         <div className={`${iconSizes[size]} rounded-full overflow-hidden relative`}>
           <Image 
             src={review.userAvatar} 
-            alt={review.author} 
+            alt={`${review.author}的頭像`} 
             width={40}
             height={40}
             className="object-cover"

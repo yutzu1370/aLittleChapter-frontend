@@ -46,21 +46,23 @@ export function ReturnModal({ isOpen, onClose, orderNumber, onSubmit }: ReturnMo
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-white rounded-xl">
+      <DialogContent className="sm:max-w-md max-w-[90%] mx-auto bg-white rounded-[24px] border-2 border-[#f8d0b0] shadow-lg animate-scale-up">
         <DialogHeader>
-          <DialogTitle className="font-noto-sans-tc ">申請退貨</DialogTitle>
+          <DialogTitle className="font-noto-sans-tc text-[#2F726D] text-xl font-semibold text-center">
+            申請退貨
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <div>
-            <Label className="text-sm font-medium text-gray-700 font-noto-sans-tc">
-              訂單編號：{orderNumber}
+        <div className="space-y-6 px-2">
+          <div className="bg-white/80 rounded-[16px] p-4 border border-[#f8d0b0]/50">
+            <Label className="text-sm font-medium text-[#2F726D] font-noto-sans-tc">
+              訂單編號：<span className="text-[#E8652B] font-semibold">{orderNumber}</span>
             </Label>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="returnReason" className="text-sm font-medium text-gray-700 font-noto-sans-tc">
-              退貨原因 <span className="text-red-500">*</span>
+          <div className="space-y-3">
+            <Label htmlFor="returnReason" className="text-sm font-medium text-[#2F726D] font-noto-sans-tc">
+              退貨原因 <span className="text-[#E8652B]">*</span>
             </Label>
             <Textarea
               id="returnReason"
@@ -68,30 +70,37 @@ export function ReturnModal({ isOpen, onClose, orderNumber, onSubmit }: ReturnMo
               value={returnReason}
               onChange={(e) => setReturnReason(e.target.value)}
               disabled={isSubmitting}
-              className="min-h-[100px] font-noto-sans-tc"
+              className="min-h-[120px] font-noto-sans-tc bg-white/90 border-2 border-[#f8d0b0]/60 rounded-[16px] focus:border-[#E8652B] focus:ring-[#E8652B]/20 placeholder:text-gray-400 resize-none"
               maxLength={500}
             />
-            <div className="text-xs text-gray-500 text-right font-noto-sans-tc">
-              {returnReason.length}/500
+            <div className="text-xs text-[#2F726D]/70 text-right font-noto-sans-tc">
+              {returnReason.length}/100
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6 ">
+        <div className="flex justify-center gap-4 mt-8 px-2">
           <Button
             variant="outline"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="font-noto-sans-tc rounded-xl border-2 border-gray-300 hover:bg-gray-300"
+            className="font-noto-sans-tc rounded-[20px] border-2 border-[#2F726D]/30 text-[#2F726D] hover:bg-[#2F726D]/10 hover:border-[#2F726D] transition-all duration-300 px-8 py-2 min-w-[100px]"
           >
             取消
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!returnReason.trim() || isSubmitting}
-            className="bg-blue-600 hover:bg-blue-700 font-noto-sans-tc rounded-xl"
+            className="bg-[#E8652B] hover:bg-[#D5531F] text-white font-noto-sans-tc rounded-[20px] px-8 py-2 min-w-[100px] shadow-[0_4px_0_rgba(116,40,26,1)] hover:shadow-[0_2px_0_rgba(116,40,26,1)] hover:translate-y-[2px] transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[0_4px_0_rgba(116,40,26,1)]"
           >
-            {isSubmitting ? "提交中..." : "送出申請"}
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                提交中...
+              </span>
+            ) : (
+              "送出申請"
+            )}
           </Button>
         </div>
       </DialogContent>
