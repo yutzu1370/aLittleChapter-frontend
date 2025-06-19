@@ -52,22 +52,25 @@ export default function CartPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white font-noto-sans-tc">
       <Header />
-      <div className="container mx-auto px-4 pt-16 pb-8">
-        <h1 className="text-4xl font-bold text-teal-800 mb-8 text-center">購物車</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2">
+      
+      {/* 手機版：主要內容區域，底部留空間給固定的總金額區塊 */}
+      <div className="lg:container lg:mx-auto px-4 pt-28 lg:pt-32 pb-4 lg:pb-8">
+        {/* 手機版：單列布局 / 桌面版：雙列布局 */}
+        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+          
+          {/* 購物車內容區域 */}
+          <div className="lg:col-span-2  lg:pb-0">
             {/* 購物車商品列表 */}
-            <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-medium text-teal-800">購物車商品</h2>
+            <div className="border border-gray-200 bg-white rounded-3xl p-4 lg:p-6 mb-6 lg:mb-8 shadow-sm">
+              <div className="flex items-center justify-between mb-4 lg:mb-6">
+                <h1 className="text-2xl lg:text-3xl font-medium text-teal-800">購物車</h1>
               </div>
 
-              {/* 表格標題列 */}
+              {/* 桌面版表格標題列 - 手機版隱藏 */}
               {items.length > 0 && (
-                <div className="flex items-center py-3 border-b border-gray-200 mb-4">
+                <div className="hidden lg:flex items-center py-3 border-b border-gray-200 mb-4">
                   {/* 全選勾選框 */}
                   <div className="w-[40px]">
                     <Checkbox
@@ -99,6 +102,21 @@ export default function CartPage() {
                   </div>
                 </div>
               )}
+
+              {/* 手機版全選區塊 */}
+              {items.length > 0 && (
+                <div className="lg:hidden flex items-center py-3 border-b border-gray-200 mb-4">
+                  <Checkbox
+                    id="select-all-mobile"
+                    checked={allSelected}
+                    onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                    className="h-5 w-5 border-amber-600 data-[state=checked]:bg-amber-600 data-[state=checked]:text-white mr-3"
+                  />
+                  <label htmlFor="select-all-mobile" className="text-base font-medium text-gray-600">
+                    全選
+                  </label>
+                </div>
+              )}
               
               {items.length === 0 ? (
                 <div className="text-center py-12">
@@ -121,8 +139,8 @@ export default function CartPage() {
             />
 
             {/* 加購商品區塊 */}
-            <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm">
-              <h2 className="text-3xl font-medium text-teal-800 mb-6">超級優惠加購價</h2>
+            <div className="border border-gray-200 bg-white rounded-3xl p-4 lg:p-6 mb-6 lg:mb-8 shadow-sm">
+              <h2 className="text-2xl lg:text-3xl font-medium text-teal-800 mb-4 lg:mb-6">超級優惠加購價</h2>
               
               {isLoadingAddOns ? (
                 <div className="text-center py-8">
@@ -134,7 +152,7 @@ export default function CartPage() {
                   <p className="text-gray-500">暫無加購商品</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                   {addOns.map((item) => (
                     <AddOnItem 
                       key={item.productId} 
@@ -147,18 +165,45 @@ export default function CartPage() {
             </div>
           </div>
           
-          {/* 總金額區塊 */}
-          <div className="md:col-span-1">
+          {/* 桌面版總金額區塊 */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="sticky top-24">
+              {/* 折扣碼區塊 */}
               <DiscountCode 
                 cartTotal={cartTotal}
               />
+              {/* 總金額區塊 */}
               <CartSummary appliedDiscount={appliedDiscount} />
             </div>
           </div>
         </div>
       </div>
-      <Footer />
+
+      {/* 手機版固定在底部的總金額區塊 */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg rounded-t-3xl">
+        {/* 總金額區塊 */}
+        <div className="px-4 py-4">
+          {/* 折扣碼輸入區 - 簡化版 */}
+          <div className="mb-4">
+            <DiscountCode 
+              cartTotal={cartTotal}
+            />
+          </div>
+          
+          {/* 總金額摘要 */}
+          <CartSummary appliedDiscount={appliedDiscount} />
+        </div>
+      </div>
+
+      {/* 桌面版 Footer */}
+      <div className="hidden lg:block">
+        <Footer />
+      </div>
+      
+      {/* 手機版 Footer - 在固定總金額區塊上方 */}
+      <div className="lg:hidden">
+        <Footer />
+      </div>
     </main>
   )
 }

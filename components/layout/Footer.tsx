@@ -7,7 +7,7 @@ import { Instagram, Twitter, Youtube } from "lucide-react"
 export default function Footer() {
   return (
     <footer className="relative mt-12 sm:mt-20 lg:mt-32 pt-8 sm:pt-10 lg:pt-12 pb-1 bg-[#FEF5EE] rounded-t-3xl font-noto-sans-tc ">
-      <div className="absolute -top-16 sm:-top-20 lg:-top-28 xl:-top-36 left-1/2 -translate-x-1/2 flex z-50 gap-1 sm:gap-2">
+      <div className="absolute -top-16 sm:-top-20 lg:-top-28 xl:-top-36 left-1/2 -translate-x-1/2 flex z-45 gap-1 sm:gap-2">
         <Image
           src="/images/home/Rabbit.png"
           alt="Rabbit"

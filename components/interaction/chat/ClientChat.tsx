@@ -2,17 +2,26 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import ChatWindow from "./ChatWindow"
 
 export default function ClientChat() {
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const pathname = usePathname()
+  
+  // 檢查是否在購物車或結帳頁面
+  const isCartOrCheckoutPage = pathname === '/cart' || pathname === '/cart/checkout'
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
   }
 
   return (
-    <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50">
+    <div className={`fixed right-4 sm:right-6 z-50 ${
+      isCartOrCheckoutPage 
+        ? "bottom-[210px] lg:bottom-4 lg:sm:bottom-6" // 購物車和結帳頁面：手機版在固定區塊上方，桌面版正常位置
+        : "bottom-4 sm:bottom-6" // 其他頁面：正常位置
+    }`}>
       {isChatOpen && <ChatWindow onClose={() => setIsChatOpen(false)} />}
 
       <button

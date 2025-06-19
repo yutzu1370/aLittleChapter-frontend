@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import FancyButton from "@/components/ui/FancyButton"
-import { ArrowRight, ArrowRightCircle } from "lucide-react"
+import { ArrowRight, ArrowRightCircle, ChevronUp, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { submitCheckoutApi } from "@/lib/api/checkout"
 import { CheckoutRequest, CheckoutItem } from "@/lib/types/checkout"
@@ -45,6 +45,9 @@ export default function CheckoutPage() {
   
   // 運費和折扣的本地狀態 - 使用與 CartSummary 相同的邏輯
   const [shippingFee] = useState(60) // 固定運費
+  
+  // 手機版付款明細展開狀態
+  const [isExpanded, setIsExpanded] = useState(false)
   
   // 縣市與鄉鎮區狀態
   const [locationData, setLocationData] = useState<LocationData | null>(null)
@@ -335,7 +338,7 @@ export default function CheckoutPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 個人資料表單 */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 pb-[280px] lg:pb-0">
             <div className="border border-gray-200 bg-white rounded-3xl p-4 sm:p-6 mb-8 shadow-sm">
               <h1 className="text-2xl sm:text-3xl font-medium text-teal-800 mb-6">寄送資料</h1>
               
@@ -410,9 +413,9 @@ export default function CheckoutPage() {
                       <span className="text-red-500 ml-1">*</span>
                     </label>
                     <div className="w-full sm:w-[calc(100%-6rem)] space-y-3 sm:space-y-0">
-                      {/* 縣市和鄉鎮區選擇 - 手機版堆疊 */}
+                      {/* 縣市和鄉鎮區選擇 - 手機版堆疊，桌面版並列 */}
                       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                        <div className="relative w-full sm:w-[130px]">
+                        <div className="relative w-full sm:w-[150px]">
                           <select 
                             name="city" 
                             value={selectedCity}
@@ -433,7 +436,7 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         
-                        <div className="relative w-full sm:w-[140px]">
+                        <div className="relative w-full sm:w-[150px]">
                           <select 
                             name="district"
                             value={selectedDistrict}
@@ -454,24 +457,26 @@ export default function CheckoutPage() {
                             </svg>
                           </div>
                         </div>
+                        
+                        {/* 詳細地址 - 桌面版在同一列的剩餘空間 */}
+                        <div className="w-full sm:flex-1">
+                          <Input 
+                            name="address" 
+                            placeholder="輸入詳細地址" 
+                            className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
+                            style={{
+                              outline: 'none'
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = '#f59e0b';
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = '#d1d5db';
+                            }}
+                            required 
+                          />
+                        </div>
                       </div>
-                      
-                      {/* 詳細地址 */}
-                      <Input 
-                        name="address" 
-                        placeholder="輸入詳細地址" 
-                        className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
-                        style={{
-                          outline: 'none'
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.borderColor = '#f59e0b';
-                        }}
-                        onBlur={(e) => {
-                          e.target.style.borderColor = '#d1d5db';
-                        }}
-                        required 
-                      />
                     </div>
                   </div>
                   
@@ -670,8 +675,8 @@ export default function CheckoutPage() {
             </div>
           </div>
           
-          {/* 總金額區塊 */}
-          <div className="lg:col-span-1">
+          {/* 桌面版總金額區塊 */}
+          <div className="hidden lg:block lg:col-span-1">
             <div className="lg:sticky lg:top-24">
               <div className="border border-gray-200 rounded-3xl p-4 sm:p-6 bg-white shadow-sm font-noto-sans-tc">
                 <h2 className="text-lg sm:text-xl font-medium text-teal-800 mb-4">總金額</h2>
@@ -730,6 +735,79 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {/* 手機版固定在底部的總金額區塊 */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg rounded-t-3xl">
+        <div className="px-4 py-4">
+          {/* 應付金額和展開按鈕 */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-600">應付金額</span>
+              <span className="text-xl font-bold text-amber-600">
+                <span className="font-jf-openhuninn">NT$ {calculateFinalTotal().toLocaleString('zh-TW')}</span>
+              </span>
+            </div>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+            >
+              <span>付款明細</span>
+              {isExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
+          {/* 可伸縮的明細區域 */}
+          {isExpanded && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">商品小計</span>
+                  <span className="text-sm">
+                    <span className="font-jf-openhuninn">NT$ {getSubtotal().toLocaleString('zh-TW')}</span>
+                  </span>
+                </div>
+                {getAddOnSubtotal() > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">加購商品小計</span>
+                    <span className="text-sm">
+                      <span className="font-jf-openhuninn">NT$ {getAddOnSubtotal().toLocaleString('zh-TW')}</span>
+                    </span>
+                  </div>
+                )}
+                {appliedDiscount && (
+                  <div className="flex justify-between items-center text-[#509D94]">
+                    <span className="text-sm">折扣 ({appliedDiscount.code})</span>
+                    <span className="text-sm">
+                      <span className="font-jf-openhuninn">-NT$ {Math.round(appliedDiscount.discountAmount).toLocaleString('zh-TW')}</span>
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">運費</span>
+                  <span className="text-sm">
+                    <span className="font-jf-openhuninn">NT$ {shippingFee.toLocaleString('zh-TW')}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <FancyButton 
+            type="submit"
+            form="shipping-form"
+            className="w-full text-base font-noto-sans-tc" 
+            hideIcons
+            rightIcon={<ArrowRightCircle className="w-6 h-6" strokeWidth={2.5} />}
+          >
+            確認付款
+          </FancyButton>
+        </div>
+      </div>
+
       <Footer />
     </main>
   )

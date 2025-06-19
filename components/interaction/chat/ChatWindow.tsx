@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { X, Send } from "lucide-react"
+import { usePathname } from "next/navigation"
 import { sendChatMessage } from "@/lib/api/chat"
 
 interface ChatMessage {
@@ -19,6 +20,11 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ onClose }: ChatWindowProps) {
+  const pathname = usePathname()
+  
+  // 檢查是否在購物車或結帳頁面
+  const isCartOrCheckoutPage = pathname === '/cart' || pathname === '/cart/checkout'
+  
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 1,
@@ -95,7 +101,11 @@ export default function ChatWindow({ onClose }: ChatWindowProps) {
   }
 
   return (
-    <div className="fixed bottom-20 sm:bottom-28 right-2 sm:right-6 w-[calc(100vw-16px)] max-w-[400px] h-[calc(100vh-160px)] sm:h-[calc(100vh-240px)] max-h-[600px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col z-50">
+    <div className={`fixed right-2 sm:right-6 w-[calc(100vw-16px)] max-w-[400px] h-[calc(100vh-160px)] sm:h-[calc(100vh-240px)] max-h-[600px] bg-[#148A89] rounded-xl shadow-[0px_7px_29px_rgba(100,100,111,0.2)] flex flex-col z-50 ${
+      isCartOrCheckoutPage 
+        ? "bottom-[270px] lg:bottom-20 lg:sm:bottom-28" // 購物車和結帳頁面：手機版在固定區塊上方，桌面版正常位置
+        : "bottom-20 sm:bottom-28" // 其他頁面：正常位置
+    }`}>
       {/* 聊天室標題 */}
       <div className="w-full h-16 sm:h-20 bg-[#2F726D] rounded-t-xl px-4 sm:px-6 py-2 flex items-center justify-between">
         <h3 className="text-white font-semibold text-base sm:text-lg">小小篇章客服中心</h3>

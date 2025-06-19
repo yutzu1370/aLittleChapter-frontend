@@ -175,7 +175,7 @@ export default function FavoritesClient() {
   // 載入中狀態
   if (loading) {
     return (
-      <section className="space-y-6">
+      <section className="space-y-6 min-h-[600px]">
         <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#3E8E87] mb-4"></div>
           <p className="text-gray-600 font-noto-sans-tc">載入收藏清單中...</p>
@@ -187,7 +187,7 @@ export default function FavoritesClient() {
   // 錯誤狀態
   if (error) {
     return (
-      <section className="space-y-6">
+      <section className="space-y-6 min-h-[600px]">
         <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="mb-6 bg-red-50 p-4 rounded-full">
             <Heart className="h-12 w-12 text-red-500" />
@@ -208,7 +208,7 @@ export default function FavoritesClient() {
   // 空收藏清單
   if (wishlistItems.length === 0) {
     return (
-      <section className="space-y-6">
+      <section className="space-y-6 min-h-[600px]">
         <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="mb-6 bg-[#FEF5EE] p-4 rounded-full">
             <Heart className="h-12 w-12 text-orange-500" />
@@ -229,7 +229,7 @@ export default function FavoritesClient() {
 
   // 收藏清單內容
   return (
-    <section className="space-y-6 font-noto-sans-tc">
+    <section className="space-y-6 font-noto-sans-tc min-h-[600px]">
       {/* 標題 */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
@@ -242,14 +242,14 @@ export default function FavoritesClient() {
       </div>
 
       {/* 收藏商品網格 */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 auto-rows-min">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 grid-rows-auto">
         {wishlistItems.map((item, index) => (
           <motion.div
             key={`wishlist-${item.productId}-${index}`}
             className="relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
+            transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.3) }}
             whileHover={{ y: -5 }}
           >
             {/* 商品圖片 */}

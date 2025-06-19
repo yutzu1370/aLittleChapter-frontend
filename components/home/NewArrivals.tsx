@@ -215,7 +215,7 @@ export default function NewArrivals() {
       </div>
 
       {/* Swiper 輪播區 */}
-      <div className="relative w-full max-w-[90vw] sm:max-w-[1100px]">
+      <div className="relative w-full max-w-[90vw] sm:max-w-[1100px] bg-[]">
         {/* 左箭頭 */}
         <button
           onClick={handlePrev}
@@ -246,7 +246,7 @@ export default function NewArrivals() {
           {books.map((book, index) => (
             <SwiperSlide key={book.id}>
               {/* 書本內容卡片 - 手機版改為垂直布局 */}
-              <div className="flex flex-col lg:flex-row flex-1  border-[#E8652B] bg-cover bg-center min-h-[480px] sm:min-h-[360px] lg:min-h-[550px] px-4 sm:px-6 lg:px-0">
+              <div className="flex flex-col lg:flex-row flex-1 border-[#E8652B] bg-none lg:bg-[url('/images/open_book.png')] bg-cover bg-center min-h-[480px] sm:min-h-[360px] lg:min-h-[550px] px-4 sm:px-6 lg:px-0">
                 {/* 書本圖片 - 手機版置頂 */}
                 <div className="flex items-center justify-center lg:basis-[50%] min-w-[180px] sm:min-w-[220px] p-4 sm:p-6 lg:p-10 mb-2 lg:mb-6 translate-x-1 sm:translate-x-2 lg:translate-x-4">
                   <div className="relative w-40 h-40 sm:w-48 sm:h-48 lg:w-96 lg:h-96">
