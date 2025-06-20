@@ -175,7 +175,7 @@ export default function FavoritesClient() {
   // 載入中狀態
   if (loading) {
     return (
-      <section className="space-y-6">
+      <section className="space-y-6 min-h-[600px]">
         <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#3E8E87] mb-4"></div>
           <p className="text-gray-600 font-noto-sans-tc">載入收藏清單中...</p>
@@ -187,7 +187,7 @@ export default function FavoritesClient() {
   // 錯誤狀態
   if (error) {
     return (
-      <section className="space-y-6">
+      <section className="space-y-6 min-h-[600px]">
         <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="mb-6 bg-red-50 p-4 rounded-full">
             <Heart className="h-12 w-12 text-red-500" />
@@ -208,7 +208,7 @@ export default function FavoritesClient() {
   // 空收藏清單
   if (wishlistItems.length === 0) {
     return (
-      <section className="space-y-6">
+      <section className="space-y-6 min-h-[600px]">
         <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
           <div className="mb-6 bg-[#FEF5EE] p-4 rounded-full">
             <Heart className="h-12 w-12 text-orange-500" />
@@ -229,7 +229,7 @@ export default function FavoritesClient() {
 
   // 收藏清單內容
   return (
-    <section className="space-y-6 font-noto-sans-tc">
+    <section className="space-y-6 font-noto-sans-tc min-h-[600px]">
       {/* 標題 */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
@@ -242,20 +242,20 @@ export default function FavoritesClient() {
       </div>
 
       {/* 收藏商品網格 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 auto-rows-min">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 grid-rows-auto">
         {wishlistItems.map((item, index) => (
           <motion.div
             key={`wishlist-${item.productId}-${index}`}
             className="relative group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
+            transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.3) }}
             whileHover={{ y: -5 }}
           >
             {/* 商品圖片 */}
             <div className="relative overflow-hidden">
               <Link href={`/products/${item.productId}`}>
-                <div className="p-3 sm:p-4">
+                <div className="p-2 sm:p-3 lg:p-4">
                   <Image
                     src={item.coverImage || "/placeholder.svg"}
                     alt={item.title}
@@ -268,7 +268,7 @@ export default function FavoritesClient() {
               
               {/* 移除收藏按鈕 */}
               <motion.button
-                className="absolute top-2 right-2 sm:top-3 sm:right-3 w-8 h-8 sm:w-10 sm:h-10 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full flex items-center justify-center shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300"
+                className="absolute top-1 right-1 sm:top-2 sm:right-2 lg:top-3 lg:right-3 w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-full flex items-center justify-center shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleRemoveFromWishlist(item.productId)}
@@ -276,36 +276,36 @@ export default function FavoritesClient() {
                 aria-label="從收藏移除"
               >
                 {removingItems.has(item.productId) ? (
-                  <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3 h-3 sm:w-3 sm:h-3 lg:w-4 lg:h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
+                  <Trash2 className="w-3 h-3 sm:w-3 sm:h-3 lg:w-4 lg:h-4 text-red-500" />
                 )}
               </motion.button>
             </div>
 
             {/* 商品資訊 */}
-            <div className="p-3 sm:p-4 space-y-2">
+            <div className="p-2 sm:p-3 lg:p-4 space-y-1 sm:space-y-2">
               {/* 商品標題 */}
               <Link href={`/products/${item.productId}`}>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-800 hover:text-[#E8652B] transition-colors duration-300 line-clamp-2 cursor-pointer">
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 hover:text-[#E8652B] transition-colors duration-300 line-clamp-2 cursor-pointer leading-tight">
                   {item.title}
                 </h3>
               </Link>
 
               {/* 價格 */}
-              <div className="flex items-end gap-2">
-                <span className="text-lg sm:text-xl font-bold text-[#E8652B]">
+              <div className="flex items-end gap-1 sm:gap-2">
+                <span className="text-base sm:text-lg lg:text-xl font-bold text-[#E8652B]">
                   NT${item.discountPrice || item.price}
                 </span>
                 {item.discountPrice && (
-                  <span className="text-sm text-gray-500 line-through">
+                  <span className="text-xs sm:text-sm text-gray-500 line-through">
                     NT${item.price}
                   </span>
                 )}
               </div>
 
               {/* 庫存狀態 */}
-              <div className="text-sm text-gray-600">
+              <div className="text-xs sm:text-sm text-gray-600">
                 {item.stockQuantity > 0 ? (
                   <span className="text-green-600">庫存 {item.stockQuantity} 本</span>
                 ) : (
@@ -314,11 +314,11 @@ export default function FavoritesClient() {
               </div>
 
               {/* 操作按鈕 */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-1 sm:gap-2 pt-1 sm:pt-2">
                 <motion.button
                   whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex-1 h-10 sm:h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[2px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] transition-colors duration-100 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-500 disabled:shadow-none flex items-center justify-center gap-2 text-sm sm:text-base"
+                  className="flex-1 h-8 sm:h-10 lg:h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[1px_2px_0px_#74281A] sm:shadow-[2px_4px_0px_#74281A] lg:shadow-[4px_6px_0px_#74281A] transition-colors duration-100 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-500 disabled:shadow-none flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base"
                   onClick={() => handleAddToCart(item)}
                   disabled={item.stockQuantity === 0}
                 >

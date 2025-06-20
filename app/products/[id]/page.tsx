@@ -68,9 +68,9 @@ export default function ProductDetailPage() {
     <main className="min-h-screen bg-white">
       <Header />
       
-      {/* 主要內容區域 - 增加頂部 padding 避免被導航列遮擋 */}
-      <section className="w-full py-12 pt-56 md:pt-40 px-4 sm:px-6 lg:px-8 xl:px-0 max-w-7xl mx-auto bg-white">
-        <div className="flex flex-col md:flex-row gap-8">
+      {/* 主要內容區域 - 增加更多頂部 padding 避免被導航列遮擋 */}
+      <section className="w-full  py-6 sm:py-8 lg:py-12 pt-36 sm:pt-40 md:pt-48 lg:pt-52 px-4 sm:px-6 lg:px-8 xl:px-0 max-w-7xl mx-auto bg-white">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
           {/* 商品圖片區 - 使用組件 */}
           <ProductImages 
             images={product.images} 

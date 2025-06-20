@@ -188,7 +188,54 @@ h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select, a {
     scrollbar-width: thin;
     scrollbar-color: #f8d0b0 transparent;
   }
+
+  /* 隱藏水平滾動條 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
   
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+
+  /* 手機版觸控優化 */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* 文字截斷工具類 */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  /* 手機版最小觸控目標 */
+  .min-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 防止手機版縮放 */
+  .no-zoom {
+    touch-action: manipulation;
+  }
 }
 
 /* 優化動畫效果 - 使用 will-change 提升效能 */

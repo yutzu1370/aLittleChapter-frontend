@@ -129,18 +129,18 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
   const currentDiscountAmount = appliedDiscount ? calculateDiscountAmount(cartTotal) : 0;
 
   return (
-    <div className="border border-gray-200 rounded-3xl p-6 bg-white shadow-sm mb-6">
-      <h2 className="text-xl font-medium text-[#295C58] mb-4">
+    <div className="lg:border lg:border-gray-200 lg:rounded-3xl p-3 lg:p-6 lg:bg-white lg:shadow-sm lg:mb-6">
+      <h2 className="text-base lg:text-xl font-medium text-[#295C58] mb-3 lg:mb-4">
         折扣碼
       </h2>
       
       {appliedDiscount ? (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-[#F3FAF8] rounded-2xl ">
+        <div className="space-y-2 lg:space-y-3">
+          <div className="flex items-center justify-between p-2 lg:p-3 bg-[#F3FAF8] rounded-xl lg:rounded-2xl">
             <div>
-              <p className="font-medium text-[#295C58]">{appliedDiscount.code}</p>
-              <p className="text-sm text-[#509D94]">{appliedDiscount.description}</p>
-              <p className="text-sm text-[#509D94]">
+              <p className="text-sm lg:text-base font-medium text-[#295C58]">{appliedDiscount.code}</p>
+              <p className="text-xs lg:text-sm text-[#509D94]">{appliedDiscount.description}</p>
+              <p className="text-xs lg:text-sm text-[#509D94]">
                 折扣金額: -${Math.floor(appliedDiscount.discountAmount)}
               </p>
             </div>
@@ -148,22 +148,22 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
               onClick={handleRemoveDiscount}
               variant="ghost"
               size="sm"
-              className="rounded-full hover:bg-[#B1DED6] active:bg-[#82C6BD] transition-all duration-200 active:scale-95 w-12 h-12 p-0"
+              className="rounded-full hover:bg-[#B1DED6] active:bg-[#82C6BD] transition-all duration-200 active:scale-95 w-8 h-8 lg:w-12 lg:h-12 p-0"
               hideIcons
             >
-              <X className="h-6 w-6" strokeWidth={5} />
+              <X className="h-4 w-4 lg:h-6 lg:w-6" strokeWidth={5} />
             </FancyButton>
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
-          <div className="flex gap-3">
+        <div className="space-y-2 lg:space-y-3">
+          <div className="flex gap-2 lg:gap-3">
             <Input
               type="text"
               placeholder="請輸入折扣碼"
               value={discountCode}
               onChange={(e) => setDiscountCode(e.target.value)}
-              className="flex-1 rounded-full border-gray-300 placeholder:text-gray-400"
+              className="flex-1 rounded-full border-gray-300 placeholder:text-gray-400 text-sm lg:text-base py-2 lg:py-3"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   handleApplyDiscount();
@@ -173,14 +173,14 @@ const DiscountCode = ({ cartTotal = 0 }: DiscountCodeProps) => {
             <FancyButton 
               onClick={handleApplyDiscount}
               disabled={isApplying}
-              className="px-6 text-base"
+              className="px-3 lg:px-6 text-sm lg:text-base py-2 lg:py-3"
               hideIcons
             >
               {isApplying ? "驗證中..." : "套用"}
             </FancyButton>
           </div>
           
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 hidden lg:block">
             輸入有效的折扣碼以享受優惠
           </p>
         </div>

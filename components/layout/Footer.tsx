@@ -6,35 +6,35 @@ import { Instagram, Twitter, Youtube } from "lucide-react"
 
 export default function Footer() {
   return (
-    <footer className="relative mt-16 sm:mt-20 lg:mt-32 pt-8 sm:pt-10 lg:pt-12 pb-1 bg-[#FEF5EE] rounded-t-3xl font-noto-sans-tc">
-      <div className="absolute -top-20 sm:-top-28 lg:-top-36 left-1/2 -translate-x-1/2 flex z-10">
+    <footer className="relative mt-12 sm:mt-20 lg:mt-32 pt-8 sm:pt-10 lg:pt-12 pb-1 bg-[#FEF5EE] rounded-t-3xl font-noto-sans-tc ">
+      <div className="absolute -top-16 sm:-top-20 lg:-top-28 xl:-top-36 left-1/2 -translate-x-1/2 flex z-45 gap-1 sm:gap-2">
         <Image
           src="/images/home/Rabbit.png"
           alt="Rabbit"
           width={160}
           height={160}
-          className="object-contain h-20 w-20 sm:h-28 sm:w-28 lg:h-40 lg:w-40"
+          className="object-contain h-16 w-16 sm:h-20 sm:w-20 lg:h-28 lg:w-28 xl:h-40 xl:w-40"
         />
         <Image
           src="/images/home/Fox.png"
           alt="Fox"
           width={160}
           height={160}
-          className="object-contain h-20 w-20 sm:h-28 sm:w-28 lg:h-40 lg:w-40"
+          className="object-contain h-16 w-16 sm:h-20 sm:w-20 lg:h-28 lg:w-28 xl:h-40 xl:w-40"
         />
         <Image
           src="/images/home/Mouse.png"
           alt="Mouse"
           width={160}
           height={160}
-          className="object-contain h-20 w-20 sm:h-28 sm:w-28 lg:h-40 lg:w-40"
+          className="object-contain h-16 w-16 sm:h-20 sm:w-20 lg:h-28 lg:w-28 xl:h-40 xl:w-40"
         />
         <Image
           src="/images/home/Bear.png"
           alt="Bear"
           width={160}
           height={160}
-          className="object-contain h-20 w-20 sm:h-28 sm:w-28 lg:h-40 lg:w-40"
+          className="object-contain h-16 w-16 sm:h-20 sm:w-20 lg:h-28 lg:w-28 xl:h-40 xl:w-40"
         />
       </div>
 
@@ -48,27 +48,27 @@ export default function Footer() {
                 alt="Little Chapter Logo"
                 width={24}
                 height={24}
-                className="w-32 h-16 sm:w-40 sm:h-20 lg:w-48 lg:h-24 object-contain"
+                className="w-28 h-14 sm:w-32 sm:h-16 lg:w-40 lg:h-20 xl:w-48 xl:h-24 object-contain"
                 priority
               />
             </div>
-            <div className="flex space-x-3 sm:space-x-2">
+            <div className="flex space-x-2 sm:space-x-3">
               <Link href="#" className="text-gray-600 hover:text-orange-500 p-1">
-                <svg viewBox="0 0 32 32" fill="none" className="w-6 h-6 sm:w-6 sm:h-6">
+                <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5 sm:w-6 sm:h-6">
                   <circle cx="16" cy="16" r="16" fill="#000"/>
                   <path d="M21.333 16.001h-3.2v8h-3.2v-8h-2.133v-2.667h2.133v-1.6c0-2.133 1.067-3.2 3.2-3.2h2.133v2.667h-1.6c-.267 0-.533.267-.533.533v1.6h2.133l-.267 2.667z" fill="white"/>
                 </svg>
               </Link>
               <Link href="#" className="text-gray-600 hover:text-orange-500 p-1">
-                <svg viewBox="0 0 32 32" fill="none" className="w-6 h-6 sm:w-6 sm:h-6">
+                <svg viewBox="0 0 32 32" fill="none" className="w-5 h-5 sm:w-6 sm:h-6">
                   <rect x="2" y="2" width="28" height="28" rx="7" fill="#000"/>
                   <rect x="9" y="9" width="14" height="14" rx="7" stroke="white" strokeWidth="2" fill="none"/>
                   <circle cx="16" cy="16" r="4.5" stroke="white" strokeWidth="2" fill="none"/>
                   <circle cx="22.5" cy="9.5" r="1.5" fill="white"/>
                 </svg>
               </Link>
-              <Link href="#" className="text-gray-600 hover:text-orange-500 p-1">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 sm:w-6 sm:h-6">
+              <Link href="/line" className="text-gray-600 hover:text-green-500 p-1 transition-colors duration-200">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 sm:w-6 sm:h-6">
                   <path d="M24 12C24 18.6274 18.6274 24 12 24C5.37263 24 0 18.6274 0 12C0 5.37263 5.37263 0 12 0C18.6274 0 24 5.37263 24 12Z" fill="#121212"/>
                   <path d="M20.0029 11.301C20.0029 7.71642 16.4092 4.79997 11.9918 4.79997C7.57486 4.79997 3.98079 7.71642 3.98079 11.301C3.98079 14.5148 6.83079 17.2061 10.6806 17.715C10.9415 17.7714 11.2966 17.887 11.3864 18.11C11.4671 18.3124 11.4392 18.6298 11.4123 18.8343C11.4123 18.8343 11.3183 19.3996 11.2979 19.5201C11.263 19.7226 11.1369 20.3122 11.9918 19.9521C12.8469 19.5918 16.6053 17.2354 18.286 15.301C19.4469 14.0277 20.0029 12.7357 20.0029 11.301Z" fill="white"/>
                   <path d="M17.3378 13.3709C17.4223 13.3709 17.4907 13.3025 17.4907 13.218V12.6499C17.4907 12.5658 17.4219 12.497 17.3378 12.497H15.8082V11.9069H17.3378C17.4223 11.9069 17.4907 11.8384 17.4907 11.7539V11.1858C17.4907 11.1017 17.4219 11.0329 17.3378 11.0329H15.8082V10.4429H17.3378C17.4223 10.4429 17.4907 10.3744 17.4907 10.2899V9.72182C17.4907 9.63775 17.4219 9.5689 17.3378 9.5689H15.0871C15.0026 9.5689 14.9341 9.63737 14.9341 9.72182V13.218C14.9341 13.3025 15.0026 13.3709 15.0871 13.3709H17.3378Z" fill="#121212"/>
@@ -81,10 +81,10 @@ export default function Footer() {
           </div>
 
           {/* 右側三欄區塊 */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-6 justify-items-center sm:justify-items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-6 justify-items-center sm:justify-items-start">
             <div className="text-center sm:text-left">
-              <h3 className="font-bold text-amber-800 mb-3 sm:mb-4 font-noto-sans-tc text-lg sm:text-xl">關於我們</h3>
-              <ul className="space-y-2 text-sm font-noto-sans-tc">
+              <h3 className="font-bold text-amber-800 mb-2 sm:mb-3 lg:mb-4 font-noto-sans-tc text-base sm:text-lg lg:text-xl">關於我們</h3>
+              <ul className="space-y-1 sm:space-y-2 text-sm font-noto-sans-tc">
                 <li>
                   <Link href="/about" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     公司簡介
@@ -109,8 +109,8 @@ export default function Footer() {
             </div>
 
             <div className="text-center sm:text-left">
-              <h3 className="font-bold text-amber-800 mb-3 sm:mb-4 font-noto-sans-tc text-lg sm:text-xl">客戶服務</h3>
-              <ul className="space-y-2 text-sm font-noto-sans-tc">
+              <h3 className="font-bold text-amber-800 mb-2 sm:mb-3 lg:mb-4 font-noto-sans-tc text-base sm:text-lg lg:text-xl">客戶服務</h3>
+              <ul className="space-y-1 sm:space-y-2 text-sm font-noto-sans-tc">
                 <li>
                   <Link href="/faq" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     常見問題
@@ -135,8 +135,8 @@ export default function Footer() {
             </div>
 
             <div className="text-center sm:text-left">
-              <h3 className="font-bold text-amber-800 mb-3 sm:mb-4 font-noto-sans-tc text-lg sm:text-xl">聯絡資訊</h3>
-              <ul className="space-y-2 text-sm font-noto-sans-tc">
+              <h3 className="font-bold text-amber-800 mb-2 sm:mb-3 lg:mb-4 font-noto-sans-tc text-base sm:text-lg lg:text-xl">聯絡資訊</h3>
+              <ul className="space-y-1 sm:space-y-2 text-sm font-noto-sans-tc">
                 <li className="text-sm sm:text-base font-noto-sans-tc">客服電話：(02) 1234-5678</li>
                 <li className="text-sm sm:text-base font-noto-sans-tc">服務時間：週一至週五 9:00-18:00</li>
                 <li className="text-sm sm:text-base font-noto-sans-tc">Email：service@littlechapter.com</li>
@@ -145,8 +145,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-300 pt-4 sm:pt-6 text-center text-xs text-gray-600">
-          <p className="font-noto-sans-tc text-sm sm:text-base">© {new Date().getFullYear()} Little Chapter 小小篇章 版權所有</p>
+        <div className="border-t border-gray-300 pt-3 sm:pt-4 lg:pt-6 text-center text-xs text-gray-600">
+          <p className="font-noto-sans-tc text-xs sm:text-sm lg:text-base">© {new Date().getFullYear()} Little Chapter 小小篇章 版權所有</p>
         </div>
       </div>
     </footer>

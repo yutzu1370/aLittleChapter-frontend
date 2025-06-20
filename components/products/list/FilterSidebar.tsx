@@ -113,30 +113,31 @@ export default function FilterSidebar() {
   };
 
   return (
-    <div className="w-full lg:w-64 bg-white rounded-3xl border border-gray-200 p-6 h-fit">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-jf-openhuninn text-gray-900">篩選</h2>
+    <div className="w-full lg:w-64 bg-white rounded-3xl border border-gray-200 p-4 sm:p-6 h-fit">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-jf-openhuninn text-gray-900">篩選</h2>
         <button 
           onClick={handleClearFilters} 
-          className="text-orange-600 hover:underline"
+          className="text-orange-600 hover:underline text-sm sm:text-base"
         >
           清除篩選
         </button>
       </div>
       
       {/* 年齡分類 */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <div 
           onClick={() => toggleSection('age')}
-          className="flex justify-between items-center mb-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+          className="flex justify-between items-center mb-2 sm:mb-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors touch-manipulation"
         >
-          <h3 className="text-xl font-jf-openhuninn text-gray-900">年齡分類</h3>
+          <h3 className="text-lg sm:text-xl font-jf-openhuninn text-gray-900">年齡分類</h3>
           <div className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
             <Image 
               src={expandedSections.age ? "/images/icon/remove-rounded.svg" : "/images/icon/add-rounded-2.svg"} 
               alt={expandedSections.age ? "收合" : "展開"} 
               width={24} 
               height={24} 
+              className="w-5 h-5 sm:w-6 sm:h-6"
             />
           </div>
         </div>

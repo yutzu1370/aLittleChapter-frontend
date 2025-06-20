@@ -18,21 +18,21 @@ export default function AboutPage() {
       name: "小熊哥哥",
       nickname: "可靠",
       image: "/images/about/Animal=Bear02.png",
-      noteImage: "/images/about/note-2.png",
+      noteImage: "/images/about/note-1.png",
     },
     {
       id: 3,
       name: "狐狸哥哥",
       nickname: "聰明",
       image: "/images/about/Animal=Fox03.png",
-      noteImage: "/images/about/note-1.png",
+      noteImage: "/images/about/note-fox.png",
     },
     {
       id: 4,
       name: "小老鼠妹妹",
       nickname: "細心",
       image: "/images/about/Animal=Mouse02.png",
-      noteImage: "/images/about/note-3.png",
+      noteImage: "/images/about/note-2.png",
     },
   ]
 

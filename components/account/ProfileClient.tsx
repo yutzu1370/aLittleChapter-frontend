@@ -729,13 +729,13 @@ export default function ProfileClient() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 font-noto-sans-tc content-fit w-full px-4 sm:px-0">
+    <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12 font-noto-sans-tc content-fit w-full">
       {/* 全局樣式 */}
       <style jsx global>{globalStyles}</style>
       
       {/* 登出確認對話框 */}
       <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
-        <DialogContent className="max-w-[400px] w-[90%] sm:w-[50%] p-4 sm:p-6 bg-white rounded-3xl border-none">
+        <DialogContent className="max-w-[400px] w-[90%] sm:w-[85%] p-4 sm:p-6 bg-white rounded-3xl border-none">
           <DialogTitle className="sr-only">確定要登出嗎？</DialogTitle>
           <div className="flex flex-col items-center">
             <h2 className="text-lg sm:text-xl font-bold mb-2">確定要登出嗎？</h2>
@@ -761,10 +761,10 @@ export default function ProfileClient() {
         </DialogContent>
       </Dialog>
       
-      {/* 左側：使用者資訊卡 */}
+      {/* 左側：使用者資訊卡 - 手機版優化 */}
       <div className="w-full lg:w-64 content-fit flex-shrink-0">
         <div className="flex flex-col items-center content-fit">
-          <Avatar className="w-24 h-24 sm:w-32 sm:h-32 mb-3">
+          <Avatar className="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 mb-3">
             <AvatarImage 
               src={userProfile.avatar || "/images/user_icon/user.png"} 
               className="transition-opacity duration-300"
@@ -777,13 +777,13 @@ export default function ProfileClient() {
               {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}
             </AvatarFallback>
           </Avatar>
-          <h3 className="text-base sm:text-lg font-medium font-noto-sans-tc">{userProfile.name}</h3>
-          <p className="text-sm text-gray-500 mb-4 sm:mb-5 font-noto-sans-tc">{userProfile.email}</p>
+          <h3 className="text-sm sm:text-base lg:text-lg font-medium font-noto-sans-tc text-center">{userProfile.name}</h3>
+          <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-5 font-noto-sans-tc text-center break-all">{userProfile.email}</p>
           
-          {/* 按鈕群組 */}
-          <div className="space-y-2 sm:space-y-3 w-full">
+          {/* 按鈕群組 - 手機版優化 */}
+          <div className="space-y-2 sm:space-y-3 w-full max-w-xs lg:max-w-none">
             <ProfileButton 
-              className="w-full text-sm sm:text-base"
+              className="w-full text-xs sm:text-sm lg:text-base"
               variant="primary"
               onClick={() => document.getElementById('avatar-upload')?.click()}
             >
@@ -798,7 +798,7 @@ export default function ProfileClient() {
             </ProfileButton>
             
             <ProfileButton 
-              className="w-full text-sm sm:text-base"
+              className="w-full text-xs sm:text-sm lg:text-base"
               variant="primary"
               onClick={() => router.push("/account/change-password")}
             >
@@ -806,7 +806,7 @@ export default function ProfileClient() {
             </ProfileButton>
             
             <ProfileButton 
-              className="w-full text-sm sm:text-base"
+              className="w-full text-xs sm:text-sm lg:text-base"
               variant="primary"
               leftIcon={<LogOut className="w-3 h-3 sm:w-4 sm:h-4" />}
               onClick={openLogoutConfirm}
@@ -817,8 +817,8 @@ export default function ProfileClient() {
         </div>
       </div>
 
-      {/* 右側：表單區域 */}
-      <div className="flex-1 content-fit w-full">
+      {/* 右側：表單區域 - 手機版優化 */}
+      <div className="flex-1 content-fit w-full min-w-0">
         <div className="flex justify-end mb-3 sm:mb-4">
           {!isEditing && (
             <ProfileButton
@@ -826,7 +826,7 @@ export default function ProfileClient() {
               variant="primary"
               leftIcon={<PencilIcon className="w-3 h-3 sm:w-4 sm:h-4" />}
               onClick={() => setIsEditing(true)}
-              className="text-sm sm:text-base"
+              className="text-xs sm:text-sm lg:text-base"
             >
               編輯資料
             </ProfileButton>
@@ -859,7 +859,7 @@ export default function ProfileClient() {
               <RadioGroup 
                 value={gender} 
                 onValueChange={(value) => isEditing && setValue("gender", value as "男" | "女")}
-                className="flex space-x-8 sm:space-x-12"
+                className="flex space-x-6 sm:space-x-8 lg:space-x-12"
                 disabled={!isEditing}
               >
                 <div className="flex items-center space-x-2">
@@ -961,56 +961,59 @@ export default function ProfileClient() {
             </div>
           </div>
           
-          {/* 地址欄位 */}
+          {/* 地址欄位 - 手機版優化 */}
           <div className="flex flex-col sm:grid sm:grid-cols-12 gap-2 sm:gap-4">
             <Label className="sm:col-span-3 lg:col-span-2 font-noto-sans-tc text-sm sm:text-base font-medium sm:pt-2">地址</Label>
-            <div className="sm:col-span-9 lg:col-span-10 flex flex-col sm:flex-row gap-2 sm:gap-3 items-start">
-              {/* 城市選擇 */}
-              <div className="w-full sm:w-[22%]">
-                <select
-                  {...register("address.city")}
-                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-[#E5E5E5] appearance-none bg-no-repeat bg-right-center pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none text-sm sm:text-base ${
-                    !isEditing ? "bg-white text-gray-500" : ""
-                  }`}
-                  disabled={!isEditing}
-                >
-                  <option value="">請選擇城市</option>
-                  {cities.map((city) => (
-                    <option key={city.value} value={city.value}>
-                      {city.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.address?.city && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.city.message}</p>
-                )}
-              </div>
-              
-              {/* 區域選擇 */}
-              <div className="w-full sm:w-[22%]">
-                <select
-                  {...register("address.district")}
-                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-[#E5E5E5] appearance-none bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none text-sm sm:text-base ${
-                    !isEditing ? "bg-white text-gray-500" : ""
-                  }`}
-                  disabled={!isEditing || !selectedCity}
-                >
-                  <option value="">請選擇區域</option>
-                  {selectedCity && districts[selectedCity] && 
-                    districts[selectedCity].map((district) => (
-                      <option key={district.value} value={district.value}>
-                        {district.label}
+            <div className="sm:col-span-9 lg:col-span-10 flex flex-col gap-2 sm:gap-3 items-start">
+              {/* 城市和區域 - 手機版垂直排列 */}
+              <div className="w-full flex flex-col sm:flex-row gap-2 sm:gap-3">
+                {/* 城市選擇 */}
+                <div className="w-full sm:w-[48%]">
+                  <select
+                    {...register("address.city")}
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-[#E5E5E5] appearance-none bg-no-repeat bg-right-center pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none text-sm sm:text-base ${
+                      !isEditing ? "bg-white text-gray-500" : ""
+                    }`}
+                    disabled={!isEditing}
+                  >
+                    <option value="">請選擇城市</option>
+                    {cities.map((city) => (
+                      <option key={city.value} value={city.value}>
+                        {city.label}
                       </option>
-                    ))
-                  }
-                </select>
-                {errors.address?.district && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.district.message}</p>
-                )}
+                    ))}
+                  </select>
+                  {errors.address?.city && (
+                    <p className="text-red-500 text-xs sm:text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.city.message}</p>
+                  )}
+                </div>
+                
+                {/* 區域選擇 */}
+                <div className="w-full sm:w-[48%]">
+                  <select
+                    {...register("address.district")}
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-[#E5E5E5] appearance-none bg-no-repeat bg-right-center bg-[length:20px_20px] pr-8 font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none text-sm sm:text-base ${
+                      !isEditing ? "bg-white text-gray-500" : ""
+                    }`}
+                    disabled={!isEditing || !selectedCity}
+                  >
+                    <option value="">請選擇區域</option>
+                    {selectedCity && districts[selectedCity] && 
+                      districts[selectedCity].map((district) => (
+                        <option key={district.value} value={district.value}>
+                          {district.label}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  {errors.address?.district && (
+                    <p className="text-red-500 text-xs sm:text-sm mt-1 ml-2 font-noto-sans-tc">{errors.address.district.message}</p>
+                  )}
+                </div>
               </div>
               
               {/* 詳細地址 */}
-              <div className="flex-1">
+              <div className="w-full">
                 <input
                   {...register("address.detail")}
                   className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-[#E5E5E5] font-noto-sans-tc focus:border-[#D94A1D] focus:outline-none text-sm sm:text-base ${
@@ -1034,7 +1037,7 @@ export default function ProfileClient() {
               <input
                 {...register("email")}
                 id="email"
-                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-[#E5E5E5] bg-white text-gray-500 font-noto-sans-tc text-sm sm:text-base"
+                className="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-[#E5E5E5] bg-white text-gray-500 font-noto-sans-tc text-sm sm:text-base min-w-0"
                 disabled
                 autoComplete="off"
               />
@@ -1043,12 +1046,12 @@ export default function ProfileClient() {
                 variant="outline"
                 size="sm"
                 onClick={handleEmailChange}
-                className="px-3 sm:px-4 py-2 rounded-full border-[#D94A1D] text-[#D94A1D] hover:bg-[#D94A1D] hover:text-white transition-colors text-sm whitespace-nowrap"
+                className="px-3 sm:px-4 py-2 rounded-full border-[#D94A1D] text-[#D94A1D] hover:bg-[#D94A1D] hover:text-white transition-colors text-xs sm:text-sm whitespace-nowrap flex-shrink-0"
               >
                 修改email
               </Button>
               {errors.email && (
-                <p className="text-red-500 text-xs sm:text-sm mt-1 ml-2 font-noto-sans-tc">{errors.email.message}</p>
+                <p className="text-red-500 text-xs sm:text-sm mt-1 ml-2 font-noto-sans-tc w-full">{errors.email.message}</p>
               )}
             </div>
           </div>
@@ -1063,7 +1066,7 @@ export default function ProfileClient() {
                   leftIcon={<XIcon className="w-3 h-3 sm:w-4 sm:h-4" />}
                   onClick={handleCancel}
                   disabled={isLoading}
-                  className="text-sm sm:text-base"
+                  className="text-xs sm:text-sm lg:text-base"
                 >
                   取消
                 </ProfileButton>
@@ -1076,7 +1079,7 @@ export default function ProfileClient() {
                     <SaveIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                   )}
                   disabled={isLoading}
-                  className="text-sm sm:text-base"
+                  className="text-xs sm:text-sm lg:text-base"
                 >
                   儲存變更
                 </ProfileButton>
@@ -1086,9 +1089,9 @@ export default function ProfileClient() {
         </form>
       </div>
 
-      {/* Email修改Modal */}
+      {/* Email修改Modal - 手機版優化 */}
       <Dialog open={showEmailModal} onOpenChange={handleEmailModalClose}>
-        <DialogContent className="max-w-[500px] w-[90%] p-4 sm:p-6 bg-white rounded-3xl border-none">
+        <DialogContent className="max-w-[500px] w-[90%] sm:w-[85%] p-4 sm:p-6 bg-white rounded-3xl border-none">
           <DialogHeader>
             <DialogTitle className="text-lg sm:text-xl font-bold text-center font-noto-sans-tc">
               {emailStep === 'input' && '修改電子郵件'}
@@ -1116,7 +1119,7 @@ export default function ProfileClient() {
             {emailStep === 'verify' && (
               <div className="space-y-3 sm:space-y-4">
                 <p className="text-gray-600 text-center font-noto-sans-tc text-sm sm:text-base">
-                  我們已發送驗證碼到 <span className="font-semibold">{newEmail}</span>
+                  我們已發送驗證碼到 <span className="font-semibold break-all">{newEmail}</span>
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 text-center font-noto-sans-tc">
                   請輸入6位數驗證碼
@@ -1142,7 +1145,7 @@ export default function ProfileClient() {
                 <p className="text-gray-600 font-noto-sans-tc text-sm sm:text-base">
                   您的電子郵件已成功修改為
                 </p>
-                <p className="font-semibold text-[#D94A1D] font-noto-sans-tc text-sm sm:text-base">
+                <p className="font-semibold text-[#D94A1D] font-noto-sans-tc text-sm sm:text-base break-all">
                   {newEmail}
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 font-noto-sans-tc">

@@ -415,18 +415,18 @@ export default function RelatedProducts({ currentProduct }: RelatedProductsProps
 
           {/* 自定義導航按鈕 */}
           <button 
-            className="swiper-button-prev-custom absolute top-[35%] -translate-y-1/2 -left-6 md:-left-5 w-12 h-12 md:w-14 md:h-14 bg-orange-500 text-white rounded-full shadow-[3px_4px_0px_0px_rgba(116,40,26,1)] hover:shadow-[1px_2px_0px_0px_rgba(116,40,26,1)] transition-all flex items-center justify-center z-10"
+            className="swiper-button-prev-custom absolute top-[35%] -translate-y-1/2 -left-4 sm:-left-6 md:-left-5 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-orange-500 text-white rounded-full shadow-[2px_3px_0px_0px_rgba(116,40,26,1)] sm:shadow-[3px_4px_0px_0px_rgba(116,40,26,1)] hover:shadow-[1px_2px_0px_0px_rgba(116,40,26,1)] transition-all flex items-center justify-center z-10"
             aria-label="上一頁"
             onClick={handlePrevClick}
           >
-            <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
           </button>
           <button 
-            className="swiper-button-next-custom absolute top-[35%] -translate-y-1/2 -right-6 md:-right-5 w-12 h-12 md:w-14 md:h-14 bg-orange-500 text-white rounded-full shadow-[3px_4px_0px_0px_rgba(116,40,26,1)] hover:shadow-[1px_2px_0px_0px_rgba(116,40,26,1)] transition-all flex items-center justify-center z-10"
+            className="swiper-button-next-custom absolute top-[35%] -translate-y-1/2 -right-4 sm:-right-6 md:-right-5 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-orange-500 text-white rounded-full shadow-[2px_3px_0px_0px_rgba(116,40,26,1)] sm:shadow-[3px_4px_0px_0px_rgba(116,40,26,1)] hover:shadow-[1px_2px_0px_0px_rgba(116,40,26,1)] transition-all flex items-center justify-center z-10"
             aria-label="下一頁"
             onClick={handleNextClick}
           >
-            <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6" />
           </button>
         </div>
       </div>

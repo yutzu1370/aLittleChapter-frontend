@@ -13,7 +13,7 @@ export async function getKeywordSuggestionsApi(keyword: string): Promise<string[
   try {
    
     
-    const response = await axios.post('https://35.187.144.53.nip.io/webhook/suggest-keyword', {
+    const response = await axios.post('https://35.187.144.53.nip.io/webhook/suggest-keyword-g', {
       keyword 
     });
     

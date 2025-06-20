@@ -105,7 +105,7 @@ export default function OrderCenter() {
     try {
       const completedDate = new Date(completedAt)
       const currentDate = new Date()
-      const threeDaysInMs = 3 * 24 * 60 * 60 * 1000
+      const threeDaysInMs = 7 * 24 * 60 * 60 * 1000
       
       const timeDiff = currentDate.getTime() - completedDate.getTime()
       const canReturn = timeDiff <= threeDaysInMs && timeDiff >= 0    
@@ -432,7 +432,7 @@ export default function OrderCenter() {
               placeholder="搜尋訂單編號、商品名稱或作者..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 pl-10 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent font-noto-sans-tc"
+              className="w-full px-4 py-3 pl-10 border border-gray-200 rounded-xl focus:border-2 focus:border-orange-500 font-noto-sans-tc focus:outline-none"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

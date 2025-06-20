@@ -94,9 +94,9 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
   const subtotal = getAddOnSubtotal();
 
   return (
-    <div className="border border-gray-200 bg-white rounded-3xl p-6 mb-8 shadow-sm ">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-medium text-teal-800">已加購商品</h2>
+    <div className="border border-gray-200 bg-white rounded-3xl p-4 lg:p-6 mb-6 lg:mb-8 shadow-sm">
+      <div className="flex justify-between items-center mb-4 lg:mb-6">
+        <h2 className="text-2xl lg:text-3xl font-medium text-teal-800">已加購商品</h2>
       </div>
 
       <div className="space-y-4">
@@ -104,15 +104,15 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
           const isFavoriteProduct = isFavorite(item.productId);
           
           return (
-            <div key={item.productId} className="flex items-center gap-4 p-4 bg-[#F3FAF8] rounded-xl">
+            <div key={item.productId} className="flex items-center gap-3 lg:gap-4 p-3 lg:p-4 bg-[#F3FAF8] rounded-xl">
               {/* 商品圖片 */}
-              <div className="aspect-square relative w-20 h-20 rounded-xl overflow-hidden border-2 border-gray-300 bg-gray-50 flex-shrink-0 flex items-center justify-center">
+              <div className="aspect-square relative w-16 h-16 lg:w-20 lg:h-20 rounded-xl overflow-hidden border-2 border-gray-300 bg-gray-50 flex-shrink-0 flex items-center justify-center">
                 <div className="w-[88%] h-[88%] relative">
                   <Image 
                     src={item.imageUrl || "/images/books/placeholder.jpg"} 
                     alt={item.name}
                     fill
-                    sizes="80px"
+                    sizes="(max-width: 1024px) 64px, 80px"
                     className="object-cover rounded-lg"
                   />
                 </div>
@@ -120,7 +120,7 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
 
               {/* 商品資訊 */}
               <div className="flex-1">
-                <h3 className="text-base font-medium text-teal-800 mb-1">{item.name}</h3>
+                <h3 className="text-sm lg:text-base font-medium text-teal-800 mb-1">{item.name}</h3>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500 line-through">原價 NT${item.price}</span>
                 </div>
@@ -134,7 +134,7 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
               </div>
 
               {/* 收藏和移除按鈕 */}
-              <div className="flex gap-2">
+              <div className="flex flex-col lg:flex-row gap-1 lg:gap-2">
                 <button 
                   onClick={() => handleToggleFavorite(item.productId)}
                   className={`inline-flex items-center text-xs transition-colors ${
@@ -149,7 +149,7 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
                       isAuthenticated && isFavoriteProduct ? 'fill-current' : ''
                     }`} 
                   />
-                  {isAuthenticated && isFavoriteProduct ? '已收藏' : '收藏'}
+                  <span className="hidden lg:inline">{isAuthenticated && isFavoriteProduct ? '已收藏' : '收藏'}</span>
                 </button>
                 <button 
                   onClick={() => removeAddOnItem(item.productId)}
@@ -157,7 +157,7 @@ const AddedOnItemsBlock = ({ isVisible, onClose }: AddedOnItemsBlockProps) => {
                   aria-label="移除商品"
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
-                  移除
+                  <span className="hidden lg:inline">移除</span>
                 </button>
               </div>
             </div>

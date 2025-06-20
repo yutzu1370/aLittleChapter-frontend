@@ -174,9 +174,10 @@ export default function RecommendedSets() {
               key={bundle.id}
               className="bg-white rounded-[24px] sm:rounded-[36px] lg:rounded-[48px] border-3 sm:border-4 lg:border-[6px] border-[#F8D0B0] p-2 sm:p-3 relative mb-4 sm:mb-6"
             >
-              <div className={`flex flex-col lg:flex-row ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-4 lg:gap-0`}>
-                {/* Book Image */}
-                <div className="w-full lg:w-[600px] h-[250px] sm:h-[300px] lg:h-[400px] relative flex-shrink-0 rounded-[20px] sm:rounded-[32px] lg:rounded-[48px] order-2 lg:order-1">
+              {/* 手機版改為垂直布局 */}
+              <div className="flex flex-col lg:flex-row gap-4 lg:gap-0">
+                {/* Book Image - 手機版置頂 */}
+                <div className="w-full lg:w-[600px] h-[250px] sm:h-[300px] lg:h-[400px] relative flex-shrink-0 rounded-[20px] sm:rounded-[32px] lg:rounded-[48px] order-1">
                   <Image
                     src={bundle.imageUrl || "/placeholder.svg"}
                     alt={bundle.title}
@@ -185,8 +186,8 @@ export default function RecommendedSets() {
                   />
                 </div>
 
-                {/* Text Content */}
-                <div className="w-full lg:w-[606px] flex flex-col justify-center px-4 sm:px-8 lg:px-12 order-1 lg:order-2">
+                {/* Text Content - 手機版置底 */}
+                <div className="w-full lg:w-[606px] flex flex-col justify-center px-4 sm:px-8 lg:px-12 order-2">
                   <h3 className="text-xl sm:text-2xl lg:text-3xl text-[#2F726D] mb-3 sm:mb-4 text-center lg:text-left">{bundle.title}</h3>
                   <div 
                     className="text-sm sm:text-lg lg:text-xl text-gray-900 mb-4 sm:mb-5 lg:mb-6 font-noto-sans-tc text-center lg:text-justify leading-relaxed"

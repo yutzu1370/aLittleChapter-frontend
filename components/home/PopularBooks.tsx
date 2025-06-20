@@ -510,30 +510,31 @@ export default function PopularBooks() {
                           </motion.div>
                         )}
 
-                        {/* Hover Action Buttons - 改為手機可見 */}
-                        <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-24 flex items-end justify-center gap-2 p-4 sm:p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        {/* Action Buttons - 手機版始終可見，桌面版 hover 顯示 */}
+                        <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-20 lg:h-24 flex items-end justify-center gap-1 sm:gap-2 p-3 sm:p-4 lg:p-6 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
                           <motion.button 
                             whileHover={{ scale: 1.05, backgroundColor: "#E8652B", color: "white" }}
                             whileTap={{ scale: 0.95 }}
-                            className="flex-1 h-10 sm:h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A] transition-colors duration-100 text-xs sm:text-sm"
+                            className="flex-1 h-8 sm:h-10 lg:h-12 bg-white border-2 border-[#E8652B] text-[#E8652B] rounded-full font-semibold shadow-[2px_3px_0px_#74281A] sm:shadow-[3px_4px_0px_#74281A] lg:shadow-[4px_6px_0px_#74281A] transition-colors duration-100 text-xs sm:text-sm"
                             onClick={() => 
                               handleAddToCart(book)}
                           >
-                            加入購物車
+                            <span className="hidden sm:inline">加入購物車</span>
+                            <span className="sm:hidden">加入購物車</span>
                           </motion.button>
                           <motion.button 
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className={`w-10 h-10 sm:w-12 sm:h-12 bg-white border-2 ${
+                            className={`w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-white border-2 ${
                               isAuthenticated && isFavorite(book.id) 
                                 ? "border-[#E8652B] bg-[#FEF5EE]" 
                                 : "border-[#E8652B]"
-                            } rounded-full flex items-center justify-center shadow-[3px_4px_0px_#74281A] sm:shadow-[4px_6px_0px_#74281A]`}
+                            } rounded-full flex items-center justify-center shadow-[2px_3px_0px_#74281A] sm:shadow-[3px_4px_0px_#74281A] lg:shadow-[4px_6px_0px_#74281A]`}
                             onClick={() => handleToggleFavorite(book.id)}
                             aria-label={isAuthenticated && isFavorite(book.id) ? "從收藏移除" : "加入收藏"}
                           >
                             <Heart 
-                              className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ${
+                              className={`w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 ${
                                 isAuthenticated && isFavorite(book.id) 
                                   ? "text-[#E8652B] fill-[#E8652B]" 
                                   : "text-[#E8652B]"

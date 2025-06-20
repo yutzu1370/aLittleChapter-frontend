@@ -143,44 +143,46 @@ export default function NotificationsClient() {
       <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6 font-noto-sans-tc">我的通知</h2>
 
       {/* 篩選標籤和全部已讀按鈕 */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 mb-4 sm:mb-6">
         {/* 左側：篩選標籤 */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveFilter('all')}
-            className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-              activeFilter === 'all'
-                ? 'bg-[#E8652B] text-white'
-                : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
-            }`}
-          >
-            全部通知
-          </button>
-          <button
-            onClick={() => setActiveFilter('read')}
-            className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-              activeFilter === 'read'
-                ? 'bg-[#E8652B] text-white'
-                : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
-            }`}
-          >
-            已讀通知
-          </button>
-          <button
-            onClick={() => setActiveFilter('unread')}
-            className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors relative whitespace-nowrap ${
-              activeFilter === 'unread'
-                ? 'bg-[#E8652B] text-white'
-                : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
-            }`}
-          >
-            未讀通知
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+          <div className="flex gap-2 min-w-max">
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                activeFilter === 'all'
+                  ? 'bg-[#E8652B] text-white'
+                  : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
+              }`}
+            >
+              全部通知
+            </button>
+            <button
+              onClick={() => setActiveFilter('read')}
+              className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+                activeFilter === 'read'
+                  ? 'bg-[#E8652B] text-white'
+                  : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
+              }`}
+            >
+              已讀通知
+            </button>
+            <button
+              onClick={() => setActiveFilter('unread')}
+              className={`px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-colors relative whitespace-nowrap flex-shrink-0 ${
+                activeFilter === 'unread'
+                  ? 'bg-[#E8652B] text-white'
+                  : 'bg-white text-gray-600 hover:bg-[#FEF5EE] border border-gray-200'
+              }`}
+            >
+              未讀通知
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* 右側：全部標示為已讀按鈕 */}

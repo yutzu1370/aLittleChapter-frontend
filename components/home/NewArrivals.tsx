@@ -215,7 +215,7 @@ export default function NewArrivals() {
       </div>
 
       {/* Swiper 輪播區 */}
-      <div className="relative w-full max-w-[90vw] sm:max-w-[1100px]">
+      <div className="relative w-full max-w-[90vw] sm:max-w-[1100px] bg-[]">
         {/* 左箭頭 */}
         <button
           onClick={handlePrev}
@@ -241,36 +241,36 @@ export default function NewArrivals() {
           onSwiper={(swiper) => {
             swiperRef.current = swiper;
           }}
-          className="min-h-[350px] sm:min-h-[420px] lg:min-h-[540px]"
+          className="min-h-[500px] sm:min-h-[420px] lg:min-h-[540px]"
         >
           {books.map((book, index) => (
             <SwiperSlide key={book.id}>
-              {/* 書本內容卡片 */}
-              <div className="flex flex-col lg:flex-row flex-1 bg-[url('/images/open_book.png')] bg-cover bg-center min-h-[320px] sm:min-h-[360px] lg:min-h-[550px] px-4 sm:px-6 lg:px-0">
-                {/* 書本圖片 */}
-                <div className="flex items-center justify-center basis-[50%] min-w-[180px] sm:min-w-[220px] p-4 sm:p-6 lg:p-10 mb-4 lg:mb-6 translate-x-1 sm:translate-x-2 lg:translate-x-4">
-                  <div className="relative w-32 h-32 sm:w-48 sm:h-48 lg:w-96 lg:h-96">
+              {/* 書本內容卡片 - 手機版改為垂直布局 */}
+              <div className="flex flex-col lg:flex-row flex-1 border-[#E8652B] bg-none lg:bg-[url('/images/open_book.png')] bg-cover bg-center min-h-[480px] sm:min-h-[360px] lg:min-h-[550px] px-4 sm:px-6 lg:px-0">
+                {/* 書本圖片 - 手機版置頂 */}
+                <div className="flex items-center justify-center lg:basis-[50%] min-w-[180px] sm:min-w-[220px] p-4 sm:p-6 lg:p-10 mb-2 lg:mb-6 translate-x-1 sm:translate-x-2 lg:translate-x-4">
+                  <div className="relative w-40 h-40 sm:w-48 sm:h-48 lg:w-96 lg:h-96">
                     <Image
                       src={book.imageUrl || "/images/book_05.png"}
                       alt={book.title}
                       fill
                       className="object-cover rounded-xl sm:rounded-2xl"
-                      sizes="(max-width: 640px) 128px, (max-width: 1024px) 192px, 288px"
+                      sizes="(max-width: 640px) 160px, (max-width: 1024px) 192px, 288px"
                       priority={index === 0}
                     />
                   </div>
                 </div>
-                {/* 右側內容 */}
-                <div className="flex flex-col justify-center basis-[50%] gap-2 sm:gap-3 lg:gap-2 px-2 sm:px-4 lg:pl-12 pr-4 sm:pr-8 lg:pr-24 py-4 sm:py-6 lg:py-12">
-                  <h3 className="font-[jf-openhuninn-2.0] text-lg sm:text-xl lg:text-[2.25rem] text-[#2F726D] leading-tight mb-1 lg:mb-2">
+                {/* 右側內容 - 手機版置底 */}
+                <div className="flex flex-col justify-center lg:basis-[50%] gap-2 sm:gap-3 lg:gap-2 px-2 sm:px-4 lg:pl-12 pr-4 sm:pr-8 lg:pr-24 py-2 sm:py-6 lg:py-12">
+                  <h3 className="font-[jf-openhuninn-2.0] text-lg sm:text-xl lg:text-[2.25rem] text-[#2F726D] leading-tight mb-1 lg:mb-2 text-center lg:text-left">
                     {book.title}
                   </h3>
-                  <div className="flex flex-wrap gap-1 sm:gap-2 text-sm lg:text-base text-[#4F4F4F] mb-1 ml-1">
+                  <div className="flex flex-wrap gap-1 sm:gap-2 text-sm lg:text-base text-[#4F4F4F] mb-1 ml-1 justify-center lg:justify-start">
                     <span>{book.author}</span>
                     <span className="hidden sm:inline">|</span>
                     <span>{book.publisher}</span>
                   </div>
-                  <div className="flex gap-1 sm:gap-2">
+                  <div className="flex gap-1 sm:gap-2 justify-center lg:justify-start">
                     <span className="px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-[#F3FAF8] text-[#295C58]">
                       {book.categoryName}
                     </span>
@@ -280,15 +280,15 @@ export default function NewArrivals() {
                   </div>
                   {book.introductionHtml.includes('<') ? (
                     <div 
-                      className="text-sm sm:text-base lg:text-lg h-[80px] sm:h-[100px] lg:h-[120px] text-[#121212] mb-2 lg:mb-4 leading-relaxed overflow-y-auto font-noto-sans-tc"
+                      className="text-sm sm:text-base lg:text-lg h-[60px] sm:h-[100px] lg:h-[120px] text-[#121212] mb-2 lg:mb-4 leading-relaxed overflow-y-auto font-noto-sans-tc text-center lg:text-left"
                       dangerouslySetInnerHTML={{ __html: book.introductionHtml }}
                     />
                   ) : (
-                    <p className="text-sm sm:text-base lg:text-lg h-[80px] sm:h-[100px] lg:h-[120px] text-[#121212] mb-2 lg:mb-4 leading-relaxed overflow-y-auto font-noto-sans-tc">
+                    <p className="text-sm sm:text-base lg:text-lg h-[60px] sm:h-[100px] lg:h-[120px] text-[#121212] mb-2 lg:mb-4 leading-relaxed overflow-y-auto font-noto-sans-tc text-center lg:text-left">
                       {book.introductionHtml}
                     </p>
                   )}
-                  <div className="flex gap-2 sm:gap-3 lg:gap-4 mt-2">
+                  <div className="flex gap-2 sm:gap-3 lg:gap-4 mt-2 justify-center lg:justify-start">
                     <button
                       onClick={() => handleBuyNow(book)}
                       disabled={isAddingToCart === book.id}
