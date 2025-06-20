@@ -145,7 +145,7 @@ export default function NotificationsClient() {
       {/* 篩選標籤和全部已讀按鈕 */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 mb-4 sm:mb-6">
         {/* 左側：篩選標籤 */}
-        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+        <div className="flex gap-2  pb-2 sm:pb-0">
           <div className="flex gap-2 min-w-max">
             <button
               onClick={() => setActiveFilter('all')}
