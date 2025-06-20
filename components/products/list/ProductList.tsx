@@ -39,7 +39,7 @@ export default function ProductList({ searchKeyword = "親子共讀", totalCount
   };
   
   return (
-    <div className="flex-1">
+    <div className="flex-1 mb-10">
       
       {/* 載入狀態 */}
       {isLoading && (
