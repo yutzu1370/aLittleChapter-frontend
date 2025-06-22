@@ -337,8 +337,8 @@ export default function PopularBooks() {
           </div>
 
           {/* Countdown and Filters */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            {/* Countdown */}
+          {/* <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4"> */}
+            {/* Countdown
             <motion.div 
               className="flex items-center order-2 sm:order-1"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -362,9 +362,9 @@ export default function PopularBooks() {
                   {seconds.toString().padStart(2, '0')}
                 </span>
               </div>
-            </motion.div>
+            </motion.div> */}
 
-            {/* Filters */}
+            {/* Filters
             <div className="flex flex-wrap gap-2 order-1 sm:order-2 w-full sm:w-auto">
               {Object.entries(timeSlotData).map(([time, data]) => (
                 <motion.button
@@ -388,8 +388,8 @@ export default function PopularBooks() {
               >
                 查看更多 <ChevronRight className="ml-1 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               </motion.button>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
           {/* Loading 狀態顯示 */}
           {loading && (

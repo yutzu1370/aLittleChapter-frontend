@@ -219,6 +219,19 @@ export default function Header() {
     }, 300)
   }
 
+  const handleSearchFocus = () => {
+    if (localSearchKeyword.trim()) {
+      setShowSuggestions(true)
+    }
+  }
+
+  const handleSearchBlur = () => {
+    // 延遲關閉，讓點擊建議項目有時間執行
+    setTimeout(() => {
+      setShowSuggestions(false)
+    }, 150)
+  }
+
   const handleSearch = () => {
     if (!localSearchKeyword) return
     setShowSuggestions(false)
@@ -346,7 +359,8 @@ export default function Header() {
                   value={localSearchKeyword}
                   onChange={handleSearchInput}
                   onKeyDown={handleKeyDown}
-                  onFocus={() => localSearchKeyword && setShowSuggestions(true)}
+                  onFocus={handleSearchFocus}
+                  onBlur={handleSearchBlur}
                   aria-label="搜尋"
                 />
               </div>
@@ -461,7 +475,8 @@ export default function Header() {
                     value={localSearchKeyword}
                     onChange={handleSearchInput}
                     onKeyDown={handleKeyDown}
-                    onFocus={() => localSearchKeyword && setShowSuggestions(true)}
+                    onFocus={handleSearchFocus}
+                    onBlur={handleSearchBlur}
                     aria-label="搜尋"
                   />
                 </div>

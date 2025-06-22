@@ -86,22 +86,22 @@ export default function Footer() {
               <h3 className="font-bold text-amber-800 mb-2 sm:mb-3 lg:mb-4 font-noto-sans-tc text-base sm:text-lg lg:text-xl">關於我們</h3>
               <ul className="space-y-1 sm:space-y-2 text-sm font-noto-sans-tc">
                 <li>
-                  <Link href="/about" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     公司簡介
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     聯絡我們
                   </Link>
                 </li>
                 <li>
-                  <Link href="/careers" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     加入我們
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     隱私政策
                   </Link>
                 </li>
@@ -112,22 +112,22 @@ export default function Footer() {
               <h3 className="font-bold text-amber-800 mb-2 sm:mb-3 lg:mb-4 font-noto-sans-tc text-base sm:text-lg lg:text-xl">客戶服務</h3>
               <ul className="space-y-1 sm:space-y-2 text-sm font-noto-sans-tc">
                 <li>
-                  <Link href="/faq" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     常見問題
                   </Link>
                 </li>
                 <li>
-                  <Link href="/shipping" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     配送說明
                   </Link>
                 </li>
                 <li>
-                  <Link href="/returns" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     退換貨政策
                   </Link>
                 </li>
                 <li>
-                  <Link href="/membership" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
+                  <Link href="/" className="hover:text-orange-500 font-noto-sans-tc text-sm sm:text-base block py-1">
                     會員權益
                   </Link>
                 </li>

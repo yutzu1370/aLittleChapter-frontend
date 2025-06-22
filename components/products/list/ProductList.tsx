@@ -18,23 +18,40 @@ export default function ProductList({ searchKeyword = "親子共讀", totalCount
   // 生成顯示的頁碼
   const getPageNumbers = () => {
     const pageNumbers = [];
-    // 永遠顯示前五頁
-    for (let i = 1; i <= Math.min(5, totalPages); i++) {
-      pageNumbers.push(i);
-    }
-    // 如果總頁數大於5，顯示省略號
-    if (totalPages > 5) {
-      if (currentPage > 5) {
-        pageNumbers.push('...');
-        pageNumbers.push(currentPage);
+    
+    if (totalPages <= 4) {
+      // 如果總頁數小於等於7，顯示所有頁碼
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
       }
-      if (currentPage < totalPages) {
+    } else {
+      // 總頁數大於7時的邏輯
+      if (currentPage <= 3) {
+        // 當前頁在前4頁，顯示 1,2,3,4,5,...,last
+        for (let i = 1; i <= 4; i++) {
+          pageNumbers.push(i);
+        }
         pageNumbers.push('...');
-      }
-      if (totalPages > 5) {
+        pageNumbers.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // 當前頁在後4頁，顯示 1,...,last-4,last-3,last-2,last-1,last
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = totalPages - 2; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        // 當前頁在中間，顯示 1,...,current-1,current,current+1,...,last
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push('...');
         pageNumbers.push(totalPages);
       }
     }
+    
     return pageNumbers;
   };
   

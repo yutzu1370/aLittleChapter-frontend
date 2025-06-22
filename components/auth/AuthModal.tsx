@@ -46,13 +46,26 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     resetPasswordForm 
   } = useAuthForms()
 
-  // 當彈窗打開時，重置狀態
+  // 當彈窗打開時，重置狀態並載入記住的帳號
   useEffect(() => {
     if (open) {
      
       setActiveTab("login")
+      
+      // 載入記住的帳號和密碼
+      const rememberedEmail = localStorage.getItem('rememberedEmail')
+      const rememberedPassword = localStorage.getItem('rememberedPassword')
+      if (rememberedEmail) {
+        loginForm.setValue('email', rememberedEmail)
+        loginForm.setValue('rememberMe', true)
+        if (rememberedPassword) {
+          loginForm.setValue('password', rememberedPassword)
+        }
+      } else {
+        loginForm.setValue('rememberMe', false)
+      }
     }
-  }, [open])
+  }, [open, loginForm])
 
   // 取得當前頁面標題
   const getModalTitle = () => {
@@ -90,8 +103,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         return;
       }
 
-
-
       try {
         if (responseData.status && responseData.data) {
           const userData: UserData = {
@@ -102,6 +113,16 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
             token: responseData.data.token
           };
 
+          // 實作記住我功能
+          if (data.rememberMe) {
+            // 記住我：保存帳號和密碼到 localStorage
+            localStorage.setItem('rememberedEmail', data.email.trim());
+            localStorage.setItem('rememberedPassword', data.password);
+          } else {
+            // 不記住：清除保存的帳號和密碼
+            localStorage.removeItem('rememberedEmail');
+            localStorage.removeItem('rememberedPassword');
+          }
         
           await storeLogin(userData);
           

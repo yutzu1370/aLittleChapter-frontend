@@ -62,7 +62,7 @@ export default function FilterSidebar() {
       setExpandedSections({
         age: true,
         theme: true,
-        price: true,
+        price: false,
         publisher: false
       });
     }

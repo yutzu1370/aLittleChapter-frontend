@@ -171,13 +171,13 @@ export default function BookReviews() {
     
     return (
       <div className="flex items-center gap-1 sm:gap-2">
-        <div className={`${iconSizes[size]} rounded-full overflow-hidden relative`}>
+        <div className={`${iconSizes[size]} rounded-full overflow-hidden relative flex-shrink-0`}>
           <Image 
             src={review.userAvatar} 
             alt={`${review.author}的頭像`} 
             width={40}
             height={40}
-            className="object-cover"
+            className="object-cover w-full h-full"
           />
         </div>
         <span className={`${size === "sm" ? "text-xs" : "text-sm"} text-gray-700`}>{review.author}</span>
@@ -229,7 +229,7 @@ export default function BookReviews() {
     <section className="flex flex-col items-center py-16 px-6 gap-12 bg-[#F3FAF8] rounded-[64px]" style={{ minHeight: '720px' }}>
       <div className="max-w-7xl mx-auto w-full">
         {/* Section Title */}
-        <div className="flex justify-center items-center mb-12">
+        <div className="flex justify-center items-center ">
           <div className="w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 mr-3 sm:mr-4">
             <Image
               src="/images/home/title_icon_review.png"
@@ -243,7 +243,7 @@ export default function BookReviews() {
         </div>
 
         {/* Reviews Carousel */}
-        <div className="relative flex justify-center items-center">
+        <div className="relative flex justify-center items-center h-[500px] sm:h-[500px] lg:h-[600px]">
           {/* Swiper Container */}
           <Swiper
             modules={[Navigation, Autoplay]}
@@ -346,7 +346,7 @@ export default function BookReviews() {
                         isActive 
                           ? 'text-sm sm:text-sm lg:text-sm' 
                           : 'text-xs sm:text-xs lg:text-xs'
-                      } tracking-wide leading-relaxed text-center text-gray-700 line-clamp-4 overflow-hidden`}>
+                      } tracking-wide leading-relaxed text-center text-gray-700 line-clamp-3 overflow-hidden`}>
                         {review.content}
                       </p>
                     </div>
@@ -365,8 +365,8 @@ export default function BookReviews() {
             ))}
           </Swiper>
 
-          {/* 裝飾性動物圖片 - 老鼠 - 隱藏在小螢幕 */}
-          <div className="hidden lg:block absolute left-[280px] bottom-0 z-30">
+          {/* 裝飾性動物圖片 - 老鼠 - 隱藏在小螢幕 - 固定位置 */}
+          <div className="hidden lg:block absolute left-[280px] bottom-6 z-30">
             <Image
               src="/images/home/reviews_Mouse.png"
               alt="裝飾性老鼠圖片"
@@ -376,7 +376,7 @@ export default function BookReviews() {
             />
           </div>
 
-          {/* Left Arrow Button */}
+          {/* Left Arrow Button - 固定位置，基於容器中心 */}
           <button
             onClick={handlePrevClick}
             className="absolute left-0 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
@@ -392,7 +392,7 @@ export default function BookReviews() {
             <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-white" />
           </button>
 
-          {/* Right Arrow Button */}
+          {/* Right Arrow Button - 固定位置，基於容器中心 */}
           <button
             onClick={handleNextClick}
             className="absolute right-0 top-1/2 transform -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-[#E8652B] rounded-full shadow-[3px_4px_0px_rgba(116,40,26,1)] sm:shadow-[4px_6px_0px_rgba(116,40,26,1)] flex items-center justify-center z-10 hover:scale-105 transition-transform active:scale-95"
