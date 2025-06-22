@@ -67,6 +67,25 @@ export default function FilterSidebar() {
       });
     }
   }, [activeAgeFilters, activeThemeFilters, activePriceFilter, authorKeyword, publisherKeyword]);
+
+  // 監聽篩選條件變化，自動展開有選中項目的區塊
+  useEffect(() => {
+    const hasAgeFilters = activeAgeFilters.length > 0;
+    const hasThemeFilters = activeThemeFilters.length > 0;
+    const hasPriceFilter = activePriceFilter !== null;
+    const hasAuthorOrPublisher = authorKeyword !== '' || publisherKeyword !== '';
+    
+    // 如果有篩選條件，自動展開對應的區塊
+    if (hasAgeFilters || hasThemeFilters || hasPriceFilter || hasAuthorOrPublisher) {
+      setExpandedSections(prev => ({
+        ...prev,
+        age: hasAgeFilters || prev.age,
+        theme: hasThemeFilters || prev.theme,
+        price: hasPriceFilter || prev.price,
+        publisher: hasAuthorOrPublisher || prev.publisher
+      }));
+    }
+  }, [activeAgeFilters, activeThemeFilters, activePriceFilter, authorKeyword, publisherKeyword]);
   
   // 切換分類的展開/收合狀態
   const toggleSection = (section: keyof typeof expandedSections) => {

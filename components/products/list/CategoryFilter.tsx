@@ -7,7 +7,7 @@ import { useProductSearchStore } from "@/lib/store/useProductSearchStore";
 export default function CategoryFilter() {
   const { activeCategory, setActiveCategory } = useProductSearchStore();
   
-  const categories = ["全部作品", "亮點新書", "熱銷排行", "優惠折扣", "科學知識", "藝術啟蒙", "音樂欣賞", "勵志成長"];
+  const categories = ["全部作品", "亮點新書", "熱銷排行", "優惠折扣"];
   const [showAll, setShowAll] = useState(false);
 
   // 監聽 activeCategory 變化，確保組件狀態同步

@@ -150,7 +150,7 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      // 轉換分類名稱到篩選參數
+      // 轉換 CategoryFilter 分類名稱到篩選參數
       const getCategoryFilters = (category: string): Partial<ProductFilters> => {
         switch (category) {
           case "亮點新書":
@@ -159,16 +159,6 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
             return { is_bestseller: true };
           case "優惠折扣":
             return { is_discount: true };
-          case "健康生活":
-            return { category_id: 1 };
-          case "科學知識":
-            return { category_id: 2 };
-          case "藝術啟蒙":
-            return { category_id: 3 };
-          case "音樂欣賞":
-            return { category_id: 4 };
-          case "勵志成長":
-            return { category_id: 5 };
           default:
             return {};
         }
@@ -218,40 +208,44 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
         author: state.authorKeyword || undefined,
         publisher: state.publisherKeyword || undefined,
         page: state.currentPage,
-        ...getCategoryFilters(state.activeCategory),
+        ...getCategoryFilters(state.activeCategory), // CategoryFilter 的特殊分類
       };
       
+      // 設定年齡篩選
       if (ageIds) {
         (filters as any).age_range_id = ageIds;
       }
+      
+      // 設定主題篩選（這裡是 FilterSidebar 的主題篩選，不與 CategoryFilter 衝突）
       if (themeIds) {
         (filters as any).category_id = themeIds;
       }
+      
+      // 設定價格篩選
       if (state.activePriceFilter) {
         filters.price_range = getPriceRange(state.activePriceFilter);
       }
-      
+    
+        
+        const result = await fetchProductsWithFilters(filters);
+        
+ 
+        
+        set({ 
+          products: result.products, 
+          pagination: result.pagination,
+          isLoading: false 
+        });
+      } catch (err) {
    
-      
-      const result = await fetchProductsWithFilters(filters);
-      
-
-      
-      set({ 
-        products: result.products, 
-        pagination: result.pagination,
-        isLoading: false 
-      });
-    } catch (err) {
-  
-      set({ 
-        error: '載入商品資料失敗，請稍後再試',
-        products: [],
-        pagination: null,
-        isLoading: false 
-      });
-    }
-  },
+        set({ 
+          error: '載入商品資料失敗，請稍後再試',
+          products: [],
+          pagination: null,
+          isLoading: false 
+        });
+      }
+    },
   
   // 從 URL 參數初始化
   initFromQuery: (params) => {
@@ -261,7 +255,6 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
     const isBestseller = params.get("is_bestseller") || "";
     const isNewArrival = params.get("is_new_arrival") || "";
     const isDiscount = params.get("is_discount") || "";
-   
     
     // ⭐ 重要：先完全重置所有篩選條件到初始狀態
     const resetState: Partial<ProductSearchState> = {
@@ -280,19 +273,23 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
       resetState.searchKeyword = keyword;
     }
     
+    // ⭐ 修正：category_id 對應到主題篩選（FilterSidebar），不是 CategoryFilter
     if (categoryId) {
-      // 根據 category_id 設定對應的分類名稱
-      const categoryMapping: { [key: string]: string } = {
+      // 根據 category_id 設定對應的主題篩選
+      const themeMapping: { [key: string]: string } = {
         "1": "健康生活",
         "2": "科學知識", 
         "3": "藝術啟蒙",
         "4": "音樂欣賞",
         "5": "勵志成長"
       };
-      resetState.activeCategory = categoryMapping[categoryId] || "全部作品";
+      const themeFilter = themeMapping[categoryId];
+      if (themeFilter) {
+        resetState.activeThemeFilters = [themeFilter];
+      }
     }
     
-    // 處理特殊分類參數（優先度高於 category_id）
+    // 處理特殊分類參數（這些對應到 CategoryFilter）
     if (isBestseller === "true") {
       resetState.activeCategory = "熱銷排行";
     } else if (isNewArrival === "true") {
@@ -315,7 +312,6 @@ export const useProductSearchStore = create<ProductSearchState>((set, get) => ({
         resetState.activeAgeFilters = [ageFilter];
       }
     }
-
     
     // 設定新狀態並觸發查詢
     set(resetState);
