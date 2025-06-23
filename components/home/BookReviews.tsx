@@ -303,61 +303,52 @@ export default function BookReviews() {
                       />
                     </div>
                     
-                    {/* 評分星星 */}
-                    <div className={`absolute ${
-                      isActive 
-                        ? 'top-4 sm:top-4 lg:top-5' 
-                        : 'top-3 sm:top-3 lg:top-4'
-                    } left-1/2 transform -translate-x-1/2 z-10`}>
-                      {renderStars(review.rating, isActive ? "md" : "sm")}
-                    </div>
-                    
-                    {/* 書籍圖片 */}
-                    <div className={`${
-                      isActive 
-                        ? 'mt-14 sm:mt-14 lg:mt-16 w-[100px] h-[100px] sm:w-[100px] sm:h-[100px] lg:w-[120px] lg:h-[120px]' 
-                        : 'mt-10 sm:mt-10 lg:mt-12 w-[80px] h-[80px] sm:w-[80px] sm:h-[80px] lg:w-[100px] lg:h-[100px]'
-                    } relative bg-white border-2 sm:border-3 lg:border-3 border-[#EC824B] rounded-[8px] sm:rounded-[10px] lg:rounded-[12px] p-1 z-10`}>
-                      <Image
-                        src={review.image}
-                        alt={review.title}
-                        width={120}
-                        height={120}
-                        className="object-cover w-full h-full rounded-[4px] sm:rounded-[6px] lg:rounded-[8px]"
-                      />
-                    </div>
-                    
-                    {/* 書籍標題 */}
-                    <h3 className={`${
-                      isActive 
-                        ? 'mt-3 sm:mt-3 lg:mt-4 text-lg sm:text-lg lg:text-xl' 
-                        : 'mt-2 sm:mt-2 text-base sm:text-base lg:text-lg'
-                    } font-['jf-openhuninn-2.0'] z-10 text-center px-4 sm:px-4 lg:px-6 line-clamp-2`}>
-                      {review.title}
-                    </h3>
-                    
-                    {/* 評論內容 */}
-                    <div className={`${
-                      isActive 
-                        ? 'px-6 py-1 sm:px-8 lg:px-10 mt-3 sm:mt-3 lg:mt-4 flex-1 flex flex-col justify-center max-w-[320px] sm:max-w-[320px] lg:max-w-[360px]' 
-                        : 'px-4 py-1 sm:px-6 lg:px-8 mt-2 sm:mt-2 flex-1 flex flex-col justify-center max-w-[240px] sm:max-w-[240px] lg:max-w-[280px]'
-                    } z-10 w-full`}>
-                      <p className={`${
+                    {/* 卡片內容容器 - 限制在背景圖片範圍內 */}
+                                          <div className="relative z-10 flex flex-col items-center justify-start w-full h-full pt-24 sm:pt-24 lg:pt-28 pb-8 px-4">
+                        {/* 評分星星 */}
+                        <div className="mb-8 sm:mb-2">
+                          {renderStars(review.rating, isActive ? "md" : "sm")}
+                        </div>
+                      
+                      {/* 書籍圖片 */}
+                      <div className={`${
                         isActive 
-                          ? 'text-sm sm:text-sm lg:text-sm' 
-                          : 'text-xs sm:text-xs lg:text-xs'
-                      } tracking-wide leading-relaxed text-center text-gray-700 line-clamp-3 overflow-hidden`}>
-                        {review.content}
-                      </p>
-                    </div>
-                    
-                    {/* 用戶資訊 */}
-                    <div className={`${
-                      isActive 
-                        ? 'mb-3 sm:mb-4 lg:mb-6 mt-2 sm:mt-3' 
-                        : 'mb-2 sm:mb-2 lg:mb-4 mt-1 sm:mt-2'
-                    } z-10 flex justify-center`}>
-                      {renderUserIcon(review, isActive ? "md" : "sm")}
+                          ? 'w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[110px] lg:h-[110px]' 
+                          : 'w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px]'
+                      } relative bg-white border-2 border-[#EC824B] rounded-[8px] sm:rounded-[10px] p-1 mt-36 sm:mt-2 mb-10 sm:mb-2 flex-shrink-0`}>
+                        <Image
+                          src={review.image}
+                          alt={review.title}
+                          width={120}
+                          height={120}
+                          className="object-cover w-full h-full rounded-[4px] sm:rounded-[6px]"
+                        />
+                      </div>
+                      
+                      {/* 書籍標題 */}
+                      <h3 className={`${
+                        isActive 
+                          ? 'text-sm sm:text-base font-medium' 
+                          : 'text-xs sm:text-sm font-medium'
+                      } font-['jf-openhuninn-2.0'] text-center mb-2 line-clamp-2 px-2 max-w-[260px]`}>
+                        {review.title}
+                      </h3>
+                      
+                      {/* 評論內容 - 限制高度 */}
+                      <div className="px-6 py-2 mb-2 max-w-[260px] h-[40px] sm:h-[50px] flex items-center justify-center">
+                        <p className={`${
+                          isActive 
+                            ? 'text-xs' 
+                            : 'text-xs'
+                        } tracking-wide leading-tight text-center text-gray-700 line-clamp-3`}>
+                          {review.content}
+                        </p>
+                      </div>
+                      
+                      {/* 用戶資訊 */}
+                      <div className="flex-shrink-0">
+                        {renderUserIcon(review, isActive ? "sm" : "sm")}
+                      </div>
                     </div>
                   </div>
                 )}
