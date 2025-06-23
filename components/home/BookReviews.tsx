@@ -306,7 +306,7 @@ export default function BookReviews() {
                     {/* 卡片內容容器 - 限制在背景圖片範圍內 */}
                                           <div className="relative z-10 flex flex-col items-center justify-start w-full h-full pt-24 sm:pt-24 lg:pt-28 pb-8 px-4">
                         {/* 評分星星 */}
-                        <div className="mb-8 sm:mb-2">
+                        <div className="mb-4 sm:mb-4">
                           {renderStars(review.rating, isActive ? "md" : "sm")}
                         </div>
                       
@@ -315,7 +315,7 @@ export default function BookReviews() {
                         isActive 
                           ? 'w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] lg:w-[110px] lg:h-[110px]' 
                           : 'w-[80px] h-[80px] sm:w-[90px] sm:h-[90px] lg:w-[100px] lg:h-[100px]'
-                      } relative bg-white border-2 border-[#EC824B] rounded-[8px] sm:rounded-[10px] p-1 mt-36 sm:mt-2 mb-10 sm:mb-2 flex-shrink-0`}>
+                      } relative bg-white border-2 border-[#EC824B] rounded-[8px] sm:rounded-[10px] p-1 mt-30 sm:mb-2 `}>
                         <Image
                           src={review.image}
                           alt={review.title}
@@ -335,7 +335,7 @@ export default function BookReviews() {
                       </h3>
                       
                       {/* 評論內容 - 限制高度 */}
-                      <div className="px-6 py-2 mb-2 max-w-[260px] h-[40px] sm:h-[50px] flex items-center justify-center">
+                      <div className="px-6 py-4 mb-2 max-w-[260px] h-[40px] sm:h-[50px] flex items-center justify-center">
                         <p className={`${
                           isActive 
                             ? 'text-xs' 
