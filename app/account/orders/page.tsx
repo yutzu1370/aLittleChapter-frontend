@@ -429,7 +429,7 @@ export default function OrderCenter() {
           <div className="relative">
             <input
               type="text"
-              placeholder="搜尋訂單編號、商品名稱或作者..."
+              placeholder="搜尋訂單編號"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-3 pl-10 border border-gray-200 rounded-xl focus:border-2 focus:border-orange-500 font-noto-sans-tc focus:outline-none"
