@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
 import { useCartStore, useCartHydration } from "@/lib/store/useCartStore"
@@ -55,6 +55,24 @@ export default function CheckoutPage() {
   const [districts, setDistricts] = useState<{ name: string }[]>([])
   const [selectedDistrict, setSelectedDistrict] = useState("")
   
+  // 新增：input ref
+  const nameInputRef = useRef<HTMLInputElement>(null)
+  const phoneInputRef = useRef<HTMLInputElement>(null)
+  const addressInputRef = useRef<HTMLInputElement>(null)
+  const emailInputRef = useRef<HTMLInputElement>(null)
+
+  // 新增：demoData
+  const demoData = {
+    name: "王小明",
+    phone: "0912345678",
+    email: "demo@example.com",
+    city: "台北市",
+    district: "大安區",
+    address: "信義路三段123號",
+    invoiceType: "紙本發票",
+    paymentMethod: "信用卡"
+  }
+
   // 處理 Zustand store 水合問題
   useEffect(() => {
     // 等待下一個執行週期，確保 Zustand store 已水合
@@ -158,6 +176,37 @@ export default function CheckoutPage() {
     setMobileBarcodeError("")
     return true
   }
+  
+  // 新增：自動填入 demoData
+  const handleFillDemoData = () => {
+    setSelectedCity(demoData.city)
+    setSelectedDistrict(demoData.district)
+    setDeviceType(demoData.invoiceType)
+    setPaymentMethod(demoData.paymentMethod)
+    setMobileBarcode("")
+    setPhoneError("")
+    setEmailError("")
+    setInvoiceTypeError("")
+    setPaymentMethodError("")
+    setMobileBarcodeError("")
+    // 直接設 input value
+    if (nameInputRef.current) nameInputRef.current.value = demoData.name
+    if (phoneInputRef.current) phoneInputRef.current.value = demoData.phone
+    if (addressInputRef.current) addressInputRef.current.value = demoData.address
+    if (emailInputRef.current) emailInputRef.current.value = demoData.email
+  }
+
+  // 新增：Ctrl+D 監聽
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault()
+        handleFillDemoData()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedCity, selectedDistrict, deviceType, paymentMethod])
   
   // 處理表單提交
   const handleSubmit = async (e: React.FormEvent) => {
@@ -356,6 +405,7 @@ export default function CheckoutPage() {
                       type="text" 
                       placeholder="輸入姓名" 
                       required 
+                      ref={nameInputRef}
                       className="w-full sm:w-[calc(100%-6rem)] rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                       style={{
                         outline: 'none'
@@ -383,6 +433,7 @@ export default function CheckoutPage() {
                         placeholder="輸入電話" 
                         required 
                         maxLength={10}
+                        ref={phoneInputRef}
                         className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                         style={{
                           outline: 'none'
@@ -463,6 +514,8 @@ export default function CheckoutPage() {
                           <Input 
                             name="address" 
                             placeholder="輸入詳細地址" 
+                            required
+                            ref={addressInputRef}
                             className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                             style={{
                               outline: 'none'
@@ -473,7 +526,6 @@ export default function CheckoutPage() {
                             onBlur={(e) => {
                               e.target.style.borderColor = '#d1d5db';
                             }}
-                            required 
                           />
                         </div>
                       </div>
@@ -493,6 +545,7 @@ export default function CheckoutPage() {
                         type="email" 
                         placeholder="輸入E-mail信箱" 
                         required 
+                        ref={emailInputRef}
                         className="w-full rounded-full border-2 border-gray-300 p-4 sm:p-6 text-base font-noto-sans-tc placeholder:text-gray-600"
                         style={{
                           outline: 'none'
